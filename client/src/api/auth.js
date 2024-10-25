@@ -1,5 +1,5 @@
 import  axios from 'axios';
-const API='http://localhost:3000/api';
+const API='https://modulo-usuarios-1.onrender.com/api';
 
 export const registerRequest = (user) => {
     console.log("Datos enviados:", user);
