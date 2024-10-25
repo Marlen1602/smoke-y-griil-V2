@@ -1,27 +1,40 @@
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";  // Importamos useState
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
 import ReCAPTCHA from "react-google-recaptcha";
+import '../styles/medidor.css';
 
 function RegisterPage() {
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-    } = useForm();
-    const { signup, isAuthenticated, errors: registerErrors } = useAuth();
+    const { register, handleSubmit, watch, formState: { errors }, getValues } = useForm();
+    const { signup, isAuthenticated, errors: registerErrors, setErrors } = useAuth();
     const navigate = useNavigate();
     const password = watch("password");
+    const [passwordStrength, setPasswordStrength] = useState("");
+    const [email, setEmail] = useState(null);
 
     // Estado para guardar el token del reCAPTCHA
     const [recaptchaToken, setRecaptchaToken] = useState(null);
-    
+    const recaptchaRef = useRef(null);
+
+    // Evaluar fortaleza de la contraseña en tiempo real
+    const evaluatePasswordStrength = (password) => {
+        if (password.length < 8) {
+            setPasswordStrength("weak");
+        } else if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(password)) {
+            setPasswordStrength("strong");
+        } else {
+            setPasswordStrength("medium");
+        }
+    };
 
     useEffect(() => {
-        if (isAuthenticated) navigate("/login");
-    }, [isAuthenticated]);
+        // Redirigir solo si no hay errores y el correo está definido
+        if (isAuthenticated && registerErrors.length === 0 && email) {
+            console.log("Navigating with email:", email);
+            navigate("/verificar-codigo", { state: { email } });
+        }
+    }, [isAuthenticated, registerErrors, email, navigate]);
 
     // Manejar el envío del formulario
     const onSubmit = handleSubmit(async (values) => {
@@ -30,15 +43,29 @@ function RegisterPage() {
             return;
         }
 
+        clearErrors();
+        localStorage.setItem("email",values.email)
         // Enviamos el token de reCAPTCHA junto con los valores del formulario
         const formData = { ...values, recaptchaToken };
-        signup(formData);
+
+        await signup(formData).catch((error) => {
+            console.log(error.response?.data || "Unexpected error");
+        });
+
+        if (recaptchaRef.current) {
+            recaptchaRef.current.reset();
+        }
     });
+
+    const clearErrors = () => {
+        setErrors([]);
+    };
 
     // Manejar el cambio en el reCAPTCHA
     const onRecaptchaChange = (token) => {
-        setRecaptchaToken(token);  // Guardamos el token del reCAPTCHA
+        setRecaptchaToken(token); // Guardar el token de reCAPTCHA
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -46,7 +73,7 @@ function RegisterPage() {
                 {/* Mostrar errores de registro */}
                 {Array.isArray(registerErrors) && registerErrors.map((error, i) => (
                     <div className="bg-red text-white text-center rounded-lg py-2 mb-4" key={i}>
-                        {error}
+                        {error.message || error}
                     </div>
                 ))}
 
@@ -127,15 +154,25 @@ function RegisterPage() {
                         </label>
                         <input
                             type="password"
-                            {...register("password", { required: true, minLength: 8 })}
+                            {...register("password", {
+                                required: true,
+                                minLength: 8,
+                                pattern: {
+                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
+                                    message: "Debe incluir mayúsculas, minúsculas, números y caracteres especiales."
+                                }
+                            })}
                             className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
                             placeholder="Contraseña"
+                            onChange={(e) => evaluatePasswordStrength(e.target.value)}
                         />
                         {errors.password && (
                             <p className="text-red text-sm mt-1">
-                                La contraseña debe tener al menos 8 caracteres.
+                                {errors.password.message || "La contraseña debe tener al menos 8 caracteres."}
                             </p>
                         )}
+                        <p>Fortaleza de la contraseña:</p>
+                        <div className={`password-strength-bar ${passwordStrength}`} />
                     </div>
 
                     {/* Campo de confirmar contraseña */}
@@ -147,8 +184,7 @@ function RegisterPage() {
                             type="password"
                             {...register("Confirmpassword", {
                                 required: true,
-                                validate: (value) =>
-                                    value === password || "Las contraseñas no coinciden",
+                                validate: (value) => value === getValues("password") || "Las contraseñas no coinciden",
                             })}
                             className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
                             placeholder="Confirmar contraseña"
@@ -163,8 +199,10 @@ function RegisterPage() {
                     {/* reCAPTCHA */}
                     <div className="col-span-2 flex justify-center">
                         <ReCAPTCHA
-                            sitekey="6LdUDmUqAAAAAOhSKzRMrxMOUj5vorluMSXFEd58"  // Tu clave del sitio de Google reCAPTCHA
-                            onChange={onRecaptchaChange}  // Usamos la función para manejar el token
+                            ref={recaptchaRef}
+                            sitekey="6LdPD2cqAAAAAJwcFkgMCs0aYpq0U6cVU-oeeTid"  // Your correct site key here
+                            onChange={onRecaptchaChange} 
+                            onExpired={() => setRecaptchaToken(null)} 
                         />
                     </div>
 
@@ -180,7 +218,8 @@ function RegisterPage() {
                 </form>
             </div>
         </div>
-    );
+
+  );
 }
 
 export default RegisterPage;

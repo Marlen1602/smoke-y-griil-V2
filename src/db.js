@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
+import { MONGODB_URI } from './config.js';
 
 export const connectDB = async () => {
     try {
-        await mongoose.connect("mongodb://localhost/smokedb"); 
-        console.log("DB is connected...");
+        await mongoose.connect(MONGODB_URI);
+        console.log("MongoDB is connected...");
     } catch (error) {
-        console.error(error);
+        console.error("Error connecting to MongoDB:", error);
     }
- };
+};
    
+    

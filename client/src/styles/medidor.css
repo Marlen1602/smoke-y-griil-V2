@@ -1,0 +1,23 @@
+/* Barra de progreso básica */
+.password-strength-bar {
+    height: 8px;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+  }
+  
+  /* Estilos para cada nivel de fortaleza */
+  .weak {
+    background-color: red;
+    width: 33%;
+  }
+  
+  .medium {
+    background-color: orange;
+    width: 66%;
+  }
+  
+  .strong {
+    background-color: green;
+    width: 100%;
+  }
+  

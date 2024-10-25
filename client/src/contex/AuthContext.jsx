@@ -1,5 +1,6 @@
 import { createContext, useState, useContext } from "react";
-import { registerRequest, loginRequest } from "../api/auth";  // Asegúrate de tener la función loginRequest
+import { registerRequest, loginRequest } from "../api/auth";
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
@@ -15,53 +16,88 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [errors, setErrors] = useState([]);
+    const navigate = useNavigate();
 
-    // Función para registrar un usuario
-    const signup = async (user) => {
-        try {
-            const res = await registerRequest(user);
-            console.log(res);
+
+    // Función de verificación de código
+  const verifyCode = async (formData) => {
+    try {
+      const res = await axios.post("/api/verify-code", formData);
+      setErrors([]);
+      return res.data;
+    } catch (error) {
+      setErrors(error.response?.data.errors || ["Error inesperado"]);
+    }
+  };
+
+  const signup = async (user) => {
+    try {
+      const res = await registerRequest(user);
+      setUser(res.data);
+      setIsAuthenticated(true);
+      setErrors([]);
+      
+      // Guardar el token en localStorage o en cookies
+      localStorage.setItem("token", res.data.token);
+      
+      navigate("/verificar-codigo");
+    } catch (error) {
+      setErrors([error.response?.data || "Error en el registro"]);
+    }
+  };
+  
+    
+  const login = async (userData) => {
+    try {
+        const res = await loginRequest(userData);
+        console.log(res); // Check the full response object
+        if (res && res.data) {
             setUser(res.data);
             setIsAuthenticated(true);
-            setErrors([]);  // Limpiar errores si el registro es exitoso
-        } catch (error) {
-            console.log(error.response);
-            setErrors([error.response.data]);  // Guardar errores
+            setErrors([]);
+            
+            // Redirigir según el rol
+            if (res.data.role === 'administrador') {
+                navigate("/paginaAdministrador");  // Página del administrador
+            } else {
+                navigate("/paginaCliente");  // Página del cliente
+            }
+        } else {
+            throw new Error("No data returned from server");
         }
-    };
+    } catch (error) {
+        console.error("Login error:", error); // More detailed error logging
+        setErrors([typeof error.response?.data === 'string' 
+          ? error.response.data 
+          : error.message || "Login failed, please try again."]);
+        
+    }
+};
 
-    // Función para iniciar sesión
-    const login = async (user) => {
-        try {
-            const res = await loginRequest(user);
-            setUser(res.data);
-            setIsAuthenticated(true);
-            setErrors([]);  // Limpiar errores si el login es exitoso
-        } catch (error) {
-            console.log(error.response);
-            setErrors([error.response.data]);  // Guardar errores en el estado
-        }
-    };
-
-    // Función para cerrar sesión
     const logout = () => {
         setUser(null);
         setIsAuthenticated(false);
-        setErrors([]);  // Limpiar los errores
-    };
+        setErrors([]);
+        localStorage.removeItem("token"); // Eliminar token del almacenamiento
+        navigate("/login"); 
+      };
+      
 
     return (
         <AuthContext.Provider
             value={{
                 signup,
-                login,   // Asegúrate de que login esté disponible en el contexto
+                login,
                 logout,
                 user,
                 isAuthenticated,
-                errors
+                verifyCode,
+                errors,
+                setErrors
             }}
         >
             {children}
         </AuthContext.Provider>
     );
 };
+

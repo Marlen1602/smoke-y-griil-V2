@@ -6,7 +6,8 @@ const userSchema = new mongoose.Schema(
         type: String,
         required: true,
         unique: true,
-        trim:true
+        trim: true,
+        match: /^[a-zA-Z0-9]+$/,
     },
     nombre: {
         type: String,
@@ -32,11 +33,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
         type: String,
-        enum: ['cliente', 'administrador'], // Solo estos dos roles son válidos
-        default: 'cliente',  // Por defecto, todos los usuarios registrados son "clientes"
+        enum: ['cliente', 'administrador'], 
+        default: 'cliente',  
     },
-},{
+    verificationCode: { type: String }, 
+    isVerified: { type: Boolean, default: false }, 
+    },{
     timestamps:true
-})
+});
 
 export default mongoose.model('User',userSchema)

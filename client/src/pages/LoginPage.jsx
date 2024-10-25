@@ -1,67 +1,66 @@
-import { useForm } from "react-hook-form";
-import { useAuth } from "../contex/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
+import { useState } from "react";
 
-function LoginPage() {
-    const { login, isAuthenticated, errors: loginErrors } = useAuth();
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const navigate = useNavigate();
+const LoginPage = () => {
+    const { login, errors } = useAuth(); // Usamos la función de login desde el contexto
+    const { register, handleSubmit, formState: { errors: formErrors } } = useForm(); // Para manejar el formulario
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (isAuthenticated) navigate("/Home"); // Redirigir después de iniciar sesión
-    }, [isAuthenticated]);
-
-    const onSubmit = handleSubmit(async (data) => {
-        await login(data); // Enviamos los datos al backend para iniciar sesión
-    });
+    const onSubmit = async (data) => {
+        console.log(data)
+        setLoading(true);
+        const res = await login(data); // Enviamos los datos al login del contexto
+        setLoading(false);
+        console.log(res)
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white max-w-md w-full p-10 rounded-lg shadow-lg">
-                {/* Mostrar errores de inicio de sesión */}
-                {loginErrors?.map((error, index) => (
-                    <div className="bg-red-500 text-white text-center rounded-lg py-2 mb-4" key={index}>
-                        {error.message}
-                    </div>
-                ))}
+            <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
+                <h2 className="text-2xl font-bold text-center mb-6">Iniciar sesión</h2>
 
-                <h2 className="text-3xl font-bold text-center text-black mb-6">Iniciar Sesión</h2>
+                {/* Mostrar errores del servidor */}
+                {errors.length > 0 && (
+                    <div className="bg-red-500 text-white text-center p-2 rounded mb-4">
+                        {errors[0]}
+                    </div>
+                )}
 
                 {/* Formulario de Login */}
-                <form onSubmit={onSubmit}>
-                    <div className="mb-4">
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Correo electrónico</label>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Correo electrónico</label>
                         <input
                             type="email"
-                            {...register("email", { required: "El correo es obligatorio" })}
-                            className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            placeholder="Correo electrónico"
+                            {...register("email", { required: true })}
+                            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
                         />
-                        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                        {formErrors.email && <span className="text-red-500 text-sm">El correo es requerido</span>}
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Contraseña</label>
+                    <div>
+                        <label className="block text-sm font-bold mb-2">Contraseña</label>
                         <input
                             type="password"
-                            {...register("password", { required: "La contraseña es obligatoria" })}
-                            className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            placeholder="Contraseña"
+                            {...register("password", { required: true })}
+                            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
                         />
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                        {formErrors.password && <span className="text-red-500 text-sm">La contraseña es requerida</span>}
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-full transition duration-300"
+                        className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition"
+                        disabled={loading}
                     >
-                        Iniciar Sesión
+                        {loading ? "Cargando..." : "Iniciar sesión"}
                     </button>
                 </form>
             </div>
         </div>
     );
-}
+};
 
 export default LoginPage;
