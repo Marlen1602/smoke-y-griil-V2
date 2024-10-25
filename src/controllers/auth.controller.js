@@ -14,7 +14,7 @@ export const register= async (req, res) => {
        {},
        {
          params: {
-           secret: '6LdUDmUqAAAAAOhSKzRMrxMOUj5vorluMSXFEd58', // Reemplaza con tu clave secreta de reCAPTCHA
+           secret: '6LdUDmUqAAAAAOhSKzRMrxMOUj5vorluMSXFEd58', 
            response: recaptchaToken,
          },
        }
@@ -58,6 +58,7 @@ export const register= async (req, res) => {
 
       res.status(500).json({message:error.message});  
     }
+    console.log(req.body); 
 };
 
 export const login= async (req, res) => {
