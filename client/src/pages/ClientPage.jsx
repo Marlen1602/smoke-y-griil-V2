@@ -1,7 +1,13 @@
 import React from 'react';
 import logo from '../assets/logo.png';
+import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
 
 const ClientPage = () => {
+  const { logout } = useAuth(); // Usamos la función de login desde el contexto
+  const handleSignup = async () => {
+    console.log("object")
+    logout();
+  }
   return (
     <div className="bg-white min-h-screen">
       {/* Header */}
@@ -18,7 +24,7 @@ const ClientPage = () => {
           </nav>
         </div>
         {/* Logout option */}
-        <div className="text-white cursor-pointer">Cerrar Sesión</div>
+        <button className="text-white cursor-pointer" onClick={handleSignup}>Cerrar Sesión</button>
       </header>
 
       {/* Main content */}

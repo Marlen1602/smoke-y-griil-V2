@@ -68,13 +68,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
         console.error("Login error:", error); // More detailed error logging
         setErrors([typeof error.response?.data === 'string' 
-          ? error.response.data 
-          : error.message || "Login failed, please try again."]);
-        
+  ? error.response.data 
+  : error.message || "Login failed, please try again."]);
+
     }
 };
 
     const logout = () => {
+        console.log("object")
         setUser(null);
         setIsAuthenticated(false);
         setErrors([]);
