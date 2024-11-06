@@ -9,11 +9,9 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     const onSubmit = async (data) => {
-        console.log(data)
         setLoading(true);
         const res = await login(data); // Enviamos los datos al login del contexto
         setLoading(false);
-        console.log(res)
     };
 
     return (
@@ -23,7 +21,7 @@ const LoginPage = () => {
 
                 {/* Mostrar errores del servidor */}
                 {errors.length > 0 && (
-                    <div className="bg-red-500 text-white text-center p-2 rounded mb-4">
+                    <div className="bg-red-500 bg-rose-300 text-black text-center p-2 rounded mb-4">
                         {errors[0]}
                     </div>
                 )}

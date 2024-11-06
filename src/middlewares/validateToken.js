@@ -1,16 +1,47 @@
 import jwt from 'jsonwebtoken';
 import { TOKEN_SECRET } from '../config.js';
+import User from '../models/user.model.js';
 
-export const authRequired = (req,res,next) =>{
+export const authRequired =  async (req,res) =>{
+
+   
     const {token}=req.cookies;
-
+   
     if(!token)
         return res.status(401).json({message:"No token, authentication denied"});
     
-    jwt.verify(token,TOKEN_SECRET,(err,user) => {
-        if(err) return res.status(403).json({message:"invalid token"});
-        req.user=user
+    const user = jwt.verify(token, TOKEN_SECRET);
 
-        next();
-    })
+    if(!user)
+        return res.status(401).json({message:"Invalid token, authentication denied"});
+
+    // Buscar al usuario en la base de datos
+    const userDb = await User.findById(user.id);
+    if(!userDb)
+        return res.status(401).json({message:"Invalid token, authentication denied"});
+
+    // id con la informacion del usuario y token
+    req.user = {
+        id: userDb._id,
+        username: userDb.username,
+        nombre: userDb.nombre,
+        apellidos: userDb.apellidos,
+        email: userDb.email,
+        createAt: userDb.createdAt,
+        updatedAt: userDb.updatedAt,
+        iat: user.iat,
+        exp: user.exp 
+    };
+    
+    return  res.json({
+        id: userDb._id,
+        username: userDb.username,
+        nombre: userDb.nombre,
+        apellidos: userDb.apellidos,
+        email: userDb.email,
+        createAt: userDb.createdAt,
+        updatedAt: userDb.updatedAt,
+        iat: user.iat,
+        exp: user.exp 
+      });
 };

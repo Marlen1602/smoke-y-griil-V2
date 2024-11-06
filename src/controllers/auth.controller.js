@@ -24,7 +24,13 @@ const sendVerificationEmail = async (email, code) => {
       user: 'marlen04h@gmail.com',
       pass: 'hcxi yvbl flvl ivbd',
     },
+    // !Quitas esto si ati si te envian bien los correos
+    tls: {
+      rejectUnauthorized: false, // Desactiva la validación del certificado
+    },
   });
+
+  console.log(transporter);
 
   const mailOptions = {
     from: 'Somoke&Grill@gmail.com',
@@ -62,6 +68,7 @@ export const register = async (req, res) => {
     }
 
     const usernameExists = await User.findOne({ username });
+    console.log(usernameExists)
     if (usernameExists) {
         return res.status(400).json(["El nombre de usuario ya está en uso"]);
     }
@@ -93,7 +100,11 @@ export const register = async (req, res) => {
 
     const token = await createAccessToken({ id: userSaved._id });
 
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      sameSide: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
     res.json({
       id: userSaved._id,
       username: userSaved.username,
@@ -112,11 +123,11 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-
+  
   try {
       const userFound = await User.findOne({ email });
+      
       if (!userFound){
-        console.log("object")
         return res.status(404).json({ message: "User not found" });
       } 
 
@@ -125,13 +136,14 @@ export const login = async (req, res) => {
 
       const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
 
+     
       res.cookie('token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Strict',
-          maxAge: 3600000, // 1 hour
-      });
-
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 3600000, // 1 hora
+    });
+    
       return res.json({
           id: userFound._id,
           username: userFound.username,
@@ -146,7 +158,12 @@ export const login = async (req, res) => {
   }
 };
 
-
+// export const login = async (req, res) => {
+//   res.cookie("login", "truejlkdsjls",{
+//     sameSide: 
+//   });
+//   return res.sendStatus(200);
+// }
 export const logout = (req, res) => {
     res.cookie("token", "", {
         expires: new Date(0),

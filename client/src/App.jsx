@@ -7,6 +7,7 @@ import AuthModal from './pages/AuthModal'
 import { AuthProvider } from './contex/AuthContext'
 import ClientPage from './pages/ClientPage'
 import AdminPage from './pages/AdminPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return(
@@ -17,7 +18,9 @@ function App() {
     <Route path='/login' element= {<LoginPage />} />
     <Route path='/registrar' element= {<RegisterPage />} />
     <Route path='/verificar-codigo' element={<VerifyCodePage />} />
-    <Route path='/paginaCliente' element= {<ClientPage />} />
+    <Route element={<ProtectedRoute onlyVerified={true} />}>
+      <Route path='/paginaCliente' element= {<ClientPage />} />
+    </Route>
     <Route path='/paginaAdministrador' element= {<AdminPage />} />
     <Route path='/authModal' element= {<AuthModal />} />
     </Routes>
