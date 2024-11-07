@@ -35,7 +35,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
+  const updatePassword = async (formData) => {
+    try {
+     
+      // TODO : cambiar a variables de entorno
+      const res = await axios.put(
+        "http://localhost:3000/api/update-password",
+        formData
+      );
+      setErrors([]);
+      return res.data;
+    } catch (error) {
+      console.log(error.response.data.message);
+      setErrors([error.response?.data.message] || ["Error inesperado"]);
+    }
+  };
 
   const verifyCodeForPassword = async (formData) => {
     let email = localStorage.getItem("email");
@@ -188,7 +202,8 @@ export const AuthProvider = ({ children }) => {
         checkAuth,
         verifyEmail,
         sendEmailResetPassword,
-        verifyCodeForPassword
+        verifyCodeForPassword,
+        updatePassword
       }}
     >
       {children}

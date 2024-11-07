@@ -4,7 +4,7 @@ import {authRequired} from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { registerSchema,loginSchema } from "../schemas/auth.schema.js";
 import {verifyEmail} from "../controllers/emailVerification.controller.js"
-import { getUserByEmail } from "../controllers/users.controller.js";
+import { getUserByEmail, updatePassword } from "../controllers/users.controller.js";
 import { sendCodeForReset, verifyCode } from "../controllers/codeVerification.controller.js";
 
 const router = Router();
@@ -29,6 +29,8 @@ router.get('/users/:email', getUserByEmail)
 
 router.post('/email-reset-password', sendCodeForReset)
 router.post('/verify-code-password', verifyCode)
+
+router.put('/update-password', updatePassword)
 
 
 

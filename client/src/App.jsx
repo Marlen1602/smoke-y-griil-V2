@@ -10,7 +10,7 @@ import AdminPage from "./pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyCodePasswordPage from "./pages/VerifyCodePasswordPage";
-import { NewPasswordPage } from "./pages/NewPasswordPage";
+import NewPasswordPage  from "./pages/NewPasswordPage";
 
 function App() {
   return (
