@@ -17,6 +17,10 @@ export const authRequired =  async (req,res) =>{
 
     // Buscar al usuario en la base de datos
     const userDb = await User.findById(user.id);
+
+
+    if(!userDb.isVerified) return res.status(401).json({message:"User not verified", isVerified:userDb.isVerified});
+
     if(!userDb)
         return res.status(401).json({message:"Invalid token, authentication denied"});
 
@@ -30,7 +34,7 @@ export const authRequired =  async (req,res) =>{
         createAt: userDb.createdAt,
         updatedAt: userDb.updatedAt,
         iat: user.iat,
-        exp: user.exp 
+        exp: user.exp,
     };
     
     return  res.json({

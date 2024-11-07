@@ -10,3 +10,5 @@ export const registerRequest = (user) => {
 export const loginRequest = (user)=> axios.post(`${API}/login`,user, {withCredentials: 'include'});
 
 export const verifyAuthRequest = (user) => axios.get(`${API}/autenticated`, {withCredentials: 'include'})
+
+export const logoutRequest = () => axios.get(`${API}/logout`, {withCredentials: 'include'})

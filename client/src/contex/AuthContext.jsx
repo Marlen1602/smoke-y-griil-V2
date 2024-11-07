@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from "react";
-import { registerRequest, loginRequest, verifyAuthRequest } from "../api/auth";
+import { registerRequest, loginRequest, verifyAuthRequest, logoutRequest } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -35,6 +35,62 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+
+  const verifyCodeForPassword = async (formData) => {
+    let email = localStorage.getItem("email");
+    try {
+      // TODO : cambiar a variables de entorno
+      const res = await axios.post(
+        "http://localhost:3000/api/verify-code-password",
+        {
+          email: email,
+          code: formData.code,
+        }
+      );
+      setErrors([]);
+      return res.data;
+    } catch (error) {
+      console.log(error.response.data.message);
+      setErrors([error.response?.data.message] || ["Error inesperado"]);
+    }
+  };
+
+  const sendEmailResetPassword = async (formData) => {
+    try {
+      // TODO : cambiar a variables de entorno
+      const res = await axios.post(
+        "http://localhost:3000/api/email-reset-password",
+        {
+          email: formData,
+        }
+      );
+      setErrors([]);
+      localStorage.setItem("email", formData); 
+      return res.data;
+    } catch (error) {
+      console.log(error.response.data.message);
+      setErrors([error.response?.data.message] || ["Error inesperado"]);
+    }
+  }
+
+  const verifyEmail = async (formData) => {
+    try {
+      // TODO : cambiar a variables de entorno
+      const res = await axios.post(
+        "http://localhost:3000/api/verify-email",
+        {
+          email: formData, }
+      );
+      setErrors([]);
+      return res.data;
+    } catch (error) {
+      console.log(error.response.data.message);
+      setErrors([error.response?.data.message] || ["Error inesperado"]);
+    }
+  };
+
+ 
   const signup = async (user) => {
     try {
       const res = await registerRequest(user);
@@ -83,13 +139,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    console.log("object");
-    setUser(null);
-    setIsAuthenticated(false);
-    setErrors([]);
-    localStorage.removeItem("token"); // Eliminar token del almacenamiento
-    navigate("/login");
+  const logout = async () => {
+    // Eliminar token
+    try {
+      await logoutRequest();
+
+      setUser(null);
+      setIsAuthenticated(false);
+      setErrors([]);
+      localStorage.removeItem("token"); // Eliminar token del almacenamiento
+      navigate("/login");
+    } catch (error) {
+      console.log(error)
+    }
+   
   };
 
   // verificar si inicio sesion
@@ -103,6 +166,10 @@ export const AuthProvider = ({ children }) => {
         setErrors([]);
       }
     } catch (error) {
+      
+      console.log(error.response.data.isVerified)
+      if(error.response.data?.isVerified === false)return navigate("/verificar-codigo");
+
       navigate("/login");
     }
   }
@@ -118,7 +185,10 @@ export const AuthProvider = ({ children }) => {
         verifyCode,
         errors,
         setErrors,
-        checkAuth
+        checkAuth,
+        verifyEmail,
+        sendEmailResetPassword,
+        verifyCodeForPassword
       }}
     >
       {children}

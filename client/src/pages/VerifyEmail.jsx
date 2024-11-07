@@ -2,22 +2,35 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
 import { useState } from "react";
+import { set } from "mongoose";
 
-const LoginPage = () => {
-    const { login, errors } = useAuth(); // Usamos la función de login desde el contexto
+const VerifyEmail = () => {
+    const { sendEmailResetPassword, errors } = useAuth(); // Usamos la función de login desde el contexto
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm(); // Para manejar el formulario
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
-        setLoading(true);
-        const res = await login(data); // Enviamos los datos al login del contexto
-        setLoading(false);
+        try {
+            
+            setLoading(true);
+            const res = await sendEmailResetPassword(data.email); // Enviamos los datos al login del contexto
+            setLoading(false);
+            if(res.message) {
+                navigate("/recuperar-contraseña/verificar-codigo");
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log(error)
+        }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center mb-6">Iniciar sesión</h2>
+                <h2 className="text-2xl font-bold text-center mb-6">Recuperar contraseña</h2>
+
+              
 
                 {/* Mostrar errores del servidor */}
                 {errors.length > 0 && (
@@ -38,41 +51,21 @@ const LoginPage = () => {
                         {formErrors.email && <span className="text-red-500 text-sm">El correo es requerido</span>}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-bold mb-2">Contraseña</label>
-                        <input
-                            type="password"
-                            {...register("password", { required: true })}
-                            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
-                        />
-                        {formErrors.password && <span className="text-red-500 text-sm">La contraseña es requerida</span>}
-                    </div>
+               
 
                     <button
                         type="submit"
                         className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition"
                         disabled={loading}
                     >
-                        {loading ? "Cargando..." : "Iniciar sesión"}
+                        {loading ? "Cargando..." : "Verificar correo"}
                     </button>
                 </form>
 
-                <div className="flex justify-between">
-                    <p className="text-center text-xs text-gray-600 mt-4">
-                        ¿No tienes cuenta?{" "}
-                        <Link to="/registrar" className="text-orange-600 hover:underline">
-                            Registrate
-                        </Link>
-                    </p>
-                    <p className="text-center text-xs text-gray-600 mt-4">
-                        <Link to="/recuperar-contraseña" className="text-orange-600 hover:underline">
-                            ¿Olvidaste tu contraseña?
-                        </Link>
-                    </p>
-                </div>
+          
             </div>
         </div>
     );
 };
 
-export default LoginPage;
+export default VerifyEmail;
