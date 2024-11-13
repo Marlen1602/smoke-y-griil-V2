@@ -21,7 +21,7 @@ const LoginPage = () => {
 
                 {/* Mostrar errores del servidor */}
                 {errors.length > 0 && (
-                    <div className="bg-red-500 bg-rose-300 text-black text-center p-2 rounded mb-4">
+                    <div className="bg-red text-black text-center p-2 rounded mb-4">
                         {errors[0]}
                     </div>
                 )}

@@ -19,7 +19,7 @@ const sendVerificationEmail = async (email, code) => {
   const mailOptions = {
     from: "Somoke&Grill@gmail.com",
     to: email,
-    subject: "restablecer contraseña",
+    subject: "Restablecer contraseña",
     text: `Tu código para restablecer la contraseña es: ${code}`,
   };
 

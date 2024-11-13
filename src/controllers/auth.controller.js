@@ -159,12 +159,6 @@ export const login = async (req, res) => {
   }
 };
 
-// export const login = async (req, res) => {
-//   res.cookie("login", "truejlkdsjls",{
-//     sameSide: 
-//   });
-//   return res.sendStatus(200);
-// }
 export const logout = (req, res) => {
     res.cookie("token", "", {
         expires: new Date(0),
