@@ -152,6 +152,7 @@ export const login = async (req, res) => {
           role: userFound.role,
           createAt: userFound.createdAt,
           updatedAt: userFound.updatedAt,
+          token
       });
   } catch (error) {
     console.log("error")

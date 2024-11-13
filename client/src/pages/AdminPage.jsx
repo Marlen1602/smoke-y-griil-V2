@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../assets/logo.png';
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
+import AdminNavBar from './AdminNavBar';
 
 const AdminPage = () => {
   const { logout } = useAuth(); 
@@ -10,23 +11,7 @@ const AdminPage = () => {
   }
   return (
     <div className="bg-white min-h-screen font-sans">
-      <header className="flex justify-between items-center p-4 shadow-md bg-black">
-        <div className="text-white flex items-center space-x-4">
-          <img src={logo} alt="Logo" className="h-16 w-auto" />
-          <nav className="text-white">
-            <ul className="flex space-x-4">
-              <li className="hover:text-gray-300 cursor-pointer">Inicio</li>
-              <li className="hover:text-gray-300 cursor-pointer">Usuarios</li>
-              <li className="hover:text-gray-300 cursor-pointer">Politicas</li>
-              {/*<Link to="/politicas" className="hover:text-gray-300 cursor-pointer">Politicas</Link>
-              <Link className="hover:text-gray-300 cursor-pointer">Perfil</Link>*/}
-            </ul>
-          </nav>
-        </div>
-        {/* Logout option */}
-        <button className="text-white cursor-pointer" onClick={handleSignup}>Cerrar Sesión</button>
-      </header>
-
+      <AdminNavBar />
       {/* Main content */}
       <main className="flex flex-col md:flex-row items-center justify-center p-8 md:p-16 space-y-8 md:space-y-0">
         <div className="md:w-1/2 text-center md:text-left">

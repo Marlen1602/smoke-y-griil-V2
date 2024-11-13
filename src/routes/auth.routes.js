@@ -20,7 +20,9 @@ router.post("/logout",logout);
 
 router.get("/profile", authRequired, profile);
 
-router.get("/autenticated", authRequired)
+router.get("/authenticated", authRequired, (req, res) => {
+    res.json({ message: "Authenticated" });
+});
 
 router.get('/logout', logout);
 

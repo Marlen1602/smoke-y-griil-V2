@@ -7,6 +7,7 @@ import AuthModal from "./pages/AuthModal";
 import { AuthProvider } from "./contex/AuthContext";
 import ClientPage from "./pages/ClientPage";
 import AdminPage from "./pages/AdminPage";
+import PoliticasPage from "./pages/PoliticasPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyCodePasswordPage from "./pages/VerifyCodePasswordPage";
@@ -25,7 +26,9 @@ function App() {
             <Route path="/paginaCliente" element={<ClientPage />} />
           </Route>
           <Route path="/paginaAdministrador" element={<AdminPage />} />
+          <Route path="/politicas" element={<PoliticasPage />} />
           <Route path="/authModal" element={<AuthModal />} />
+
 
           <Route path="/recuperar-contraseña" element={<VerifyEmail />} />
           <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />

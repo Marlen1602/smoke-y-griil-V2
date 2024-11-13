@@ -6,13 +6,18 @@ import {getPoliticas,
     updatePolitica,
     deletePolitica
 } from "../controllers/politicas.controller.js";
-
+import { createPoliticaschema } from "../schemas/politicas.schema.js";
+import { validateSchema } from "../middlewares/validator.middleware.js";
     const router = Router()
 
 router.get('/politicas',authRequired,getPoliticas);
+
+router.post('/politicas',authRequired,validateSchema(createPoliticaschema), createPolitica);
+
 router.get('/politicas/:id',authRequired,getPolitica);
-router.post('/politicas',authRequired,createPolitica);
-router.delete('/politicas/:id',authRequired,deletePolitica);
+
 router.put('/politicas/:id',authRequired,updatePolitica);
+
+router.delete('/politicas/:id',authRequired,deletePolitica);
 
 export default router;
