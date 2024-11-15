@@ -3,6 +3,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import politicasRoutes from "./routes/politicas.router.js"
+import terminos from "./routes/terminosCondiciones.router.js"
+import deslinde from "./routes/deslindeLegal.router.js"
 import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 
@@ -19,5 +21,7 @@ app.use(express.json());
 
 app.use('/api',authRoutes);
 app.use('/api',politicasRoutes);
+app.use('/api',terminos);
+app.use('/api',deslinde);
 
 export default app;

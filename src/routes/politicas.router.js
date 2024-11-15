@@ -8,6 +8,7 @@ import {getPoliticas,
 } from "../controllers/politicas.controller.js";
 import { createPoliticaschema } from "../schemas/politicas.schema.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
+
     const router = Router()
 
 router.get('/politicas',authRequired,getPoliticas);

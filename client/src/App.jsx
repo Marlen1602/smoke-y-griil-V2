@@ -12,6 +12,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyCodePasswordPage from "./pages/VerifyCodePasswordPage";
 import NewPasswordPage  from "./pages/NewPasswordPage";
+import TermsPage from "./pages/TermsPage";
+import DeslindePage from "./pages/DeslindePage";
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           </Route>
           <Route path="/paginaAdministrador" element={<AdminPage />} />
           <Route path="/politicas" element={<PoliticasPage />} />
+          <Route path="/terminosCondiciones" element={<TermsPage />} />
+          <Route path="/deslindeLegal" element={<DeslindePage />} />
           <Route path="/authModal" element={<AuthModal />} />
 
 
