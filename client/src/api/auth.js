@@ -1,5 +1,5 @@
 import  axios from 'axios';
-const API='https://modulo-usuarios-for0tva3n-marlen1602s-projects.vercel.app/api';
+const API='https://modulo-usuarios.vercel.app/api';
 //const API = 'http://localhost:3000/api'; 
 
 export const registerRequest = (user) => {

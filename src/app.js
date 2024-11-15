@@ -13,8 +13,8 @@ app.use(cookieParser());
 app.use(xss());
 
 app.use(cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin:'https://modulo-usuarios-client.vercel.app',
+    //origin: 'http://localhost:5173',
     credentials: true
 }));
 app.use(morgan('dev'));
