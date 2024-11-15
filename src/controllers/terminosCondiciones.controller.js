@@ -1,67 +1,95 @@
 import TerminosCondiciones from '../models/terminosCondiciones.model.js';
 
-export const getTermino = async (req, res) => {
+// Obtener términos y condiciones vigentes
+export const getTerminosCondiciones = async (req, res) => {
     try {
-        const termino = await TerminosCondiciones.findById(req.params.id);
-        if (!termino) return res.status(404).json({ message: "Termino no encontrado" });
-        res.json(termino);
+        const terminos = await TerminosCondiciones.find({ isDeleted: false });
+        res.json(terminos);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener el termino" });
+        res.status(500).json({ message: "Error al obtener los términos y condiciones" });
     }
 };
 
-
-export const createTerminos = async (req, res) => {
-  try {
-    const { titulo, contenido, fechaVigencia } = req.body;
-    const nuevoTermino = new TerminosCondiciones({ titulo, contenido, fechaVigencia });
-    await nuevoTermino.save();
-    res.status(201).json(nuevoTermino);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Crear nuevos términos y condiciones
+export const createTerminosCondiciones = async (req, res) => {
+    try {
+        const { title, descripcion, fechaVigencia } = req.body;
+        const newTerminos = new TerminosCondiciones({
+            title,
+            descripcion,
+            fechaVigencia,
+            version: 1,
+            isDeleted: false
+        });
+        const savedTerminos = await newTerminos.save();
+        res.json(savedTerminos);
+    } catch (error) {
+        res.status(500).json({ message: "Error al crear los términos y condiciones" });
+    }
 };
 
-export const getTerminos = async (req, res) => {
-  try {
-    const terminos = await TerminosCondiciones.find({ eliminado: false, vigente: true });
-    res.json(terminos);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Obtener términos y condiciones específicos
+export const getTerminosCondicionesById = async (req, res) => {
+    try {
+        const terminos = await TerminosCondiciones.findById(req.params.id);
+        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
+        res.json(terminos);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener los términos y condiciones" });
+    }
 };
 
-export const updateTerminos = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { contenido, fechaVigencia } = req.body;
+// Actualizar términos y condiciones
+export const updateTerminosCondiciones = async (req, res) => {
+    try {
+        const { title, descripcion, fechaVigencia } = req.body;
+        const terminos = await TerminosCondiciones.findById(req.params.id);
+        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
 
-    await TerminosCondiciones.findByIdAndUpdate(id, { vigente: false });
+        // Crear versión histórica
+        await TerminosCondiciones.create({
+            originalPolicyId: terminos._id,
+            title: terminos.title,
+            descripcion: terminos.descripcion,
+            fechaVigencia: terminos.fechaVigencia,
+            version: terminos.version,
+            isDeleted: true
+        });
 
-    const terminoAnterior = await TerminosCondiciones.findById(id);
-    const nuevaVersion = parseFloat(terminoAnterior.version) + 1.0;
+        // Actualizar a la nueva versión
+        terminos.title = title;
+        terminos.descripcion = descripcion;
+        terminos.fechaVigencia = fechaVigencia;
+        terminos.version += 1;
+        const updatedTerminos = await terminos.save();
 
-    const nuevoTermino = new TerminosCondiciones({
-      titulo: terminoAnterior.titulo,
-      contenido,
-      fechaVigencia,
-      version: nuevaVersion.toFixed(1),
-      vigente: true,
-    });
-
-    await nuevoTermino.save();
-    res.json(nuevoTermino);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        res.json(updatedTerminos);
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar los términos y condiciones" });
+    }
 };
 
-export const deleteTerminos = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await TerminosCondiciones.findByIdAndUpdate(id, { eliminado: true, vigente: false });
-    res.sendStatus(204);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+// Eliminar términos y condiciones (lógicamente)
+export const deleteTerminosCondiciones = async (req, res) => {
+    try {
+        const terminos = await TerminosCondiciones.findById(req.params.id);
+        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
+
+        terminos.isDeleted = true;
+        await terminos.save();
+
+        res.json({ message: "Términos y condiciones marcados como eliminados" });
+    } catch (error) {
+        res.status(500).json({ message: "Error al eliminar los términos y condiciones" });
+    }
+};
+
+// Obtener historial de términos y condiciones
+export const getTerminosCondicionesHistory = async (req, res) => {
+    try {
+        const history = await TerminosCondiciones.find({ originalPolicyId: req.params.id, isDeleted: true }).sort({ version: 1 });
+        res.json(history);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener el historial de términos y condiciones" });
+    }
 };

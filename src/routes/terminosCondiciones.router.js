@@ -1,17 +1,23 @@
-
 import { Router } from 'express';
-import { createTerminos, getTerminos,getTermino, updateTerminos, deleteTerminos } from '../controllers/terminosCondiciones.controller.js';
+import {
+    getTerminosCondiciones,
+    createTerminosCondiciones,
+    getTerminosCondicionesById,
+    updateTerminosCondiciones,
+    deleteTerminosCondiciones,
+    getTerminosCondicionesHistory
+} from '../controllers/terminosCondiciones.controller.js';
 import { authRequired } from '../middlewares/validateToken.js';
-import { validateSchema } from '../middlewares/validator.middleware.js';
-import { createTerminosSchema, updateTerminosSchema } from '../schemas/terminosCondiciones.schema.js';
 
 const router = Router();
 
-router.post('/terminosCondiciones', authRequired, validateSchema(createTerminosSchema), createTerminos);
-router.get('/terminosCondiciones', authRequired, getTerminos);
-router.get('/termino', authRequired, getTermino);
-router.put('/terminosCondiciones/:id', authRequired, validateSchema(updateTerminosSchema), updateTerminos);
-router.delete('/terminosCondiciones/:id', authRequired, deleteTerminos);
+router.get('/terminosCondiciones', authRequired, getTerminosCondiciones);
+router.post('/terminosCondiciones', authRequired, createTerminosCondiciones);
+router.get('/terminosCondiciones/:id', authRequired, getTerminosCondicionesById);
+router.put('/terminosCondiciones/:id', authRequired, updateTerminosCondiciones);
+router.delete('/terminosCondiciones/:id', authRequired, deleteTerminosCondiciones);
+router.get('/terminosCondiciones/history/:id', authRequired, getTerminosCondicionesHistory);
 
 export default router;
+
 

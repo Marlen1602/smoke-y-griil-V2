@@ -14,45 +14,24 @@ export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {wi
 export const logoutRequest = () => axios.get(`${API}/logout`, {withCredentials: true})
 
 // Funciones CRUD para políticas
-// Obtener todas las políticas
-export const getPoliciesRequest = () => {
-    return axios.get(`${API}/politicas`, { withCredentials: true });
-};
 
-// Crear una nueva política
-export const createPolicyRequest = (policy) => {
-    return axios.post(`${API}/politicas`, policy, { withCredentials: true });
-};
+export const getPoliciesRequest = () => axios.get(`${API}/politicas`, { withCredentials: true });
 
-// Actualizar una política existente
-export const updatePolicyRequest = (id, policy) => {
-    return axios.put(`${API}/politicas/${id}`, policy, { withCredentials: true });
-};
+export const createPolicyRequest = (policy) => axios.post(`${API}/politicas`, policy, { withCredentials: true });
 
-// Eliminar una política
-export const deletePolicyRequest = (id) => {
-    return axios.delete(`${API}/politicas/${id}`, { withCredentials: true });
-};
+export const updatePolicyRequest = (id, policy) => axios.put(`${API}/politicas/${id}`, policy, { withCredentials: true });
 
-//Funciones crud para terminos y condiciones
+export const deletePolicyRequest = (id) => axios.delete(`${API}/politicas/${id}`, { withCredentials: true });
 
-export const getTermsRequest = () => {
-    return axios.get(`${API}/terminosCondiciones`, { withCredentials: true });
-};
-export const createTermsRequest = (terms) => {
-    return axios.post(`${API}/terminosCondiciones`, terms, { withCredentials: true });
-};
+export const getPolicyHistoryRequest = (id) => axios.get(`${API}/politicas/${id}/history`, { withCredentials: true });
 
-// Actualizar términos y condiciones
-export const updateTermsRequest = (id, terms) => {
-    return axios.put(`${API}/terminosCondiciones/${id}`, terms, { withCredentials: true });
-};
 
-// Eliminar términos y condiciones
-export const deleteTermsRequest = (id) => {
-    return axios.delete(`${API}/terminosCondiciones/${id}`, { withCredentials: true });
-};
-
+// Funciones CRUD para Términos y Condiciones
+export const getTermsRequest = () => axios.get(`${API}/terminosCondiciones`, { withCredentials: true });
+export const createTermsRequest = (term) => axios.post(`${API}/terminosCondiciones`, term, { withCredentials: true });
+export const updateTermsRequest = (id, term) => axios.put(`${API}/terminosCondiciones/${id}`, term, { withCredentials: true });
+export const deleteTermsRequest = (id) => axios.delete(`${API}/terminosCondiciones/${id}`, { withCredentials: true });
+export const getTermsHistoryRequest = (id) => axios.get(`${API}/terminosCondiciones/history/${id}`, { withCredentials: true });
 
 //Funciones crud para Deslinde legal
 export const getDisclaimerRequest = () => {
