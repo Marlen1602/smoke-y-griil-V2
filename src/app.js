@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.use(xss());
 
 app.use(cors({
-    origin:'https://modulo-usuarios-client.vercel.app',
+    origin:'https://smokeygrill.vercel.app',
     //origin: 'http://localhost:5173',
     credentials: true
 }));
