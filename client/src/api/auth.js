@@ -7,11 +7,11 @@ export const registerRequest = (user) => {
     return axios.post(`${API}/register`, user);
 };
 
-export const loginRequest = (user)=> axios.post(`${API}/login`,user, {withCredentials: 'include'});
+export const loginRequest = (user)=> axios.post(`${API}/login`,user, {withCredentials: true});
 
-export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {withCredentials: 'include'})
+export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {withCredentials: true})
 
-export const logoutRequest = () => axios.get(`${API}/logout`, {withCredentials: 'include'})
+export const logoutRequest = () => axios.get(`${API}/logout`, {withCredentials: true})
 
 // Funciones CRUD para políticas
 // Obtener todas las políticas
