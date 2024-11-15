@@ -1,6 +1,6 @@
 import  axios from 'axios';
-// const API='https://modulo-usuarios-1.onrender.com/api';
-const API = 'http://localhost:3000/api'; 
+const API='https://modulo-usuarios-for0tva3n-marlen1602s-projects.vercel.app/api';
+//const API = 'http://localhost:3000/api'; 
 
 export const registerRequest = (user) => {
     // console.log("Datos enviados:", user);
