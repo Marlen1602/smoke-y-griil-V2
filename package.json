@@ -25,6 +25,7 @@
     "mongose": "^0.0.2-security",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.16",
+    "vercel": "^39.0.2",
     "xss-clean": "^0.1.4",
     "zod": "^3.23.8"
   },
