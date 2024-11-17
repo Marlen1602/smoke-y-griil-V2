@@ -4,6 +4,7 @@ import { createAccessToken } from '../libs/jwt.js';
 import axios from 'axios';
 import { body, validationResult } from 'express-validator';
 import nodemailer from 'nodemailer';
+import * as cookie from 'cookie';
 
 export const validateRegister = [
   body('email').isEmail().withMessage('Debe proporcionar un correo electrónico válido'),
@@ -137,13 +138,20 @@ export const login = async (req, res) => {
 
       const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
 
-     
-      res.cookie('token', token, {
-        httpOnly: true,
+      res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+        httpOnly:   true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 3600000, // 1 hora
-    });
+        sameSite: 'none',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      }));
+     
+      //res.cookie('token', token, {
+        //httpOnly: true,
+        //secure: process.env.NODE_ENV === 'production',
+        //sameSite: 'lax',
+        //maxAge: 3600000, // 1 hora
+    //});
     
       return res.json({
           id: userFound._id,
