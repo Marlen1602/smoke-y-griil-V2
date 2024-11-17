@@ -12,14 +12,13 @@ const app=express()
 app.use(cookieParser());
 app.use(xss());
 
-//app.use(cors({
-    //: ["http://localhost:5173", "https://smokeygrill.vercel.app"], // Agregar URLs permitidas
-    //methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
-   // allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
-    //credentials: true, // Permitir cookies
-//}));
+app.use(cors({
+    origin: ["http://localhost:5173", "https://smokeygrill.vercel.app"], // Agregar URLs permitidas
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+    credentials: true, // Permitir cookies
+}));
 
-app.use(cors())
 
 app.use(morgan('dev'));
 app.use(express.json());
