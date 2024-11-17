@@ -1,6 +1,6 @@
 import  axios from 'axios';
-//const API='https://modulo-usuarios.vercel.app/api';
-const API = 'http://localhost:3000/api'; 
+const API='https://modulo-usuarios.vercel.app/api';
+//const API = 'http://localhost:3000/api'; 
 
 export const registerRequest = (user) => {
     // console.log("Datos enviados:", user);

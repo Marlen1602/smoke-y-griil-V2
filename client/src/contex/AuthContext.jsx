@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const AuthContext = createContext();
-const API = 'http://localhost:3000/api'; 
+const API = 'https://modulo-usuarios.vercel.app/api'; 
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "http://localhost:3000/api/verify-email",
+        "https://modulo-usuarios.vercel.app/api/verify-email",
         formData
       );
       setErrors([]);
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
      
       // TODO : cambiar a variables de entorno
       const res = await axios.put(
-        "http://localhost:3000/api/update-password",
+        "https://modulo-usuarios.vercel.app/api/update-password",
         formData
       );
       setErrors([]);
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "http://localhost:3000/api/verify-code-password",
+        "https://modulo-usuarios.vercel.app/api/verify-code-password",
         {
           email: email,
           code: formData.code,
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "http://localhost:3000/api/email-reset-password",
+        "https://modulo-usuarios.vercel.app/api/email-reset-password",
         {
           email: formData,
         }
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "http://localhost:3000/api/verify-email",
+        "https://modulo-usuarios.vercel.app/api/verify-email",
         {
           email: formData, }
       );
