@@ -33,20 +33,26 @@ export const updateTermsRequest = (id, term) => axios.put(`${API}/terminosCondic
 export const deleteTermsRequest = (id) => axios.delete(`${API}/terminosCondiciones/${id}`, { withCredentials: true });
 export const getTermsHistoryRequest = (id) => axios.get(`${API}/terminosCondiciones/history/${id}`, { withCredentials: true });
 
-//Funciones crud para Deslinde legal
-export const getDisclaimerRequest = () => {
-    return axios.get(`${API}/deslindeLegal`, { withCredentials: true });
-};
-export const createDeslRequest = (terms) => {
-    return axios.post(`${API}/deslindeLegal`, terms, { withCredentials: true });
+// Funciones CRUD para Deslinde legal
+export const getDeslindeLegalRequest = () => axios.get(`${API}/deslindeLegal`, { withCredentials: true });
+export const createDeslindeLegalRequest = (term) => axios.post(`${API}/deslindeLegal`, term, { withCredentials: true });
+export const updateDeslindeLegalRequest = (id, term) => axios.put(`${API}/deslindeLegal/${id}`, term, { withCredentials: true });
+export const deleteDeslindeLegalRequest = (id) => axios.delete(`${API}/deslindeLegal/${id}`, { withCredentials: true });
+export const getDeslindeLegalHistoryRequest = (id) => axios.get(`${API}/deslindeLegal/history/${id}`, { withCredentials: true });
+
+//funciones CRUD para Perfil de la empresa
+// Obtener perfil
+export const getEmpresaProfile = async () =>
+  axios.get(`${API}/empresa`, { withCredentials: true });
+
+export const updateEmpresaProfile = async (id, data) => {
+  return axios.put(`${API}/empresa/${id}`, data, {
+    headers: { "Content-Type": "application/json" },
+    withCredentials: true,
+  });
 };
 
-// Actualizar términos y condiciones
-export const updateDeslRequest = (id, terms) => {
-    return axios.put(`${API}/deslindeLegal/${id}`, terms, { withCredentials: true });
-};
-
-// Eliminar términos y condiciones
-export const deleteDeslRequest = (id) => {
-    return axios.delete(`${API}/deslindeLegal/${id}`, { withCredentials: true });
-};
+export const getIncidencias = async () => axios.get(`${API}/incidencias`);
+export const createIncidencia = async (data) => axios.post(`${API}/incidencias`, data);
+export const updateIncidencia = async (id, data) => axios.put(`${API}/incidencias${id}`, data);
+export const deleteIncidencia = async (id) => axios.delete(`${API}/incidencias${id}`);

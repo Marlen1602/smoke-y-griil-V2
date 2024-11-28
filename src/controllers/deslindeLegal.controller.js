@@ -1,66 +1,77 @@
-import DeslindeLegal from '../models/deslindeLegal.model.js';
-
-export const createDeslinde = async (req, res) => {
-  try {
-    const { titulo, contenido, fechaVigencia } = req.body;
-    const nuevoDeslinde = new DeslindeLegal({ titulo, contenido, fechaVigencia });
-    await nuevoDeslinde.save();
-    res.status(201).json(nuevoDeslinde);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const getDeslinde = async (req, res) => {
-  try {
-    const deslindes = await DeslindeLegal.find({ eliminado: false, vigente: true });
-    res.json(deslindes);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+import DeslindeLegal from "../models/deslindeLegal.model.js";
 
 export const getDeslindeLegal = async (req, res) => {
-    try {
-        const deslinde = await DeslindeLegal.findById(req.params.id);
-        if (!deslinde) return res.status(404).json({ message: "Deslinde legal no encontrado" });
-        res.json(deslinde);
-    } catch (error) {
-        res.status(500).json({ message: "Error al obtener el Deslinde legal" });
-    }
-};
-
-export const updateDeslinde = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { contenido, fechaVigencia } = req.body;
-
-    await DeslindeLegal.findByIdAndUpdate(id, { vigente: false });
-
-    const deslindeAnterior = await DeslindeLegal.findById(id);
-    const nuevaVersion = parseFloat(deslindeAnterior.version) + 1.0;
-
-    const nuevoDeslinde = new DeslindeLegal({
-      titulo: deslindeAnterior.titulo,
-      contenido,
-      fechaVigencia,
-      version: nuevaVersion.toFixed(1),
-      vigente: true,
-    });
-
-    await nuevoDeslinde.save();
-    res.json(nuevoDeslinde);
+    const docs = await DeslindeLegal.find({ isDeleted: false });
+    res.json(docs);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Error al obtener los documentos de deslinde legal" });
   }
 };
 
-export const deleteDeslinde = async (req, res) => {
+export const createDeslindeLegal = async (req, res) => {
   try {
-    const { id } = req.params;
-    await DeslindeLegal.findByIdAndUpdate(id, { eliminado: true, vigente: false });
-    res.sendStatus(204);
+    const { title, descripcion, fechaVigencia } = req.body;
+    const newDoc = new DeslindeLegal({
+      title,
+      descripcion,
+      fechaVigencia,
+      version: 1,
+      isDeleted: false,
+    });
+    const savedDoc = await newDoc.save();
+    res.json(savedDoc);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Error al crear el documento de deslinde legal" });
+  }
+};
+
+export const updateDeslindeLegal = async (req, res) => {
+  try {
+    const { title, descripcion, fechaVigencia } = req.body;
+    const doc = await DeslindeLegal.findById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Documento no encontrado" });
+
+    await DeslindeLegal.create({
+      originalDocumentId: doc._id,
+      title: doc.title,
+      descripcion: doc.descripcion,
+      fechaVigencia: doc.fechaVigencia,
+      version: doc.version,
+      isDeleted: true,
+    });
+
+    doc.title = title;
+    doc.descripcion = descripcion;
+    doc.fechaVigencia = fechaVigencia;
+    doc.version += 1;
+    const updatedDoc = await doc.save();
+
+    res.json(updatedDoc);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar el documento de deslinde legal" });
+  }
+};
+
+export const deleteDeslindeLegal = async (req, res) => {
+  try {
+    const doc = await DeslindeLegal.findById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Documento no encontrado" });
+
+    doc.isDeleted = true;
+    await doc.save();
+
+    res.json({ message: "Documento marcado como eliminado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar el documento de deslinde legal" });
+  }
+};
+
+export const getDeslindeLegalHistory = async (req, res) => {
+  try {
+    const history = await DeslindeLegal.find({ originalDocumentId: req.params.id, isDeleted: true }).sort({ version: 1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener el historial del documento de deslinde legal" });
   }
 };

@@ -122,6 +122,12 @@ export const register = async (req, res) => {
   }
 };
 
+// Función para bloquear la cuenta
+const blockUserAccount = async (userId) => {
+  await User.findByIdAndUpdate(userId, { isBlocked: true });
+};
+
+
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -130,11 +136,11 @@ export const login = async (req, res) => {
       const userFound = await User.findOne({ email });
       
       if (!userFound){
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Usuario no encontrado" });
       } 
 
       const isMatch = await bcrypt.compare(password, userFound.password);
-      if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
+      if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
 
       const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
 
@@ -145,13 +151,7 @@ export const login = async (req, res) => {
         maxAge: 60 * 60 * 24 * 7,
         path: '/',
       }));
-     
-      //res.cookie('token', token, {
-        //httpOnly: true,
-        //secure: process.env.NODE_ENV === 'production',
-        //sameSite: 'lax',
-        //maxAge: 3600000, // 1 hora
-    //});
+
     
       return res.json({
           id: userFound._id,

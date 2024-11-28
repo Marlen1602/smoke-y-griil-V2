@@ -125,33 +125,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (userData) => {
     try {
       const res = await loginRequest(userData);
-      console.log(res); // Check the full response object
-    
+      setUser(res.data);
+      setIsAuthenticated(true);
+      setErrors([]);
 
-      if (res && res.data) {
-        
-        setUser(res.data);
-        setIsAuthenticated(true);
-        setErrors([]);
-        // Redirigir según el rol
-        if (res.data.role === "administrador") {
-          navigate("/paginaAdministrador"); // Página del administrador
-        } else {
-          navigate("/paginaCliente"); // Página del cliente
-        }
+      if (res.data.role === "administrador") {
+          navigate("/paginaAdministrador");
       } else {
-        throw new Error("No data returned from server");
+          navigate("/paginaCliente");
       }
-    } catch (error) {
-      console.error("Login error:", error); // More detailed error logging
-      setErrors([
-        typeof error.response?.data[0] === "string"
-          ? error.response.data
-          : error.response.data.message
-          ? error.response.data.message
-          : error.message || "Login failed, please try again.",
-      ]);
-    }
+  } catch (error) {
+      setErrors([error.response?.data?.message || "Error en el inicio de sesión"]);
+  }
   };
 
   const logout = async () => {

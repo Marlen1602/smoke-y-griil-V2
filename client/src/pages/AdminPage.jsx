@@ -1,25 +1,40 @@
 import React from 'react';
-import logo from '../assets/logo.png';
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
 import AdminNavBar from './AdminNavBar';
 
 const AdminPage = () => {
-  const { logout } = useAuth(); 
+  const { logout } = useAuth();
+
   const handleSignup = async () => {
-    console.log("object")
+    console.log("object");
     logout();
-  }
+  };
+
   return (
-    <div className="bg-white min-h-screen font-sans">
+    <div className="bg-white dark:bg-gray-900 dark:text-white min-h-screen font-sans">
       <AdminNavBar />
       {/* Main content */}
-      <main className="flex flex-col md:flex-row items-center justify-center p-8 md:p-16 space-y-8 md:space-y-0">
-        <div className="md:w-1/2 text-center md:text-left">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">¡Bienvenido al Panel de Administrador!</h1>
-          <p className="text-lg text-gray-800 mb-6"> Aquí puedes gestionar informacion de Smoke &  Grill.</p>
-          <button className="bg-orange-600 text-white py-3 px-24 rounded-full font-bold hover:bg-orange-700 transition">
+      <main className="flex flex-col items-center justify-center p-8 md:flex-row md:justify-between md:items-center md:p-16 space-y-8 md:space-y-0">
+        {/* Texto de bienvenida */}
+        <div className="w-full md:w-1/2 text-center md:text-left">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">
+            ¡Bienvenido al Panel de Administrador!
+          </h1>
+          <p className="text-base md:text-lg text-gray-800 dark:text-gray-300 mb-6">
+            Aquí puedes gestionar información de Smoke & Grill.
+          </p>
+          <button className="bg-orange-600 dark:bg-orange-700 text-white py-3 px-12 md:px-24 rounded-full font-bold hover:bg-orange-700 dark:hover:bg-orange-600 transition">
             Ver historial de pedidos
           </button>
+        </div>
+
+        {/* Imagen (opcional o decorativa) */}
+        <div className="w-full md:w-1/2 flex justify-center">
+          <img
+            src="https://via.placeholder.com/300"
+            alt="Administrador"
+            className="w-64 md:w-80 rounded-lg shadow-lg"
+          />
         </div>
       </main>
     </div>
@@ -27,3 +42,4 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
+

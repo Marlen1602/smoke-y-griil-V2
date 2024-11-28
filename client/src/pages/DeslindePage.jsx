@@ -1,139 +1,205 @@
-// src/pages/DeslindePage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import AdminNavBar from './AdminNavBar';
 import {
-    getDisclaimerRequest,
-    createDeslRequest,
-    updateDeslRequest,
-    deleteDeslRequest
+  getDeslindeLegalRequest,
+  createDeslindeLegalRequest,
+  updateDeslindeLegalRequest,
+  deleteDeslindeLegalRequest,
+  getDeslindeLegalHistoryRequest,
 } from '../api/auth';
 
-const DeslindePage = () => {
-    const [disclaimers, setDisclaimers] = useState([]);
-    const [newDisclaimer, setNewDisclaimer] = useState({ titulo: '', contenido: '' });
-    const [isEditing, setIsEditing] = useState(false);
-    const [editId, setEditId] = useState(null);
+const DeslindeLegalPage = () => {
+  const [documents, setDocuments] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [newDoc, setNewDoc] = useState({ title: '', descripcion: '', fechaVigencia: '' });
+  const [selectedDocId, setSelectedDocId] = useState(null);
 
-    useEffect(() => {
-        fetchDisclaimers();
-    }, []);
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
 
-    const fetchDisclaimers = async () => {
-        try {
-            const response = await getDisclaimerRequest();
-            setDisclaimers(response.data);
-        } catch (error) {
-            console.error('Error fetching disclaimers:', error);
-        }
-    };
+  const fetchDocuments = async () => {
+    const response = await getDeslindeLegalRequest();
+    setDocuments(response.data);
+  };
 
-    const addDisclaimer = async () => {
-        try {
-            const response = await createDeslRequest(newDisclaimer);
-            setDisclaimers([...disclaimers, response.data]);
-            setNewDisclaimer({ titulo: '', contenido: '' });
-        } catch (error) {
-            console.error('Error adding disclaimer:', error);
-        }
-    };
+  const handleCreateDoc = async () => {
+    const response = await createDeslindeLegalRequest(newDoc);
+    setDocuments([...documents, response.data]);
+    setNewDoc({ title: '', descripcion: '', fechaVigencia: '' });
+  };
 
-    const editDisclaimer = (id, titulo, contenido) => {
-        setIsEditing(true);
-        setEditId(id);
-        setNewDisclaimer({ titulo, contenido });
-    };
-deleteDeslRequest
-    const updateDisclaimer = async () => {
-        try {
-            const response = await updateDeslRequest(editId, newDisclaimer);
-            setDisclaimers(disclaimers.map(disclaimer => 
-                disclaimer._id === editId ? response.data : disclaimer
-            ));
-            setNewDisclaimer({ titulo: '', contenido: '' });
-            setIsEditing(false);
-            setEditId(null);
-        } catch (error) {
-            console.error('Error updating disclaimer:', error);
-        }
-    };
+  const handleUpdateDoc = async (id) => {
+    const response = await updateDeslindeLegalRequest(id, newDoc);
+    setDocuments(documents.map((doc) => (doc._id === id ? response.data : doc)));
+    setNewDoc({ title: '', descripcion: '', fechaVigencia: '' });
+    setSelectedDocId(null);
+  };
 
-    const deleteDisclaimer = async (id) => {
-        try {
-            await deleteDeslRequest(id);
-            setDisclaimers(disclaimers.filter(disclaimer => disclaimer._id !== id));
-        } catch (error) {
-            console.error('Error deleting disclaimer:', error);
-        }
-    };
+  const handleDeleteDoc = async (id) => {
+    await deleteDeslindeLegalRequest(id);
+    fetchDocuments();
+  };
 
-    return (
-        <div className="p-10">
-            <h2 className="text-2xl font-bold mb-4">Gestión de Deslinde Legal</h2>
+  const fetchDocHistory = async (id) => {
+    const response = await getDeslindeLegalHistoryRequest(id);
+    setHistory(response.data);
+    setShowHistory(true);
+  };
 
-            <table className="min-w-full bg-white border mb-4">
+  return (
+    <div className="bg-gray-100 dark:bg-gray-900 dark:text-white min-h-screen font-sans">
+      <AdminNavBar />
+      <h1 className="text-3xl font-bold mb-6 text-center">Gestión de Deslinde Legal</h1>
+      <div className="p-4 sm:p-10">
+        {/* Formulario */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          <div className="w-full sm:w-auto flex flex-col">
+            <label className="font-bold text-gray-700 dark:text-gray-300 mb-1">Título:</label>
+            <input
+              type="text"
+              placeholder="Título"
+              value={newDoc.title}
+              onChange={(e) => setNewDoc({ ...newDoc, title: e.target.value })}
+              className="border dark:border-gray-700 px-3 py-2 w-full rounded dark:bg-gray-800 dark:text-white"
+            />
+          </div>
+          <div className="w-full sm:w-auto flex flex-col">
+            <label className="font-bold text-gray-700 dark:text-gray-300 mb-1">Descripción:</label>
+            <input
+              type="text"
+              placeholder="Descripción"
+              value={newDoc.descripcion}
+              onChange={(e) => setNewDoc({ ...newDoc, descripcion: e.target.value })}
+              className="border dark:border-gray-700 px-3 py-2 w-full rounded dark:bg-gray-800 dark:text-white"
+            />
+          </div>
+          <div className="w-full sm:w-auto flex flex-col">
+            <label className="font-bold text-gray-700 dark:text-gray-300 mb-1">Fecha de Vigencia:</label>
+            <input
+              type="date"
+              placeholder="Fecha de Vigencia"
+              value={newDoc.fechaVigencia}
+              onChange={(e) => setNewDoc({ ...newDoc, fechaVigencia: e.target.value })}
+              className="border dark:border-gray-700 px-3 py-2 w-full rounded dark:bg-gray-800 dark:text-white"
+            />
+          </div>
+          <div className="w-full sm:w-auto flex items-end">
+            {selectedDocId ? (
+              <button
+                onClick={() => handleUpdateDoc(selectedDocId)}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full sm:w-auto"
+              >
+                Actualizar
+              </button>
+            ) : (
+              <button
+                onClick={handleCreateDoc}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full sm:w-auto"
+              >
+                Agregar
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Tabla de Documentos */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-700">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Título</th>
+                <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Descripción</th>
+                <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Fecha de Vigencia</th>
+                <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Versión</th>
+                <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {documents.map((doc) => (
+                <tr key={doc._id}>
+                  <td className="py-2 px-4 border-b dark:border-gray-700">{doc.title}</td>
+                  <td className="py-2 px-4 border-b dark:border-gray-700">{doc.descripcion}</td>
+                  <td className="py-2 px-4 border-b dark:border-gray-700">
+                    {new Date(doc.fechaVigencia).toLocaleDateString()}
+                  </td>
+                  <td className="py-2 px-4 border-b dark:border-gray-700">{doc.version}</td>
+                  <td className="py-2 px-4 border-b dark:border-gray-700 space-y-2">
+                    <button
+                      onClick={() => {
+                        setNewDoc({
+                          title: doc.title,
+                          descripcion: doc.descripcion,
+                          fechaVigencia: doc.fechaVigencia,
+                        });
+                        setSelectedDocId(doc._id);
+                      }}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded block"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDeleteDoc(doc._id)}
+                      className="bg-red hover:bg-red-600 text-white px-3 py-1 rounded block"
+                    >
+                      Eliminar
+                    </button>
+                    <button
+                      onClick={() => fetchDocHistory(doc._id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded block"
+                    >
+                      Historial
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Historial de Documentos */}
+        {showHistory && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">Historial de versiones</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-700">
                 <thead>
-                    <tr>
-                        <th className="py-2 px-4 border-b">Título</th>
-                        <th className="py-2 px-4 border-b">Contenido</th>
-                        <th className="py-2 px-4 border-b">Acciones</th>
-                    </tr>
+                  <tr>
+                    <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Título</th>
+                    <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Descripción</th>
+                    <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Versión</th>
+                    <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Estado</th>
+                  </tr>
                 </thead>
                 <tbody>
-                    {disclaimers.map((disclaimer) => (
-                        <tr key={disclaimer._id}>
-                            <td className="py-2 px-4 border-b">{disclaimer.titulo}</td>
-                            <td className="py-2 px-4 border-b">{disclaimer.contenido}</td>
-                            <td className="py-2 px-4 border-b">
-                                <button
-                                    className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                                    onClick={() => editDisclaimer(disclaimer._id, disclaimer.titulo, disclaimer.contenido)}
-                                >
-                                    Editar
-                                </button>
-                                <button
-                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                    onClick={() => deleteDisclaimer(disclaimer._id)}
-                                >
-                                    Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+                  {history.map((item) => (
+                    <tr key={item._id}>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.title}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.descripcion}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.version}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                        {item.isDeleted ? 'No vigente' : 'Vigente'}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-            </table>
-
-            <div className="mt-4">
-                <input
-                    type="text"
-                    placeholder="Título del deslinde"
-                    value={newDisclaimer.titulo}
-                    onChange={(e) => setNewDisclaimer({ ...newDisclaimer, titulo: e.target.value })}
-                    className="border px-2 py-1 mr-2"
-                />
-                <input
-                    type="text"
-                    placeholder="Contenido del deslinde"
-                    value={newDisclaimer.contenido}
-                    onChange={(e) => setNewDisclaimer({ ...newDisclaimer, contenido: e.target.value })}
-                    className="border px-2 py-1 mr-2"
-                />
-                {isEditing ? (
-                    <button
-                        className="bg-green-500 text-white px-4 py-1 rounded"
-                        onClick={updateDisclaimer}
-                    >
-                        Actualizar
-                    </button>
-                ) : (
-                    <button
-                        className="bg-orange-500 text-white px-4 py-1 rounded"
-                        onClick={addDisclaimer}
-                    >
-                        Agregar
-                    </button>
-                )}
+              </table>
             </div>
-        </div>
-    );
+            <button
+              onClick={() => setShowHistory(false)}
+              className="text-blue-500 mt-4 underline"
+            >
+              Cerrar historial
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-export default DeslindePage;
+export default DeslindeLegalPage;
+
+
+

@@ -14,9 +14,13 @@ import VerifyCodePasswordPage from "./pages/VerifyCodePasswordPage";
 import NewPasswordPage  from "./pages/NewPasswordPage";
 import TermsPage from "./pages/TermsPage";
 import DeslindePage from "./pages/DeslindePage";
+import EmpresaPage from "./pages/EmpresaPage";
+import IncidenciasPage from "./pages/IncidenciaPage";
+import { ThemeProvider } from "./contex/ThemeContext"; 
 
 function App() {
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -31,7 +35,10 @@ function App() {
           <Route path="/politicas" element={<PoliticasPage />} />
           <Route path="/terminosCondiciones" element={<TermsPage />} />
           <Route path="/deslindeLegal" element={<DeslindePage />} />
+          <Route path="/empresa" element={<EmpresaPage />} />
+          <Route path="/incidencias" element={<IncidenciasPage />} />
           <Route path="/authModal" element={<AuthModal />} />
+          
 
 
           <Route path="/recuperar-contraseña" element={<VerifyEmail />} />
@@ -42,6 +49,7 @@ function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const deslindeLegalSchema = new mongoose.Schema({
-  titulo: {
+  title: {
     type: String,
     required: true,
   },
-  contenido: {
+  descripcion: {
     type: String,
     required: true,
   },
@@ -14,19 +14,19 @@ const deslindeLegalSchema = new mongoose.Schema({
     required: true,
   },
   version: {
-    type: String,
-    default: "1.0",
+    type: Number,
+    default: 1,
   },
-  vigente: {
-    type: Boolean,
-    default: true,
-  },
-  eliminado: {
+  isDeleted: {
     type: Boolean,
     default: false,
-  }
+  },
+  originalDocumentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "DeslindeLegal",
+  },
 }, {
   timestamps: true,
 });
 
-export default mongoose.model('DeslindeLegal', deslindeLegalSchema);
+export default mongoose.model("DeslindeLegal", deslindeLegalSchema);

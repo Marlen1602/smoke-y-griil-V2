@@ -1,58 +1,55 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useTheme } from "../contex/ThemeContext"; // Importa el contexto del tema
 
 const VerifyCodePasswordPage = () => {
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm();
     const { verifyCodeForPassword, errors: verifyErrors } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-
-  
+    const { isDarkMode } = useTheme(); // Usamos el estado del tema oscuro
 
     const onSubmit = async (data) => {
         try {
-
             setLoading(true);
             const formData = { ...data };
-            const res = await verifyCodeForPassword(formData);  // Llama a la función para verificar el código
+            const res = await verifyCodeForPassword(formData);
             setLoading(false);
-            console.log(res)
+
             if (res.message) {
                 navigate("/recuperar-contraseña/nueva-contraseña");
-                
             }
         } catch (error) {
             console.error(error);
             setLoading(false);
         }
-        
-
-        // navigate("/paginaCliente");
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
+        <div className={`min-h-screen flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"}`}>
+            <div className={`p-10 rounded-lg shadow-lg w-full max-w-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                 <h2 className="text-2xl font-bold text-center mb-6">Verificación de Código</h2>
 
+                {/* Mostrar errores del servidor */}
                 {Array.isArray(verifyErrors) && verifyErrors.map((error, i) => (
-                    <div className="bg-red-500 text-black bg-rose-200 text-center p-2 rounded mb-4 " key={i}>
+                    <div className="bg-red text-white text-center p-2 rounded mb-4" key={i}>
                         {error}
                     </div>
                 ))}
 
+                {/* Formulario */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-bold mb-2 ">Código de Verificación</label>
+                        <label className="block text-sm font-bold mb-2">Código de Verificación</label>
                         <input
                             type="text"
                             {...register("code", { required: true })}
-                            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
+                            className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "border-gray-300"}`}
                             placeholder="Ingresa tu código"
                         />
-                        {formErrors.code && <span className="text-red-500 text-sm text-red">El código es requerido</span>}
+                        {formErrors.code && <span className="text-red text-sm">El código es requerido</span>}
                     </div>
 
                     <button
@@ -69,4 +66,5 @@ const VerifyCodePasswordPage = () => {
 };
 
 export default VerifyCodePasswordPage;
+
 
