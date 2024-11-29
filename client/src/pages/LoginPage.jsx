@@ -54,20 +54,21 @@ const LoginPage = () => {
             />
             {formErrors.password && <span className="text-red-500 text-sm">La contraseña es requerida</span>}
           </div>
-
+          <div className="col-span-1 md:col-span-2 grid place-items-center">
           <button
             type="submit"
-            className={`w-full py-3 rounded-lg font-bold transition duration-300 ${isDarkMode ? "bg-orange-600 hover:bg-orange-500 text-white" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
+            className={`w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300 ${isDarkMode ? "bg-orange-600 hover:bg-orange-700 text-white" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
             disabled={loading}
           >
             {loading ? "Cargando..." : "Iniciar sesión"}
           </button>
+          </div>
         </form>
 
         <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0 md:space-x-4">
           <p className="text-xs">
             ¿No tienes cuenta?{" "}
-            <Link to="/registrar" className="text-orange-500 hover:underline">
+            <Link to="/registrar" className="text-orange-600 hover:underline">
               Regístrate
             </Link>
           </p>

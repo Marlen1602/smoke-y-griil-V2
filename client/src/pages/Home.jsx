@@ -27,7 +27,7 @@ const Home = () => {
           </button>
           <img src={logo} alt="Logo" className="h-16 md:h-24 w-auto" />
           <div className="hidden md:flex items-center text-sm text-gray-400 dark:text-gray-300">
-            <i className="fas fa-map-marker-alt"></i>
+            <i className="fas fa-map-marker-alt text-xl cursor-pointer"></i>
             <span className="ml-1">Ubicación</span>
           </div>
         </div>
@@ -82,7 +82,7 @@ const Home = () => {
             Para todos tus platillos favoritos
           </p>
           <button
-            className="bg-orange-700 text-white py-3 px-6 rounded-full font-bold hover:bg-orange-500 transition"
+            className="bg-orange-600 text-white w-full md:w-80 h-12 py-3 px-6 rounded-full font-bold hover:bg-orange-700 transition"
             onClick={handleLoginClick}
           >
             ¡Pide ahora!

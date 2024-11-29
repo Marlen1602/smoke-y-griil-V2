@@ -14,6 +14,8 @@ const PoliticasPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [newPolicy, setNewPolicy] = useState({ title: "", descripcion: "", fechaVigencia: "" });
   const [selectedPolicyId, setSelectedPolicyId] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false); // Estado para el modal de confirmación
+  const [policyToDelete, setPolicyToDelete] = useState(null); // Política que se va a eliminar
 
   useEffect(() => {
     fetchPolicies();
@@ -25,21 +27,41 @@ const PoliticasPage = () => {
   };
 
   const handleCreatePolicy = async () => {
+    if (!validateFields()) return; // Verifica los campos antes de crear una política
+
     const response = await createPolicyRequest(newPolicy);
     setPolicies([...policies, response.data]);
     setNewPolicy({ title: "", descripcion: "", fechaVigencia: "" });
   };
 
   const handleUpdatePolicy = async (id) => {
+    if (!validateFields()) return; // Verifica los campos antes de actualizar una política
+
     const response = await updatePolicyRequest(id, newPolicy);
     setPolicies(policies.map((policy) => (policy._id === id ? response.data : policy)));
     setNewPolicy({ title: "", descripcion: "", fechaVigencia: "" });
     setSelectedPolicyId(null);
   };
 
-  const handleDeletePolicy = async (id) => {
-    await deletePolicyRequest(id);
+  const handleDeletePolicy = async () => {
+    await deletePolicyRequest(policyToDelete);
     fetchPolicies();
+    setShowConfirmation(false); // Cierra el modal de confirmación
+  };
+
+  const validateFields = () => {
+    const validTextRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]*$/; // Permite letras, números, espacios, y ñ/acentos
+    if (!validTextRegex.test(newPolicy.title) || !validTextRegex.test(newPolicy.descripcion)) {
+      alert("El título y la descripción solo pueden contener letras, números, espacios, y acentos.");
+      return false;
+    }
+
+    if (new Date(newPolicy.fechaVigencia) < new Date()) {
+      alert("La fecha de vigencia no puede ser una fecha pasada.");
+      return false;
+    }
+
+    return true;
   };
 
   const fetchPolicyHistory = async (id) => {
@@ -145,7 +167,10 @@ const PoliticasPage = () => {
                     </button>
                     <button
                       className="bg-red text-white px-2 py-1 rounded hover:bg-red-600 transition"
-                      onClick={() => handleDeletePolicy(policy._id)}
+                      onClick={() => {
+                        setPolicyToDelete(policy._id);
+                        setShowConfirmation(true);
+                      }}
                     >
                       Eliminar
                     </button>
@@ -196,6 +221,27 @@ const PoliticasPage = () => {
             >
               Cerrar historial
             </button>
+          </div>
+        )}
+
+        {/* Modal de confirmación para eliminar */}
+        {showConfirmation && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg text-center">
+              <p className="mb-4">¿Estás seguro de que quieres eliminar esta política?</p>
+              <button
+                className="bg-red text-white px-4 py-2 rounded hover:bg-red-600 transition mr-2"
+                onClick={handleDeletePolicy}
+              >
+                Sí, eliminar
+              </button>
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                onClick={() => setShowConfirmation(false)}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         )}
       </div>

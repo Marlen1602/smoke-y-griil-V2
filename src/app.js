@@ -6,7 +6,7 @@ import politicasRoutes from "./routes/politicas.router.js"
 import terminos from "./routes/terminosCondiciones.router.js"
 import deslinde from "./routes/deslindeLegal.router.js"
 import empresaRoutes from "./routes/empresa.routes.js";
-import incidenciaRoutes from "./routes/incidencia.routes.js";
+import incidenciaRoutes from "./routes/incidencias.routes.js";
 import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 
@@ -30,6 +30,6 @@ app.use('/api',politicasRoutes);
 app.use('/api',terminos);
 app.use('/api',deslinde);
 app.use("/api/empresa", empresaRoutes);
-app.use("/api/incidencias", incidenciaRoutes);
+app.use('/api',incidenciaRoutes);
 
 export default app;

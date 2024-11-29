@@ -14,6 +14,9 @@ const TermsPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [newTerm, setNewTerm] = useState({ title: '', descripcion: '', fechaVigencia: '' });
   const [selectedTermId, setSelectedTermId] = useState(null);
+  const [errors, setErrors] = useState({ title: '', descripcion: '', fechaVigencia: '' });
+  const [showModal, setShowModal] = useState(false);  // Estado para controlar la visibilidad del modal
+  const [termToDelete, setTermToDelete] = useState(null); // Termino que se quiere eliminar
 
   useEffect(() => {
     fetchTerms();
@@ -25,27 +28,69 @@ const TermsPage = () => {
   };
 
   const handleCreateTerm = async () => {
+    const validationErrors = validateForm(newTerm);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     const response = await createTermsRequest(newTerm);
     setTerms([...terms, response.data]);
     setNewTerm({ title: '', descripcion: '', fechaVigencia: '' });
+    setErrors({ title: '', descripcion: '', fechaVigencia: '' });
   };
 
   const handleUpdateTerm = async (id) => {
+    const validationErrors = validateForm(newTerm);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     const response = await updateTermsRequest(id, newTerm);
     setTerms(terms.map((term) => (term._id === id ? response.data : term)));
     setNewTerm({ title: '', descripcion: '', fechaVigencia: '' });
+    setErrors({ title: '', descripcion: '', fechaVigencia: '' });
     setSelectedTermId(null);
   };
 
-  const handleDeleteTerm = async (id) => {
-    await deleteTermsRequest(id);
-    fetchTerms();
+  const handleDeleteTerm = async () => {
+    if (termToDelete) {
+      await deleteTermsRequest(termToDelete);
+      fetchTerms();
+      setShowModal(false);  // Cerrar el modal después de la eliminación
+    }
   };
 
   const fetchTermHistory = async (id) => {
     const response = await getTermsHistoryRequest(id);
     setHistory(response.data);
     setShowHistory(true);
+  };
+
+  const validateForm = (term) => {
+    let validationErrors = {};
+
+    // Validar título (solo letras, números, espacios, acentos, y la letra ñ)
+    const titleRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!titleRegex.test(term.title)) {
+      validationErrors.title = 'El título solo puede contener letras, números y espacios.';
+    }
+
+    // Validar descripción (similar al título)
+    const descripcionRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!descripcionRegex.test(term.descripcion)) {
+      validationErrors.descripcion = 'La descripción solo puede contener letras, números y espacios.';
+    }
+
+    // Validar fecha de vigencia (no puede ser en el pasado)
+    const today = new Date();
+    const vigenciaDate = new Date(term.fechaVigencia);
+    if (vigenciaDate < today) {
+      validationErrors.fechaVigencia = 'La fecha de vigencia no puede ser en el pasado.';
+    }
+
+    return validationErrors;
   };
 
   return (
@@ -64,6 +109,7 @@ const TermsPage = () => {
               onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
               className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
             />
+            {errors.title && <span className="text-red text-sm">{errors.title}</span>}
           </div>
           <div className="flex flex-col w-full sm:w-auto">
             <label className="font-bold text-gray-700 dark:text-gray-300">Descripción:</label>
@@ -74,6 +120,7 @@ const TermsPage = () => {
               onChange={(e) => setNewTerm({ ...newTerm, descripcion: e.target.value })}
               className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
             />
+            {errors.descripcion && <span className="text-red text-sm">{errors.descripcion}</span>}
           </div>
           <div className="flex flex-col w-full sm:w-auto">
             <label className="font-bold text-gray-700 dark:text-gray-300">Fecha de Vigencia:</label>
@@ -84,6 +131,7 @@ const TermsPage = () => {
               onChange={(e) => setNewTerm({ ...newTerm, fechaVigencia: e.target.value })}
               className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
             />
+            {errors.fechaVigencia && <span className="text-red text-sm">{errors.fechaVigencia}</span>}
           </div>
           <div>
             {selectedTermId ? (
@@ -140,8 +188,11 @@ const TermsPage = () => {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDeleteTerm(term._id)}
-                      className="bg-red text-white px-3 py-1 rounded hover:bg-red-600 transition block"
+                      onClick={() => { 
+                        setTermToDelete(term._id); 
+                        setShowModal(true); 
+                      }}
+                      className="bg-red text-white px-3 py-1 rounded hover:bg-red transition block"
                     >
                       Eliminar
                     </button>
@@ -157,6 +208,29 @@ const TermsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Modal de Confirmación */}
+        {showModal && (
+          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+              <h2 className="text-xl font-bold mb-4">¿Estás seguro de eliminar este término?</h2>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDeleteTerm}
+                  className="bg-red text-white px-4 py-2 rounded hover:bg-red"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Historial */}
         {showHistory && (
@@ -200,6 +274,8 @@ const TermsPage = () => {
 };
 
 export default TermsPage;
+
+
 
 
 

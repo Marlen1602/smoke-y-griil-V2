@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link ,useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
 import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para el modo oscuro
 import ReCAPTCHA from "react-google-recaptcha";
@@ -243,15 +243,23 @@ function RegisterPage() {
                         />
                     </div>
 
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1 md:col-span-2 grid place-items-center">
                         <button
                             type="submit"
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-full transition duration-300"
+                            className="w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300"
                         >
                             CREAR
                         </button>
                     </div>
                 </form>
+                    <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0 md:space-x-4">
+                    <p className="text-xs">
+                        ¿Ya tienes una cuenta?{" "}
+                        <Link to="/login" className="text-orange-600 hover:underline">
+                        iniciar sesión
+                        </Link>
+                    </p>
+                </div>
             </div >
         </div >
     );

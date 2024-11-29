@@ -23,7 +23,8 @@ const AdminPage = () => {
           <p className="text-base md:text-lg text-gray-800 dark:text-gray-300 mb-6">
             Aquí puedes gestionar información de Smoke & Grill.
           </p>
-          <button className="bg-orange-600 dark:bg-orange-700 text-white py-3 px-12 md:px-24 rounded-full font-bold hover:bg-orange-700 dark:hover:bg-orange-600 transition">
+          
+          <button className="w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300">
             Ver historial de pedidos
           </button>
         </div>

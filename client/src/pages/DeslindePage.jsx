@@ -14,6 +14,12 @@ const DeslindeLegalPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [newDoc, setNewDoc] = useState({ title: '', descripcion: '', fechaVigencia: '' });
   const [selectedDocId, setSelectedDocId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Expresión regular para validar los campos
+  const validPattern = /^[a-zA-Z0-9\s,.-áéíóúÁÉÍÓÚñÑ]*$/;
 
   useEffect(() => {
     fetchDocuments();
@@ -25,21 +31,50 @@ const DeslindeLegalPage = () => {
   };
 
   const handleCreateDoc = async () => {
+    // Validación del formulario
+    if (!newDoc.title || !newDoc.descripcion || !newDoc.fechaVigencia) {
+      setErrorMessage('Todos los campos son obligatorios.');
+      return;
+    }
+
+    // Validación de caracteres permitidos
+    if (!validPattern.test(newDoc.title) || !validPattern.test(newDoc.descripcion)) {
+      setErrorMessage('El título y la descripción solo pueden contener letras, números, espacios, comas, puntos y caracteres especiales válidos como ñ y acentos.');
+      return;
+    }
+
     const response = await createDeslindeLegalRequest(newDoc);
     setDocuments([...documents, response.data]);
     setNewDoc({ title: '', descripcion: '', fechaVigencia: '' });
+    setErrorMessage('');
   };
 
   const handleUpdateDoc = async (id) => {
+    // Validación del formulario
+    if (!newDoc.title || !newDoc.descripcion || !newDoc.fechaVigencia) {
+      setErrorMessage('Todos los campos son obligatorios.');
+      return;
+    }
+
+    // Validación de caracteres permitidos
+    if (!validPattern.test(newDoc.title) || !validPattern.test(newDoc.descripcion)) {
+      setErrorMessage('El título y la descripción solo pueden contener letras, números, espacios, comas, puntos y caracteres especiales válidos como ñ y acentos.');
+      return;
+    }
+
     const response = await updateDeslindeLegalRequest(id, newDoc);
     setDocuments(documents.map((doc) => (doc._id === id ? response.data : doc)));
     setNewDoc({ title: '', descripcion: '', fechaVigencia: '' });
     setSelectedDocId(null);
+    setErrorMessage('');
   };
 
-  const handleDeleteDoc = async (id) => {
-    await deleteDeslindeLegalRequest(id);
-    fetchDocuments();
+  const handleDeleteDoc = async () => {
+    if (docToDelete) {
+      await deleteDeslindeLegalRequest(docToDelete);
+      fetchDocuments();
+      setShowModal(false);
+    }
   };
 
   const fetchDocHistory = async (id) => {
@@ -104,6 +139,9 @@ const DeslindeLegalPage = () => {
           </div>
         </div>
 
+        {/* Error Message */}
+        {errorMessage && <p className="text-red mb-4">{errorMessage}</p>}
+
         {/* Tabla de Documentos */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-700">
@@ -140,16 +178,19 @@ const DeslindeLegalPage = () => {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDeleteDoc(doc._id)}
-                      className="bg-red hover:bg-red-600 text-white px-3 py-1 rounded block"
+                      onClick={() => {
+                        setDocToDelete(doc._id);
+                        setShowModal(true);
+                      }}
+                      className="bg-red hover:bg-red text-white px-3 py-1 rounded block"
                     >
                       Eliminar
                     </button>
                     <button
                       onClick={() => fetchDocHistory(doc._id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded block"
+                      className="text-blue-500 hover:underline"
                     >
-                      Historial
+                      Ver Historial
                     </button>
                   </td>
                 </tr>
@@ -157,11 +198,36 @@ const DeslindeLegalPage = () => {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* Historial de Documentos */}
-        {showHistory && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Historial de versiones</h2>
+      {/* Modal de confirmación de eliminación */}
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">¿Estás seguro de que deseas eliminar este documento?</h3>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteDoc}
+                className="bg-red hover:bg-red text-white px-4 py-2 rounded"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Historial de cambios */}
+      {showHistory && (
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 max-w-full overflow-auto">
+            <h2 className="text-xl font-semibold mb-4">Historial de versiones</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-700">
                 <thead>
@@ -193,13 +259,15 @@ const DeslindeLegalPage = () => {
               Cerrar historial
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default DeslindeLegalPage;
+
+
 
 
 

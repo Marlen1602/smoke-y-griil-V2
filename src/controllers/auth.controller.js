@@ -5,7 +5,10 @@ import axios from 'axios';
 import { body, validationResult } from 'express-validator';
 import nodemailer from 'nodemailer';
 import * as cookie from 'cookie';
-
+// import  IncidenciaSchema  from '../schemas/incidencias';
+// import Incidencia from '../models/Incidencia';
+// import Incidencia from '../schemas/incidencias.js';
+import Incidencia from '../models/incidencia.model.js'; 
 export const validateRegister = [
   body('email').isEmail().withMessage('Debe proporcionar un correo electrónico válido'),
   body('username').trim().isLength({ min: 3 }).withMessage('El nombre de usuario debe tener al menos 3 caracteres'),
@@ -17,6 +20,59 @@ export const validateRegister = [
     .withMessage('Debe incluir mayúsculas, minúsculas, números y caracteres especiales.'),
   body('email').normalizeEmail(), // Normaliza el email para eliminar espacios y normalizar el formato
 ];
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const userFound = await User.findOne({ email });
+
+    if (!userFound) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const isMatch = await bcrypt.compare(password, userFound.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Contraseña incorrecta" });
+    }
+
+    // Crear y guardar la incidencia cuando el usuario inicie sesión
+    const incidencia = new Incidencia({
+      usuario: `${userFound.username}` ,
+      tipo: 'Inicio de sesión',
+    });
+
+    // Guardar la incidencia en la base de datos
+    await incidencia.save();
+
+    // Crear el token de acceso
+    const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
+
+    // Establecer el token en las cookies
+    res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    }));
+
+    // Responder con los detalles del usuario y el token
+    return res.json({
+      id: userFound._id,
+      username: userFound.username,
+      email: userFound.email,
+      role: userFound.role,
+      createAt: userFound.createdAt,
+      updatedAt: userFound.updatedAt,
+      token,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+};
+
 
 const sendVerificationEmail = async (email, code) => {
   const transporter = nodemailer.createTransport({
@@ -129,44 +185,7 @@ const blockUserAccount = async (userId) => {
 
 
 
-export const login = async (req, res) => {
-  const { email, password } = req.body;
-  
-  try {
-      const userFound = await User.findOne({ email });
-      
-      if (!userFound){
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      } 
 
-      const isMatch = await bcrypt.compare(password, userFound.password);
-      if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
-
-      const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
-
-      res.setHeader('Set-Cookie', cookie.serialize('token', token, {
-        httpOnly:   true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/',
-      }));
-
-    
-      return res.json({
-          id: userFound._id,
-          username: userFound.username,
-          email: userFound.email,
-          role: userFound.role,
-          createAt: userFound.createdAt,
-          updatedAt: userFound.updatedAt,
-          token
-      });
-  } catch (error) {
-    console.log("error")
-      res.status(500).json({ message: error.message });
-  }
-};
 
 export const logout = (req, res) => {
     res.cookie("token", "", {

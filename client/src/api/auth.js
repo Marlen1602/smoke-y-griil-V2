@@ -52,6 +52,8 @@ export const updateEmpresaProfile = async (id, data) => {
   });
 };
 
+
+
 export const getIncidencias = async () => axios.get(`${API}/incidencias`);
 export const createIncidencia = async (data) => axios.post(`${API}/incidencias`, data);
 export const updateIncidencia = async (id, data) => axios.put(`${API}/incidencias${id}`, data);

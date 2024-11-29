@@ -199,14 +199,15 @@ const NewPasswordPage = () => {
               </p>
             )}
           </div>
-
+          <div className="col-span-1 md:col-span-2 grid place-items-center">
           <button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-bold transition duration-300"
+            className="w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300"
             disabled={loading}
           >
             {loading ? "Actualizando..." : "Actualizar Contraseña"}
           </button>
+          </div>
         </form>
       </div>
     </div>
