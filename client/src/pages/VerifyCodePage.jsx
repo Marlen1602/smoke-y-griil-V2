@@ -6,10 +6,11 @@ import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para e
 
 const VerifyCodePage = () => {
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm();
-    const { verifyCode, errors: verifyErrors } = useAuth();
+    const { verifyCode, errors: verifyErrors, setErrors } = useAuth();
     const navigate = useNavigate();
     const { isDarkMode } = useTheme(); // Usar el estado del modo oscuro
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null); // Estado local para el mensaje de error
     const email = localStorage.getItem('email');
 
     useEffect(() => {
@@ -28,10 +29,24 @@ const VerifyCodePage = () => {
 
             if (res) {
                 navigate("/paginaCliente");
+            } else {
+                // Mostrar mensaje de error si la verificación falla
+                setErrorMessage("Código incorrecto o expirado.");
+                
+                // Eliminar el mensaje de error después de 3 segundos
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 3000);
             }
         } catch (error) {
-            console.error(error);
             setLoading(false);
+            console.error(error);
+            setErrorMessage("Ocurrió un error al verificar el código.");
+            
+            // Eliminar el mensaje de error después de 3 segundos
+            setTimeout(() => {
+                setErrorMessage(null);
+            }, 3000);
         }
     };
 
@@ -42,42 +57,48 @@ const VerifyCodePage = () => {
                     Verificación de Código
                 </h2>
 
-                {/* Mostrar errores del servidor */}
-                {Array.isArray(verifyErrors) && verifyErrors.map((error, i) => (
-                    <div
-                        className={`text-center p-2 rounded mb-4 ${isDarkMode ? "bg-red text-white" : "bg-red text-white"}`}
-                        key={i}
-                    >
-                        {error}
+                {/* Mostrar el mensaje de error si existe */}
+                {errorMessage && (
+                    <div className="bg-red-500 text-white text-center p-2 rounded mb-4">
+                        {errorMessage}
                     </div>
-                ))}
+                )}
 
                 {/* Formulario */}
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-bold mb-2">
-                            Código de Verificación
-                        </label>
+                <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                    <div className="mb-4">
+                        <label htmlFor="code" className="block text-sm font-semibold">Código</label>
                         <input
+                            {...register("code", {
+                                required: "El código es obligatorio.",
+                                pattern: {
+                                    value: /^\d{6}$/, // Valida que sean exactamente 6 dígitos
+                                    message: "El código debe tener exactamente 6 números.",
+                                },
+                            })}
                             type="text"
-                            {...register("code", { required: true })}
-                            className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800 placeholder-gray-500"}`}
-                            placeholder="Ingresa tu código"
+                            id="code"
+                            className={`mt-2 p-2 w-full border rounded-lg ${
+                                formErrors.code ? "border-red-500" : "border-gray-300"
+                            }`}
+                            placeholder="Ingresa el código"
                         />
                         {formErrors.code && (
-                            <span className="text-red text-sm">
-                                El código es requerido
-                            </span>
+                            <p className="text-red-500 text-xs mt-1">{formErrors.code.message}</p>
                         )}
                     </div>
-                    <div className="col-span-1 md:col-span-2 grid place-items-center">
-                    <button
-                        type="submit"
-                        className={`w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300`}
-                        disabled={loading}
-                    >
-                        {loading ? "Verificando..." : "Verificar Código"}
-                    </button>
+
+                    {/* Botón de envío */}
+                    <div className="col-span-1 md:col-span-2 grid place-items-center mt-6">
+                        <button
+                            type="submit"
+                            className={`w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300 ${
+                                isDarkMode ? "bg-orange-600 hover:bg-orange-700" : "bg-orange-600 hover:bg-orange-700"
+                            }`}
+                            disabled={loading}
+                        >
+                            {loading ? "Verificando..." : "Verificar código"}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -86,5 +107,3 @@ const VerifyCodePage = () => {
 };
 
 export default VerifyCodePage;
-
-

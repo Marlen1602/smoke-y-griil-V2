@@ -14,8 +14,8 @@ const EmpresaPage = () => {
   const [logoPreview, setLogoPreview] = useState(null); // Vista previa del logo
   const [isLoading, setIsLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const [error, setError] = useState("");
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState(null); // Índice para la confirmación de eliminación
+  const [modalError, setModalError] = useState(""); // Estado para el mensaje del modal
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState(null); // Para confirmar eliminación
 
   useEffect(() => {
     const fetchEmpresaData = async () => {
@@ -35,69 +35,81 @@ const EmpresaPage = () => {
   }, []);
 
   // Validaciones
-  const validateTitle = (title) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(title);
-  const validateSlogan = (slogan) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(slogan);
-  const validateSocialName = (name) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(name);
-  const validateUrl = (url) => /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/[a-zA-Z0-9#?&=_.-]*)?$/.test(url);
+  const validateTitle = (title) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(title.trim());
+  const validateSlogan = (slogan) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(slogan.trim());
+  const validateSocialName = (name) => /^[a-zA-Z\s]+$/.test(name.trim());
+  const validateUrl = (url) =>
+    /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/[a-zA-Z0-9#?&=_.-]*)?$/.test(
+      url.trim()
+    );
+  const validateDomainMatch = (name, url) => {
+    const domainMap = {
+      facebook: "facebook.com",
+      instagram: "instagram.com",
+      twitter: "twitter.com",
+    };
+    const expectedDomain = domainMap[name.toLowerCase()];
+    return expectedDomain && url.includes(expectedDomain);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEmpresa((prevEmpresa) => ({ ...prevEmpresa, [name]: value }));
   };
 
-  const handleSocialLinkChange = (index, field, value) => {
-    const updatedSocialLinks = empresa.socialLinks.map((link, i) =>
-      i === index ? { ...link, [field]: value } : link
-    );
+  const handleAddSocialLink = () => {
+    const { name, url } = newSocialLink;
+
+    if (!name || !url) {
+      setModalError("Por favor, completa ambos campos.");
+      return;
+    }
+
+    if (!validateSocialName(name)) {
+      setModalError("El nombre de la red sial solo puede contener letras y espacios.");
+      return;
+    }
+
+    if (!validateUrl(url)) {
+      setModalError("Por favor, ingresa una URL válida.");
+      return;
+    }
+
+    if (!validateDomainMatch(name, url)) {
+      setModalError(
+        `La URL no coincide con el dominio esperado para ${name}. Por ejemplo, use ${
+          name.toLowerCase() === "facebook"
+            ? "https://facebook.com/..."
+            : "https://instagram.com/..."
+        }.`
+      );
+      return;
+    }
+
+    if (empresa.socialLinks.some((link) => link.name === name || link.url === url)) {
+      setModalError("No se puede agregar un nombre o URL duplicada.");
+      return;
+    }
+
+    const updatedSocialLinks = [...empresa.socialLinks, { name, url }];
     setEmpresa((prevEmpresa) => ({ ...prevEmpresa, socialLinks: updatedSocialLinks }));
-  };
-
-  const handleAddSocialLink = async () => {
-    if (!newSocialLink.name || !newSocialLink.url) {
-      alert("Por favor, completa ambos campos.");
-      return;
-    }
-
-    if (!validateSocialName(newSocialLink.name)) {
-      alert("El nombre de la red social solo puede contener letras y espacios.");
-      return;
-    }
-
-    if (!validateUrl(newSocialLink.url)) {
-      alert("Por favor, ingresa una URL válida.");
-      return;
-    }
-
-    const updatedSocialLinks = [...empresa.socialLinks, newSocialLink];
-    const updatedData = { ...empresa, socialLinks: updatedSocialLinks };
-
-    try {
-      const response = await updateEmpresaProfile(empresa._id, updatedData);
-      setEmpresa(response.data);
-      setNewSocialLink({ name: "", url: "" }); // Limpiamos los campos
-    } catch (error) {
-      console.error("Error al agregar el enlace social:", error);
-    }
+    setNewSocialLink({ name: "", url: "" });
   };
 
   const handleSaveChanges = async () => {
     setIsLoading(true);
+    setModalError(""); // Limpiar cualquier error anterior
 
-    // Validación de los campos
     if (!validateTitle(empresa.title)) {
-      setFormErrors({ ...formErrors, title: "El título solo puede contener letras y espacios." });
+      setModalError("El campo Título solo puede contener letras y espacios.");
       setIsLoading(false);
       return;
-    } else {
-      setFormErrors({ ...formErrors, title: "" });
     }
 
     if (!validateSlogan(empresa.slogan)) {
-      setFormErrors({ ...formErrors, slogan: "El slogan solo puede contener letras y espacios." });
+      setModalError("El campo Slogan solo puede contener letras y espacios.");
       setIsLoading(false);
       return;
-    } else {
-      setFormErrors({ ...formErrors, slogan: "" });
     }
 
     try {
@@ -105,46 +117,30 @@ const EmpresaPage = () => {
       if (response.status === 200) {
         alert("Cambios guardados correctamente");
         setEmpresa(response.data);
-        setFormErrors({}); // Limpiar errores al guardar los cambios correctamente
       }
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
-      setError("Ocurrió un error al guardar los cambios.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Lógica para manejar la eliminación de redes sociales
   const handleDeleteSocialLink = (index) => {
-    if (confirmDeleteIndex === index) {
-      // Confirmar la eliminación
-      const updatedSocialLinks = empresa.socialLinks.filter((_, i) => i !== index);
-      setEmpresa({ ...empresa, socialLinks: updatedSocialLinks });
-      setConfirmDeleteIndex(null); // Resetea la confirmación
-    } else {
-      // Activar confirmación
-      setConfirmDeleteIndex(index);
+    setConfirmDeleteIndex(index); // Mostrar modal de confirmación
+  };
+
+  const confirmDeleteSocialLink = () => {
+    if (confirmDeleteIndex !== null) {
+      const updatedSocialLinks = empresa.socialLinks.filter((_, i) => i !== confirmDeleteIndex);
+      setEmpresa((prevEmpresa) => ({ ...prevEmpresa, socialLinks: updatedSocialLinks }));
+      setConfirmDeleteIndex(null); // Ocultar modal de confirmación
     }
   };
 
-  const handleCancelDelete = () => {
-    setConfirmDeleteIndex(null); // Cancela la confirmación
+  const cancelDeleteSocialLink = () => {
+    setConfirmDeleteIndex(null); // Ocultar modal de confirmación sin eliminar
   };
 
-  // Detecta clics fuera de la confirmación de eliminación
-  const handleClickOutside = (e) => {
-    if (confirmDeleteIndex !== null && !e.target.closest(".confirm-delete")) {
-      setConfirmDeleteIndex(null); // Resetea la confirmación si se hace clic fuera
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, [confirmDeleteIndex]);
-
-  // Función para manejar el cambio del logo
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -191,11 +187,8 @@ const EmpresaPage = () => {
               name="title"
               value={empresa.title}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                formErrors.title ? "border-red" : ""
-              }`}
+              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
-            {formErrors.title && <p className="text-red text-sm">{formErrors.title}</p>}
           </div>
 
           {/* Slogan */}
@@ -206,47 +199,22 @@ const EmpresaPage = () => {
               name="slogan"
               value={empresa.slogan}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                formErrors.slogan ? "border-red" : ""
-              }`}
+              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
-            {formErrors.slogan && <p className="text-red text-sm">{formErrors.slogan}</p>}
           </div>
 
-          {/* Redes Sociales */}
+          {/* Red sociales */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold">Redes Sociales</h2>
+            <h2 className="text-lg font-semibold">Red sociales</h2>
             {empresa.socialLinks.map((link, index) => (
               <div key={index} className="flex items-center justify-between mb-3">
-                <div className="flex items-center">
-                  <span className="text-gray-700 dark:text-white">{link.name}</span>:{" "}
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 dark:text-blue-400 ml-2"
-                  >
-                    {link.url}
-                  </a>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    className={`confirm-delete text-red hover:text-red ${
-                      confirmDeleteIndex === index ? "text-red" : ""
-                    }`}
-                    onClick={() => handleDeleteSocialLink(index)}
-                  >
-                    {confirmDeleteIndex === index ? "Confirmar Eliminación" : "Eliminar"}
-                  </button>
-                  {confirmDeleteIndex === index && (
-                    <button
-                      className="text-gray-500 hover:text-gray-700"
-                      onClick={handleCancelDelete}
-                    >
-                      Cancelar
-                    </button>
-                  )}
-                </div>
+                <span>{link.name}: {link.url}</span>
+                <button
+                  className="bg-red text-white px-2 py-1 rounded hover:bg-red"
+                  onClick={() => handleDeleteSocialLink(index)}
+                >
+                  Eliminar
+                </button>
               </div>
             ))}
 
@@ -276,7 +244,9 @@ const EmpresaPage = () => {
 
           {/* Botón Guardar */}
           <button
-            className={`w-full py-3 text-white rounded ${isLoading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"}`}
+            className={`w-full py-3 text-white rounded ${
+              isLoading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+            }`}
             onClick={handleSaveChanges}
             disabled={isLoading}
           >
@@ -284,6 +254,44 @@ const EmpresaPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal de error */}
+      {modalError && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-center">
+            <p className="text-red font-bold mb-4">{modalError}</p>
+            <button
+              onClick={() => setModalError("")}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmar Eliminación */}
+      {confirmDeleteIndex !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-center">
+            <p className="text-red st-bold mb-4">¿Estás seguro de eliminar esta red sial?</p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={confirmDeleteSocialLink}
+                className="bg-red st-white px-4 py-2 rounded hover:bg-red s"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={cancelDeleteSocialLink}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

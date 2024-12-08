@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contex/AuthContext";
 import { Link } from "react-router-dom";
 import { getEmpresaProfile } from "../api/auth.js";
-import { useTheme } from "../contex/ThemeContext.jsx"
+import { useTheme } from "../contex/ThemeContext.jsx";
 
 const AdminNavBar = () => {
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false); // Estado para el menú móvil
+  const [dropdownOpen, setDropdownOpen] = useState(false); // Estado del menú desplegable
   const [logoUrl, setLogoUrl] = useState(""); // Estado para el logo desde la base de datos
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -32,7 +33,7 @@ const AdminNavBar = () => {
           ) : (
             <span className="text-gray-400 italic">Cargando logo...</span>
           )}
-          <span className="font-bold">Smoke & Grill</span>
+          <span className="font-bold text-lg">Smoke & Grill</span>
         </div>
 
         {/* Menú para pantallas grandes */}
@@ -44,43 +45,70 @@ const AdminNavBar = () => {
             Perfil de la empresa
           </Link>
 
-          {/* Dropdown */}
-          <div className="relative group">
-            <span className="hover:text-gray-300 cursor-pointer">
-              Documentos Regulatorios
-            </span>
-            <div className="absolute hidden group-hover:block bg-white text-black rounded shadow-lg mt-2">
-              <Link
-                to="/politicas"
-                className="block px-4 py-2 hover:bg-gray-200"
+          {/* Nuevo menú desplegable */}
+          <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="hover:text-gray-300 flex items-center space-x-2"
+            >
+              <span>Documentos Regulatorios</span>
+              <svg
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                Políticas de Privacidad
-              </Link>
-              <Link
-                to="/terminosCondiciones"
-                className="block px-4 py-2 hover:bg-gray-200"
-              >
-                Términos y Condiciones
-              </Link>
-              <Link
-                to="/deslindeLegal"
-                className="block px-4 py-2 hover:bg-gray-200"
-              >
-                Deslinde Legal
-              </Link>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg w-48">
+                <Link
+                  to="/politicas"
+                  className="block px-4 py-2 hover:bg-gray-200"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Políticas de Privacidad
+                </Link>
+                <Link
+                  to="/terminosCondiciones"
+                  className="block px-4 py-2 hover:bg-gray-200"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Términos y Condiciones
+                </Link>
+                <Link
+                  to="/deslindeLegal"
+                  className="block px-4 py-2 hover:bg-gray-200"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  Deslinde Legal
+                </Link>
+              </div>
+            )}
           </div>
 
           <Link to="/incidencias" className="hover:text-gray-300">
             Monitor de incidencias
           </Link>
         </nav>
+
+        {/* Modo oscuro */}
         <button
-        onClick={toggleTheme}
-        className="ml-auto bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-900 transition"
-      >
-        {isDarkMode ? "🌞" : "🌙"}
-      </button>
+          onClick={toggleTheme}
+          className="ml-auto bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+        >
+          {isDarkMode ? "🌞" : "🌙"}
+        </button>
+
         {/* Botón Cerrar Sesión */}
         <button
           className="hidden md:block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -134,39 +162,43 @@ const AdminNavBar = () => {
               </Link>
             </li>
             <li>
-              {/* Dropdown en móvil */}
-              <span className="block hover:text-gray-300">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="block hover:text-gray-300 w-full text-left"
+              >
                 Documentos Regulatorios
-              </span>
-              <ul className="pl-4 space-y-2">
-                <li>
-                  <Link
-                    to="/politicas"
-                    className="block hover:text-gray-300"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Políticas de Privacidad
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terminosCondiciones"
-                    className="block hover:text-gray-300"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Términos y Condiciones
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/deslindeLegal"
-                    className="block hover:text-gray-300"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Deslinde Legal
-                  </Link>
-                </li>
-              </ul>
+              </button>
+              {dropdownOpen && (
+                <ul className="pl-4 space-y-2">
+                  <li>
+                    <Link
+                      to="/politicas"
+                      className="block hover:text-gray-300"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Políticas de Privacidad
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/terminosCondiciones"
+                      className="block hover:text-gray-300"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Términos y Condiciones
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/deslindeLegal"
+                      className="block hover:text-gray-300"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Deslinde Legal
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
             <li>
               <Link
@@ -193,4 +225,3 @@ const AdminNavBar = () => {
 };
 
 export default AdminNavBar;
-

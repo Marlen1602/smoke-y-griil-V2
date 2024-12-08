@@ -14,7 +14,7 @@ function RegisterPage() {
     const navigate = useNavigate();
     const password = watch("password");
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{12,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?!.*(\d)\1{2})(?!.*([a-zA-Z])\2{2})(?!.*(\W)\3{2})(?!.*0123456789)(?!.*123456789)(?!.*23456789)(?!.*34567890)(?!.*45678901)(?!.*987654321)(?!.*98765432)[A-Za-z\d\W_]{12,}$/;
 
     const [passwordStrength, setPasswordStrength] = useState("");
     const [email, setEmail] = useState(null);
@@ -35,6 +35,19 @@ function RegisterPage() {
             setPasswordStrength("strong");
         } else {
             setPasswordStrength("medium");
+        }
+        clearErrors("password");
+    };
+     // Función de validación de la contraseña
+    const handlePasswordChange = (password) => {
+        // Comprobamos si la contraseña es segura
+        if (passwordRegex.test(password)) {
+            setPasswordStrength("Strong");
+            clearErrors("password"); // Limpiar errores cuando la contraseña sea válida
+        } else {
+            setPasswordStrength("Weak");
+            // Establecer error si la contraseña no es válida
+            setErrors("password", { type: "manual", message: "La contraseña no cumple con los requisitos de seguridad." });
         }
     };
 
@@ -127,17 +140,30 @@ function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold mb-1">Correo electrónico</label>
-                        <input
-                            type="email"
-                            {...register("email", { required: true })}
-                            className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
-                            placeholder="Correo electrónico"
-                        />
-                        {errors.email && (
-                            <p className="text-red text-sm mt-1">Este campo es obligatorio</p>
-                        )}
-                    </div>
+    <label className="block text-sm font-bold mb-1">Correo electrónico</label>
+    <input
+        type="email"
+        {...register("email", {
+            required: "El correo electrónico es obligatorio.",
+            pattern: {
+                // Expresión regular más estricta con dominios comunes
+                value: /^[^\s@]+@(uthh\.edu\.mx|gmail\.com|hotmail\.com|yahoo\.com|outlook\.com)$/,
+                message: "Por favor, introduce un correo electrónico válido con un dominio válido.",
+            },
+        })}
+        className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+            isDarkMode
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                : "bg-gray-100 border-gray-300 text-gray-800"
+        }`}
+        placeholder="Correo electrónico"
+    />
+    {errors.email && (
+        <p className="text-red text-sm mt-1">{errors.email.message}</p>
+    )}
+</div>
+
+
 
                     <div>
                         <label className="block text-sm font-bold mb-1">Contraseña</label>
@@ -150,7 +176,7 @@ function RegisterPage() {
                                     validate: (value) => value === getValues("password") || "Las contraseñas no coinciden",
                                     pattern: {
                                         value: passwordRegex,
-                                        message: "Debe incluir mayúsculas, minúsculas, números y caracteres especiales."
+                                        message: "Verifique que su contraseña cumpla con todos los puntos para ser una contrasseña segura"
                                     }
                                 })}
                                 className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
@@ -187,6 +213,7 @@ function RegisterPage() {
                                     <li>Una letra minúscula</li>
                                     <li>Un número</li>
                                     <li>Un carácter especial</li>
+                                    <li>No patrones consecutivos</li>
                                 </ul>
                                 <button
                                     type="button"
@@ -265,10 +292,6 @@ function RegisterPage() {
     );
 }
 
-export default RegisterPage;
-
-
-
-
+export default RegisterPage; 
 
 

@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: { type: String },
     isVerified: { type: Boolean, default: false },
     isVeriedForResetPassword: { type: Boolean, default: false },
+    failedAttempts: { type: Number, default: 0 }, // Contador de intentos fallidos
+    isBlocked: { type: Boolean, default: false }, // True si la cuenta está bloqueada
+    lockUntil: { type: Date, default: null },
   },
   {
     timestamps: true,
