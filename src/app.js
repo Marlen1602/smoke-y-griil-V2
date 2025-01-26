@@ -7,6 +7,7 @@ import terminos from "./routes/terminosCondiciones.router.js"
 import deslinde from "./routes/deslindeLegal.router.js"
 import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
+import configuracion from "./routes/config.routes.js";
 import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 
@@ -31,5 +32,6 @@ app.use('/api',terminos);
 app.use('/api',deslinde);
 app.use("/api/empresa", empresaRoutes);
 app.use('/api',incidenciaRoutes);
+app.use('/api',configuracion);
 
 export default app;

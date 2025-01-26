@@ -45,7 +45,7 @@ const IncidenciasPage = () => {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
-        <div className="text-xl font-bold text-red-500">{error}</div>
+        <div className="text-xl font-bold text-red">{error}</div>
       </div>
     );
   }
@@ -90,7 +90,7 @@ const IncidenciasPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
           <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-6 rounded-xl w-full max-w-3xl relative shadow-2xl">
             <button
-              className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-red-600 text-2xl transition duration-200"
+              className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-red text-2xl transition duration-200"
               onClick={() => setSelectedUsuario(null)}
             >
               ✖
@@ -111,7 +111,7 @@ const IncidenciasPage = () => {
                     Estado:{" "}
                     <span
                       className={`font-bold ${
-                        incidencia.estado ? "text-red-500" : "text-green-500"
+                        incidencia.estado ? "text-red" : "text-green-500"
                       }`}
                     >
                       {incidencia.estado ? "Bloqueado" : "Activo"}

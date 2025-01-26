@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import AdminNavBar from './AdminNavBar';
+import React, { useState, useEffect } from "react";
+import AdminNavBar from "./AdminNavBar";
 import {
   getTermsRequest,
   createTermsRequest,
   updateTermsRequest,
   deleteTermsRequest,
   getTermsHistoryRequest,
-} from '../api/auth';
+} from "../api/auth";
 
 const TermsPage = () => {
   const [terms, setTerms] = useState([]);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [newTerm, setNewTerm] = useState({ title: '', descripcion: '', fechaVigencia: '' });
+  const [newTerm, setNewTerm] = useState({ title: "", descripcion: "" });
   const [selectedTermId, setSelectedTermId] = useState(null);
-  const [errors, setErrors] = useState({ title: '', descripcion: '', fechaVigencia: '' });
-  const [showModal, setShowModal] = useState(false);  // Estado para controlar la visibilidad del modal
-  const [termToDelete, setTermToDelete] = useState(null); // Termino que se quiere eliminar
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [termToDelete, setTermToDelete] = useState(null);
 
   useEffect(() => {
     fetchTerms();
@@ -28,38 +27,77 @@ const TermsPage = () => {
   };
 
   const handleCreateTerm = async () => {
-    const validationErrors = validateForm(newTerm);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    if (!validateFields()) return;
 
-    const response = await createTermsRequest(newTerm);
-    setTerms([...terms, response.data]);
-    setNewTerm({ title: '', descripcion: '', fechaVigencia: '' });
-    setErrors({ title: '', descripcion: '', fechaVigencia: '' });
+   // Validar si ya existe un término con el mismo título o descripción
+   const isDuplicate = terms.some(
+    (term) =>
+      term.title.toLowerCase() === newTerm.title.toLowerCase() ||
+      term.descripcion.toLowerCase() === newTerm.descripcion.toLowerCase()
+  );
+
+  if (isDuplicate) {
+    alert("Ya existe un término con el mismo título o descripción.");
+    return;
+  }
+
+    try {
+      const currentDate = new Date().toISOString();
+      const termWithDate = {
+        ...newTerm,
+        fechaVigencia: currentDate,
+      };
+
+      const response = await createTermsRequest(termWithDate);
+      setTerms([...terms, response.data]);
+      setNewTerm({ title: "", descripcion: "" });
+      alert("Término creado exitosamente.");
+    } catch (error) {
+      alert("Error al crear el término.");
+    }
   };
 
   const handleUpdateTerm = async (id) => {
-    const validationErrors = validateForm(newTerm);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    if (!validateFields()) return;
 
-    const response = await updateTermsRequest(id, newTerm);
-    setTerms(terms.map((term) => (term._id === id ? response.data : term)));
-    setNewTerm({ title: '', descripcion: '', fechaVigencia: '' });
-    setErrors({ title: '', descripcion: '', fechaVigencia: '' });
-    setSelectedTermId(null);
+    try {
+      const currentDate = new Date().toISOString();
+      const updatedTerm = {
+        ...newTerm,
+        fechaVigencia: currentDate,
+      };
+
+      const response = await updateTermsRequest(id, updatedTerm);
+      setTerms(terms.map((term) => (term._id === id ? response.data : term)));
+      setNewTerm({ title: "", descripcion: "" });
+      setSelectedTermId(null);
+      alert("Término actualizado exitosamente.");
+    } catch (error) {
+      alert("Error al actualizar el término.");
+    }
   };
 
   const handleDeleteTerm = async () => {
-    if (termToDelete) {
+    try {
       await deleteTermsRequest(termToDelete);
       fetchTerms();
-      setShowModal(false);  // Cerrar el modal después de la eliminación
+      setShowConfirmation(false);
+      alert("Término eliminado exitosamente.");
+    } catch (error) {
+      alert("Error al eliminar el término.");
     }
+  };
+
+  const validateFields = () => {
+    const validTitleRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,:;"'()!?¿%–\-]+$/;
+
+    if (!validTitleRegex.test(newTerm.title)) {
+      alert(
+        "El título solo puede contener letras, números, espacios, y caracteres válidos."
+      );
+      return false;
+    }
+    return true;
   };
 
   const fetchTermHistory = async (id) => {
@@ -68,113 +106,98 @@ const TermsPage = () => {
     setShowHistory(true);
   };
 
-  const validateForm = (term) => {
-    let validationErrors = {};
-
-    // Validar título (solo letras, números, espacios, acentos, y la letra ñ)
-    const titleRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (!titleRegex.test(term.title)) {
-      validationErrors.title = 'El título solo puede contener letras, números y espacios.';
-    }
-
-    // Validar descripción (similar al título)
-    const descripcionRegex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (!descripcionRegex.test(term.descripcion)) {
-      validationErrors.descripcion = 'La descripción solo puede contener letras, números y espacios.';
-    }
-
-    // Validar fecha de vigencia (no puede ser en el pasado)
-    const today = new Date();
-    const vigenciaDate = new Date(term.fechaVigencia);
-    if (vigenciaDate < today) {
-      validationErrors.fechaVigencia = 'La fecha de vigencia no puede ser en el pasado.';
-    }
-
-    return validationErrors;
-  };
-
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white min-h-screen font-sans">
+    <div className="bg-gray-100 dark:bg-gray-900 dark:text-white min-h-screen">
       <AdminNavBar />
-      <h1 className="text-3xl font-bold mb-6 text-center">Gestión de Términos y Condiciones</h1>
-      <div className="p-6">
-        {/* Formulario */}
-        <div className="flex flex-wrap items-center gap-4 mb-4">
-          <div className="flex flex-col w-full sm:w-auto">
-            <label className="font-bold text-gray-700 dark:text-gray-300">Título:</label>
-            <input
-              type="text"
-              placeholder="Título"
-              value={newTerm.title}
-              onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
-              className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
-            />
-            {errors.title && <span className="text-red text-sm">{errors.title}</span>}
+      <h1 className="text-3xl font-bold text-center mt-4">
+        Gestión de Términos y Condiciones
+      </h1>
+      <div className="p-4 md:p-10">
+        {/* Crear o editar término */}
+        <div className="col-span-1 mb-6">
+          <h2 className="text-2xl font-bold mb-4">
+            {selectedTermId ? "Editar Término" : "Crear Término"}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                Título:
+              </label>
+              <input
+                type="text"
+                placeholder="Título"
+                value={newTerm.title}
+                onChange={(e) =>
+                  setNewTerm({ ...newTerm, title: e.target.value })
+                }
+                className="border px-2 py-1 w-full rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                Descripción:
+              </label>
+              <textarea
+                placeholder="Descripción"
+                value={newTerm.descripcion}
+                onChange={(e) =>
+                  setNewTerm({ ...newTerm, descripcion: e.target.value })
+                }
+                className="border px-2 py-1 w-full rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
           </div>
-          <div className="flex flex-col w-full sm:w-auto">
-            <label className="font-bold text-gray-700 dark:text-gray-300">Descripción:</label>
-            <input
-              type="text"
-              placeholder="Descripción"
-              value={newTerm.descripcion}
-              onChange={(e) => setNewTerm({ ...newTerm, descripcion: e.target.value })}
-              className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
-            />
-            {errors.descripcion && <span className="text-red text-sm">{errors.descripcion}</span>}
-          </div>
-          <div className="flex flex-col w-full sm:w-auto">
-            <label className="font-bold text-gray-700 dark:text-gray-300">Fecha de Vigencia:</label>
-            <input
-              type="date"
-              placeholder="Fecha de Vigencia"
-              value={newTerm.fechaVigencia}
-              onChange={(e) => setNewTerm({ ...newTerm, fechaVigencia: e.target.value })}
-              className="border px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded"
-            />
-            {errors.fechaVigencia && <span className="text-red text-sm">{errors.fechaVigencia}</span>}
-          </div>
-          <div>
+          <div className="mt-4">
             {selectedTermId ? (
               <button
-                onClick={() => handleUpdateTerm(selectedTermId)}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-              >
-                Actualizar
-              </button>
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              onClick={() => handleUpdateTerm(selectedTermId)}
+            >
+              Actualizar
+            </button>
+            
             ) : (
               <button
-                onClick={handleCreateTerm}
-                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition"
-              >
-                Agregar
-              </button>
+              className={`bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition ${terms.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleCreateTerm}
+              disabled={terms.length > 0}
+            >
+              Agregar
+            </button>
             )}
           </div>
         </div>
 
-        {/* Tabla */}
+        {/* Tabla de términos */}
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border dark:bg-gray-800 dark:border-gray-600">
+          <table className="min-w-full bg-white border dark:bg-gray-800 dark:border-gray-600 dark:text-white">
             <thead>
               <tr>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Título</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Descripción</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Fecha de Vigencia</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Versión</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Acciones</th>
+                <th className="py-2 px-4 border-b">Fecha de Vigencia</th>
+                <th className="py-2 px-4 border-b">Título</th>
+                <th className="py-2 px-4 border-b">Descripción</th>
+                <th className="py-2 px-4 border-b">Versión</th>
+                <th className="py-2 px-4 border-b">Estado</th>
+                <th className="py-2 px-4 border-b">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {terms.map((term) => (
                 <tr key={term._id}>
-                  <td className="py-2 px-4 border-b dark:border-gray-700">{term.title}</td>
-                  <td className="py-2 px-4 border-b dark:border-gray-700">{term.descripcion}</td>
-                  <td className="py-2 px-4 border-b dark:border-gray-700">
-                    {new Date(term.fechaVigencia).toLocaleDateString()}
+                  <td className="py-2 px-4 border-b">
+                    {new Date(term.fechaVigencia).toLocaleDateString("es-ES", {
+                      timeZone: "America/Mexico_City",
+                    })}
                   </td>
-                  <td className="py-2 px-4 border-b dark:border-gray-700">{term.version}</td>
-                  <td className="py-2 px-4 border-b dark:border-gray-700 space-y-2">
+                  <td className="py-2 px-4 border-b">{term.title}</td>
+                  <td className="py-2 px-4 border-b">{term.descripcion}</td>
+                  <td className="py-2 px-4 border-b">{term.version}</td>
+                  <td className="py-2 px-4 border-b">
+                    {term.isDeleted ? "No vigente" : "Vigente"}
+                  </td>
+                  <td className="py-2 px-4 border-b flex space-x-2">
                     <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
                       onClick={() => {
                         setNewTerm({
                           title: term.title,
@@ -183,22 +206,21 @@ const TermsPage = () => {
                         });
                         setSelectedTermId(term._id);
                       }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition block"
                     >
                       Editar
                     </button>
                     <button
-                      onClick={() => { 
-                        setTermToDelete(term._id); 
-                        setShowModal(true); 
+                      className="bg-red text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                      onClick={() => {
+                        setTermToDelete(term._id);
+                        setShowConfirmation(true);
                       }}
-                      className="bg-red text-white px-3 py-1 rounded hover:bg-red transition block"
                     >
                       Eliminar
                     </button>
                     <button
+                      className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 transition"
                       onClick={() => fetchTermHistory(term._id)}
-                      className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition block"
                     >
                       Historial
                     </button>
@@ -209,51 +231,28 @@ const TermsPage = () => {
           </table>
         </div>
 
-        {/* Modal de Confirmación */}
-        {showModal && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-              <h2 className="text-xl font-bold mb-4">¿Estás seguro de eliminar este término?</h2>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDeleteTerm}
-                  className="bg-red text-white px-4 py-2 rounded hover:bg-red"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Historial */}
+        {/* Historial de versiones */}
         {showHistory && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Historial de versiones</h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border dark:bg-gray-800 dark:border-gray-600">
+              <table className="min-w-full bg-white border dark:bg-gray-800 dark:border-gray-600 dark:text-white">
                 <thead>
                   <tr>
-                    <th className="py-2 px-4 border-b dark:border-gray-700">Título</th>
-                    <th className="py-2 px-4 border-b dark:border-gray-700">Descripción</th>
-                    <th className="py-2 px-4 border-b dark:border-gray-700">Versión</th>
-                    <th className="py-2 px-4 border-b dark:border-gray-700">Estado</th>
+                    <th className="py-2 px-4 border-b">Título</th>
+                    <th className="py-2 px-4 border-b">Descripción</th>
+                    <th className="py-2 px-4 border-b">Versión</th>
+                    <th className="py-2 px-4 border-b">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((item) => (
                     <tr key={item._id}>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.title}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.descripcion}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{item.version}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
-                        {item.isDeleted ? 'No vigente' : 'Vigente'}
+                      <td className="py-2 px-4 border-b">{item.title}</td>
+                      <td className="py-2 px-4 border-b">{item.descripcion}</td>
+                      <td className="py-2 px-4 border-b">{item.version}</td>
+                      <td className="py-2 px-4 border-b">
+                        {item.isDeleted ? "No vigente" : "Vigente"}
                       </td>
                     </tr>
                   ))}
@@ -261,11 +260,32 @@ const TermsPage = () => {
               </table>
             </div>
             <button
-              onClick={() => setShowHistory(false)}
               className="text-blue-500 mt-4 underline"
+              onClick={() => setShowHistory(false)}
             >
               Cerrar historial
             </button>
+          </div>
+        )}
+
+        {/* Modal de confirmación para eliminar */}
+        {showConfirmation && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg text-center">
+              <p className="mb-4">¿Estás seguro de que quieres eliminar este término?</p>
+              <button
+                className="bg-red text-white px-4 py-2 rounded hover:bg-red-600 transition mr-2"
+                onClick={handleDeleteTerm}
+              >
+                Sí, eliminar
+              </button>
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                onClick={() => setShowConfirmation(false)}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -274,8 +294,6 @@ const TermsPage = () => {
 };
 
 export default TermsPage;
-
-
 
 
 

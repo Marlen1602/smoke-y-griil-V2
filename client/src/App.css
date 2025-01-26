@@ -40,5 +40,16 @@
 .read-the-docs {
   color: #888;
 }
+@keyframes float {
+  0%, 100% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
 
+.error-page div.relative {
+  animation: float 3s ease-in-out infinite;
+}
 

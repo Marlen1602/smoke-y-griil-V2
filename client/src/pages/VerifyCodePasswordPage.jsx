@@ -2,14 +2,14 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
 import { useState } from "react";
-import { useTheme } from "../contex/ThemeContext"; // Importa el contexto del tema
+import { useTheme } from "../contex/ThemeContext";
 
 const VerifyCodePasswordPage = () => {
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm();
     const { verifyCodeForPassword, errors: verifyErrors } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const { isDarkMode } = useTheme(); // Usamos el estado del tema oscuro
+    const { isDarkMode } = useTheme();
 
     const onSubmit = async (data) => {
         try {
@@ -45,20 +45,26 @@ const VerifyCodePasswordPage = () => {
                         <label className="block text-sm font-bold mb-2">Código de Verificación</label>
                         <input
                             type="text"
-                            {...register("code", { required: true })}
+                            {...register("code", {
+                                required: "El código es requerido",
+                                pattern: {
+                                    value: /^\d{6}$/, // Permite únicamente números de exactamente 6 dígitos
+                                    message: "El código debe ser un número de 6 dígitos",
+                                },
+                            })}
                             className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "border-gray-300"}`}
                             placeholder="Ingresa tu código"
                         />
-                        {formErrors.code && <span className="text-red text-sm">El código es requerido</span>}
+                        {formErrors.code && <span className="text-red text-sm">{formErrors.code.message}</span>}
                     </div>
                     <div className="col-span-1 md:col-span-2 grid place-items-center">
-                    <button
-                        type="submit"
-                        className="w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300"
-                        disabled={loading}
-                    >
-                        {loading ? "Verificando..." : "Verificar Código"}
-                    </button>
+                        <button
+                            type="submit"
+                            className="w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300"
+                            disabled={loading}
+                        >
+                            {loading ? "Verificando..." : "Verificar Código"}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -67,5 +73,6 @@ const VerifyCodePasswordPage = () => {
 };
 
 export default VerifyCodePasswordPage;
+
 
 

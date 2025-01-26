@@ -34,7 +34,7 @@ const VerifyEmail = () => {
 
                 {/* Mostrar errores del servidor */}
                 {errors.length > 0 && (
-                    <div className="bg-red-500 bg-rose-300 text-black text-center p-2 rounded mb-4">
+                    <div className="bg-red bg-rose-300 text-black text-center p-2 rounded mb-4">
                         {errors[0]}
                     </div>
                 )}
@@ -48,7 +48,7 @@ const VerifyEmail = () => {
                             {...register("email", { required: true })}
                             className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
                         />
-                        {formErrors.email && <span className="text-red-500 text-sm">El correo es requerido</span>}
+                        {formErrors.email && <span className="text-red text-sm">El correo es requerido</span>}
                     </div>
 
                

@@ -99,6 +99,9 @@ const AdminNavBar = () => {
           <Link to="/incidencias" className="hover:text-gray-300">
             Monitor de incidencias
           </Link>
+          <Link to="/configuracion" className="hover:text-gray-300">
+            usuarios
+          </Link>
         </nav>
 
         {/* Modo oscuro */}
@@ -207,6 +210,15 @@ const AdminNavBar = () => {
                 onClick={() => setMenuOpen(false)}
               >
                 Monitor de incidencias
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/configuracion"
+                className="block hover:text-gray-300"
+                onClick={() => setMenuOpen(false)}
+              >
+                usuarios
               </Link>
             </li>
             <li>

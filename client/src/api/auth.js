@@ -58,3 +58,13 @@ export const getIncidencias = async () => axios.get(`${API}/incidencias`);
 export const createIncidencia = async (data) => axios.post(`${API}/incidencias`, data);
 export const updateIncidencia = async (id, data) => axios.put(`${API}/incidencias${id}`, data);
 export const deleteIncidencia = async (id) => axios.delete(`${API}/incidencias${id}`);
+
+//lista de usuarios 
+export const getUsuarios = async () => axios.get(`${API}/usuarios`);
+export const unlock = async (id) => {
+  return axios.put(`${API}/unlock/${id}`, {}, { withCredentials: true });
+};
+
+export const blockUser = async (id) => {
+  return axios.put(`${API}/block/${id}`, {}, { withCredentials: true });
+};

@@ -25,7 +25,7 @@ export const updatePassword = async (req, res) => {
       // Verificar si la cuenta está bloqueada
       if (userFound.isBlocked) {
         return res.status(403).json({ 
-          message: "Tu cuenta está bloqueada. No puedes cambiar la contraseña. Contacta con el administrador." 
+          message: "Tu cuenta está bloqueada. No puedes cambiar la contraseña." 
         });
       }
   
@@ -65,3 +65,19 @@ export const updatePassword = async (req, res) => {
       return res.status(500).json({ message: 'Error interno del servi' });
     }
   };
+
+  // Obtener lista de usuarios
+export const getUsers = async (req, res) => {
+try {
+    // Se obtiene el nombre, email, rol, estado de bloqueo (isBlocked) y número de intentos fallidos
+    const users = await User.find({}, "nombre email role isBlocked ");
+
+    // Respuesta exitosa con los usuarios
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    return res.status(500).json({ message: "Error al obtener usuarios." });
+  }
+};
+
+

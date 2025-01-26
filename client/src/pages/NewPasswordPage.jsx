@@ -19,7 +19,8 @@ const NewPasswordPage = () => {
   const { isDarkMode } = useTheme(); // Usamos el estado del tema oscuro
   const email = localStorage.getItem("email");
 
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{12,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?!.*(\d)\1{2})(?!.*([a-zA-Z])\2{2})(?!.*(\W)\3{2})(?!.*0123456789)(?!.*123456789)(?!.*23456789)(?!.*34567890)(?!.*45678901)(?!.*987654321)(?!.*98765432)[A-Za-z\d\W_]{12,}$/;
+
 
   useEffect(() => {
     if (!email) {

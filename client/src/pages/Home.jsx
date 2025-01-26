@@ -32,14 +32,15 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Barra de búsqueda */}
-        <div className="w-full md:flex-1 mx-0 md:mx-6 my-4 md:my-0">
-          <input
-            type="text"
-            placeholder="Buscar"
-            className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-          />
-        </div>
+        {/* Barra de búsqueda con ícono a un lado */}
+<div className="w-full md:flex-1 mx-0 md:mx-6 my-4 md:my-0 flex items-center space-x-2">
+  <input
+        type="text"
+        placeholder="Buscar"
+        className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+      />
+      <i className="fas fa-search text-xl text-white dark:text-white cursor-pointer"></i>  
+    </div>
 
         {/* Iconos de ingreso, carrito y modo oscuro */}
         <div className="flex items-center space-x-6 text-white">
@@ -49,7 +50,6 @@ const Home = () => {
           >
             {isDarkMode ? "☀️" : "🌙"}
           </button>
-          <i className="fas fa-search text-xl"></i>
           <div className="flex items-center text-sm">
             <i
               className="fas fa-user text-xl cursor-pointer"

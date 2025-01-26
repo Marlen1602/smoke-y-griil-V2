@@ -2,13 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contex/AuthContext";
 import { useState } from "react";
-import { useTheme } from "../contex/ThemeContext"; // Importa el contexto del modo oscuro
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid"; // Iconos para mostrar/ocultar contraseña
+import { useTheme } from "../contex/ThemeContext";
 
 const LoginPage = () => {
   const { login, errors } = useAuth();
   const { register, handleSubmit, formState: { errors: formErrors } } = useForm();
   const [loading, setLoading] = useState(false);
-  const { isDarkMode, toggleTheme } = useTheme(); // Obtener el estado del modo oscuro y la función para alternar
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Estado para mostrar u ocultar contraseña
+  const { isDarkMode } = useTheme();
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -21,12 +23,11 @@ const LoginPage = () => {
       <div className={`p-8 md:p-10 rounded-lg shadow-lg w-full max-w-md ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">Iniciar sesión</h2>
 
-
         {/* Mostrar errores del servidor */}
         {errors.length > 0 && (
           <div className="bg-red text-white text-center p-2 rounded mb-4">
             {errors[0].message === "La cuenta está bloqueada"
-              ? "Tu cuenta ha sido bloqueada. Contacta al administrador."
+              ? "Tu cuenta ha sido bloqueada."
               : errors[0]}
           </div>
         )}
@@ -36,32 +37,54 @@ const LoginPage = () => {
           <div>
             <label className="block text-sm font-bold mb-2">Correo electrónico</label>
             <input
-              type="text"
-              {...register("email", { required: true })}
-              className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800"}`}
+              type="email"
+              {...register("email", {
+                required: "El correo es requerido",
+                pattern: {
+                  value: /^[^\s@]+@(uthh\.edu\.mx|gmail\.com|hotmail\.com|yahoo\.com|outlook\.com)$/,
+                  message: "Por favor introduce un correo válido con un dominio aceptado.",
+                },
+              })}
+              className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800"
+              }`}
               placeholder="Ingresa tu correo"
             />
-            {formErrors.email && <span className="text-red text-sm">El correo es requerido</span>}
+            {formErrors.email && <span className="text-red text-sm">{formErrors.email.message}</span>}
           </div>
 
           <div>
             <label className="block text-sm font-bold mb-2">Contraseña</label>
-            <input
-              type="password"
-              {...register("password", { required: true })}
-              className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800"}`}
-              placeholder="Ingresa tu contraseña"
-            />
-            {formErrors.password && <span className="text-red-500 text-sm">La contraseña es requerida</span>}
+            <div className="relative">
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                {...register("password", { required: "La contraseña es requerida" })}
+                className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800"
+                }`}
+                placeholder="Ingresa tu contraseña"
+              />
+              <button
+                type="button"
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                className="absolute right-3 top-3 text-gray-600"
+              >
+                {isPasswordVisible ? <EyeSlashIcon className="w-6 h-6" /> : <EyeIcon className="w-6 h-6" />}
+              </button>
+            </div>
+            {formErrors.password && <span className="text-red text-sm">{formErrors.password.message}</span>}
           </div>
+
           <div className="col-span-1 md:col-span-2 grid place-items-center">
-          <button
-            type="submit"
-            className={`w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300 ${isDarkMode ? "bg-orange-600 hover:bg-orange-700 text-white" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
-            disabled={loading}
-          >
-            {loading ? "Cargando..." : "Iniciar sesión"}
-          </button>
+            <button
+              type="submit"
+              className={`w-full md:w-80 h-12 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-full transition duration-300 ${
+                isDarkMode ? "bg-orange-600 hover:bg-orange-700 text-white" : "bg-orange-600 hover:bg-orange-700 text-white"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Cargando..." : "Iniciar sesión"}
+            </button>
           </div>
         </form>
 
@@ -84,5 +107,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-

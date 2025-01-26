@@ -59,7 +59,7 @@ const VerifyCodePage = () => {
 
                 {/* Mostrar el mensaje de error si existe */}
                 {errorMessage && (
-                    <div className="bg-red-500 text-white text-center p-2 rounded mb-4">
+                    <div className="bg-red text-white text-center p-2 rounded mb-4">
                         {errorMessage}
                     </div>
                 )}
@@ -79,12 +79,12 @@ const VerifyCodePage = () => {
                             type="text"
                             id="code"
                             className={`mt-2 p-2 w-full border rounded-lg ${
-                                formErrors.code ? "border-red-500" : "border-gray-300"
+                                formErrors.code ? "border-red" : "border-gray-300"
                             }`}
                             placeholder="Ingresa el código"
                         />
                         {formErrors.code && (
-                            <p className="text-red-500 text-xs mt-1">{formErrors.code.message}</p>
+                            <p className="text-red text-xs mt-1">{formErrors.code.message}</p>
                         )}
                     </div>
 

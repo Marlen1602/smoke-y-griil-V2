@@ -16,7 +16,12 @@ import TermsPage from "./pages/TermsPage";
 import DeslindePage from "./pages/DeslindePage";
 import EmpresaPage from "./pages/EmpresaPage";
 import IncidenciasPage from "./pages/IncidenciaPage";
+import ConfigPage from "./pages/ConfigPage";
 import { ThemeProvider } from "./contex/ThemeContext"; 
+import Error404 from "./pages/404"
+import Error400 from "./pages/400"
+import Error500 from "./pages/500"
+
 
 function App() {
   return (
@@ -37,8 +42,12 @@ function App() {
           <Route path="/deslindeLegal" element={<DeslindePage />} />
           <Route path="/empresa" element={<EmpresaPage />} />
           <Route path="/incidencias" element={<IncidenciasPage />} />
+          <Route path="/configuracion" element={<ConfigPage />} />
+
           <Route path="/authModal" element={<AuthModal />} />
-          
+          <Route path="/error-400" element={<Error400 />} />
+          <Route path="/error-500" element={<Error500 />} />
+          <Route path="*" element={<Error404 />} />
 
 
           <Route path="/recuperar-contraseña" element={<VerifyEmail />} />

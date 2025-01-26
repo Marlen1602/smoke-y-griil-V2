@@ -29,7 +29,15 @@ export const login = async (req, res) => {
     // Obtener configuración global
     const config = await Config.findOne();
     const maxAttempts = config?.maxAttempts || 3;
-    const lockDuration = config?.lockDuration || 30 * 60 * 1000; // 30 minutos
+    const lockDuration = config?.lockDuration || 5 * 60 * 1000; // 30 minutos
+
+     // Verificar si el bloqueo ha expirado
+     if (userFound.lockUntil && userFound.lockUntil <= Date.now()) {
+      userFound.isBlocked = false;
+      userFound.lockUntil = null;
+      userFound.failedAttempts = 0;
+      await userFound.save();
+    }
 
     // Verificar si la cuenta está bloqueada por tiempo
     if (userFound.lockUntil && userFound.lockUntil > Date.now()) {
@@ -59,6 +67,7 @@ export const login = async (req, res) => {
       if (userFound.failedAttempts >= maxAttempts) {
         userFound.lockUntil = Date.now() + lockDuration; // Establecer tiempo de bloqueo
         userFound.failedAttempts = 0; // Reiniciar intentos
+        userFound.isBlocked = true;
 
          // Registrar incidencia de bloqueo
          const incidencia = new Incidencia({
@@ -94,6 +103,7 @@ export const login = async (req, res) => {
      // Restablecer intentos fallidos y desbloquear en caso de éxito
      userFound.failedAttempts = 0;
      userFound.lockUntil = null;
+     userFound.isBlocked = false;
      await userFound.save();
  
      // Registrar incidencia de intento exitoso
@@ -135,26 +145,71 @@ export const login = async (req, res) => {
 };
 
 export const unlockUser = async (req, res) => {
-  const { email } = req.body;
+  const { id } = req.params; // Recibe el ID del usuario desde el body
 
   try {
-    const userFound = await User.findOne({ email });
+    const userFound = await User.findById(id); // Busca al usuario por ID
 
     if (!userFound) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
     // Desbloquear al usuario
-    userFound.failedAttempts = 0;
-    userFound.isBlocked = false;
-    await userFound.save();
+    userFound.failedAttempts = 0; // Reiniciar intentos fallidos
+    userFound.lockUntil = null;
+    userFound.isBlocked = false; // Cambiar el estado de bloqueo
+  
+    await userFound.save(); // Guardar los cambios
+
+    // Registrar incidencia de desbloqueo
+    const incidencia = new Incidencia({
+      usuario: userFound.username,
+      tipo: "Desbloqueo de cuenta",
+      estado: false,
+      motivo: "Cuenta desbloqueada por el administrador",
+      fecha: new Date(),
+    });
+    await incidencia.save();
 
     res.status(200).json({ message: "Usuario desbloqueado exitosamente" });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error al desbloquear usuario:", error);
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
+
+export const blockUser = async (req, res) => {
+  const { id } = req.params; // ID del usuario en los parámetros de la ruta
+
+  try {
+    const userFound = await User.findById(id); // Busca al usuario por su ID
+
+    if (!userFound) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Bloquear al usuario
+    userFound.isBlocked = true;
+    userFound.failedAttempts = 0; // Reiniciar intentos fallidos
+    await userFound.save();
+
+    // Registrar incidencia de bloqueo
+    const incidencia = new Incidencia({
+      usuario: userFound.username,
+      tipo: "Bloqueo manual de cuenta",
+      estado: true,
+      motivo: "Bloqueado por el administrador",
+      fecha: new Date(),
+    });
+    await incidencia.save();
+
+    return res.status(200).json({ message: "Usuario bloqueado exitosamente" });
+  } catch (error) {
+    console.error("Error al bloquear usuario:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
 
 
 const sendVerificationEmail = async (email, code) => {
