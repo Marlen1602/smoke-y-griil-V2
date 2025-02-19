@@ -68,3 +68,4 @@ export const unlock = async (id) => {
 export const blockUser = async (id) => {
   return axios.put(`${API}/block/${id}`, {}, { withCredentials: true });
 };
+

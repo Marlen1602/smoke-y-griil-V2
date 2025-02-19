@@ -5,6 +5,9 @@ import { useAuth } from "../contex/AuthContext";
 import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para el modo oscuro
 import ReCAPTCHA from "react-google-recaptcha";
 import '../styles/medidor.css';
+import Breadcrumbs from "../pages/Breadcrumbs";
+import logo from '../assets/logo.png';
+import Header from './PrincipalNavBar'; // Importa el componente Header
 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
@@ -85,7 +88,14 @@ function RegisterPage() {
     };
 
     return (
-        <div className={`min-h-screen flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"}`}>
+        <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
+      {/* Header */}
+      <Header />
+       {/* Breadcrumbs en la parte blanca */}
+  <div className="bg-white py-3 px-8  rounded-md flex items-center">
+    <Breadcrumbs />
+  </div>
+        <div className={`min-h flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : " text-gray-800"}`}>
             <div className={`w-full max-w-3xl p-8 md:p-10 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
                 {/* Mostrar errores de registro */}
                 {Array.isArray(registerErrors) && registerErrors.map((error, i) => (
@@ -289,6 +299,39 @@ function RegisterPage() {
                 </div>
             </div >
         </div >
+        
+              {/* Footer */}
+                        <footer className="bg-gray-950 dark:bg-gray-800 text-white py-6 px-4 mt-10">
+                          <div className="container mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
+                            {/* Logo */}
+                            <div className="w-full md:w-auto flex justify-center md:justify-start">
+                              <img src={logo} alt="Logo" className="h-12" />
+                            </div>
+                  
+                            {/* Enlaces */}
+                            <div className="w-full md:w-auto flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-8">
+                              <ul className="space-y-2 text-center md:text-left">
+                                <li>Misión</li>
+                                <li>Quiénes Somos</li>
+                                <li>Visión</li>
+                                
+                              </ul>
+                              <ul className="space-y-2 text-center md:text-left">
+                                
+                                <li>Términos y Condiciones</li>
+                                <li>Aviso de Privacidad</li>
+                              </ul>
+                            </div>
+                  
+                            {/* Redes Sociales */}
+                            <div className="w-full md:w-auto flex justify-center md:justify-start space-x-4">
+                              <i className="fab fa-facebook text-2xl"></i>
+                              <i className="fab fa-instagram text-2xl"></i>
+                              <i className="fab fa-tiktok text-2xl"></i>
+                            </div>
+                          </div>
+                        </footer>
+        </div>
     );
 }
 

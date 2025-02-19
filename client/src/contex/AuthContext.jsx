@@ -20,6 +20,18 @@ export const AuthProvider = ({ children }) => {
   const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
 
+  const handleRequestError = (error) => {
+    console.error("Error en la solicitud:", error);
+
+    // Redirige a error 500 si el servidor no responde o no hay conexión a Internet
+    if (!error.response) {
+      navigate("/error-500");
+      return;
+    }
+
+    setErrors([error.response?.data?.message || "Error inesperado"]);
+  };
+
   // Función de verificación de código
   const verifyCode = async (formData) => {
     try {
@@ -130,13 +142,13 @@ export const AuthProvider = ({ children }) => {
       setErrors([]);
 
       if (res.data.role === "administrador") {
-          navigate("/paginaAdministrador");
+        navigate("/paginaAdministrador");
       } else {
-          navigate("/paginaCliente");
+        navigate("/paginaCliente");
       }
-  } catch (error) {
-      setErrors([error.response?.data?.message || "Error en el inicio de sesión"]);
-  }
+    } catch (error) {
+      handleRequestError(error);
+    }
   };
 
   const logout = async () => {

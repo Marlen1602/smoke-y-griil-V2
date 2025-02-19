@@ -8,6 +8,7 @@ import deslinde from "./routes/deslindeLegal.router.js"
 import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
+import menuRoutes from "./routes/menu.routes.js";
 import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 
@@ -33,5 +34,6 @@ app.use('/api',deslinde);
 app.use("/api/empresa", empresaRoutes);
 app.use('/api',incidenciaRoutes);
 app.use('/api',configuracion);
+app.use("/api/menu", menuRoutes);
 
 export default app;

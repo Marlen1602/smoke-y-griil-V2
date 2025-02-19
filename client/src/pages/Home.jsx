@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
-import AuthModal from './AuthModal'; // Asegúrate de importar el componente modal
+import Header from './PrincipalNavBar'; // Importa el componente Header
 import imagen from '../assets/image.png';
 import logo from '../assets/logo.png';
-import { useTheme } from "../contex/ThemeContext.jsx" // Importa el contexto para el modo oscuro
+import AuthModal from './AuthModal'; // Importa el modal
+import Breadcrumbs from "../pages/Breadcrumbs";
 
 const Home = () => {
-  const [showModal, setShowModal] = useState(false);
-  const { isDarkMode, toggleTheme } = useTheme(); // Obtener el estado y la función para alternar el modo oscuro
+  const [showModal, setShowModal] = useState(false); // Control del modal
+
+  const [activeFaq, setActiveFaq] = useState(null);
+
+const faqData = [
+  { question: "¿Cómo hago un pedido?", answer: "Solo navega por nuestro menú, selecciona los platillos y agrégalos al carrito. Luego, finaliza la compra con tu método de pago favorito." },
+  { question: "¿Cuánto tarda la entrega?", answer: "El tiempo de entrega varía según la zona, pero generalmente es de 30 a 45 minutos." },
+  { question: "¿Puedo pagar en efectivo?", answer: "Sí, aceptamos pagos en efectivo, tarjeta y transferencias bancarias." },
+  ];
+
+const toggleFaq = (index) => {
+  setActiveFaq(activeFaq === index ? null : index);
+};
+
 
   const handleLoginClick = () => {
-    setShowModal(true); // Abre el modal cuando el usuario hace clic en "Ingreso"
+    setShowModal(true); // Abre el modal
   };
 
   const handleCloseModal = () => {
@@ -19,53 +32,11 @@ const Home = () => {
   return (
     <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
       {/* Header */}
-      <header className="flex flex-wrap justify-between items-center p-4 shadow-md bg-black dark:bg-gray-800">
-        {/* Menú y logo */}
-        <div className="flex items-center space-x-4">
-          <button className="text-white text-2xl">
-            <i className="fas fa-bars"></i>
-          </button>
-          <img src={logo} alt="Logo" className="h-16 md:h-24 w-auto" />
-          <div className="hidden md:flex items-center text-sm text-gray-400 dark:text-gray-300">
-            <i className="fas fa-map-marker-alt text-xl cursor-pointer"></i>
-            <span className="ml-1">Ubicación</span>
-          </div>
-        </div>
-
-        {/* Barra de búsqueda con ícono a un lado */}
-<div className="w-full md:flex-1 mx-0 md:mx-6 my-4 md:my-0 flex items-center space-x-2">
-  <input
-        type="text"
-        placeholder="Buscar"
-        className="w-full p-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-      />
-      <i className="fas fa-search text-xl text-white dark:text-white cursor-pointer"></i>  
-    </div>
-
-        {/* Iconos de ingreso, carrito y modo oscuro */}
-        <div className="flex items-center space-x-6 text-white">
-          <button
-            onClick={toggleTheme}
-            className="bg-gray-600 text-white py-1 px-3 rounded-full text-sm hover:bg-gray-500 transition"
-          >
-            {isDarkMode ? "☀️" : "🌙"}
-          </button>
-          <div className="flex items-center text-sm">
-            <i
-              className="fas fa-user text-xl cursor-pointer"
-              onClick={handleLoginClick}
-            ></i>
-            <span
-              className="ml-2 cursor-pointer"
-              onClick={handleLoginClick}
-            >
-              Ingreso
-            </span>
-          </div>
-          <i className="fas fa-shopping-cart text-xl"></i>
-        </div>
-      </header>
-
+      <Header />
+       {/* Breadcrumbs en la parte blanca */}
+  <div className="bg-white py-3 px-8  rounded-md flex items-center">
+    <Breadcrumbs />
+  </div>
       {/* Modal de autenticación */}
       {showModal && <AuthModal onClose={handleCloseModal} />}
 
@@ -83,42 +54,99 @@ const Home = () => {
           </p>
           <button
             className="bg-orange-600 text-white w-full md:w-80 h-12 py-3 px-6 rounded-full font-bold hover:bg-orange-700 transition"
-            onClick={handleLoginClick}
+            onClick={handleLoginClick} // Llama a la función para abrir el modal
           >
             ¡Pide ahora!
           </button>
         </div>
       </main>
+      {/* Sección de Ayuda */}
+<section className="bg-gray-100 dark:bg-gray-800 py-10 px-6">
+  <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">¿Necesitas Ayuda?</h2>
+  
+  <div className="max-w-4xl mx-auto space-y-4">
+    {faqData.map((faq, index) => (
+      <div key={index} className="border rounded-lg p-4 shadow-md bg-white dark:bg-gray-700">
+        <button
+          className="w-full text-left flex justify-between items-center font-semibold text-gray-800 dark:text-white"
+          onClick={() => toggleFaq(index)}
+        >
+          {faq.question}
+          <span>{activeFaq === index ? "▲" : "▼"}</span>
+        </button>
+        {activeFaq === index && <p className="mt-2 text-gray-600 dark:text-gray-300">{faq.answer}</p>}
+      </div>
+    ))}
+  </div>
+</section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 dark:bg-gray-800 text-white py-6 px-4">
-        <div className="container mx-auto flex flex-wrap justify-between space-y-6 md:space-y-0">
-          <div className="w-full md:w-auto">
-            <img src={logo} alt="Logo" className="h-12 mx-auto md:mx-0" />
-          </div>
-          <div className="w-full md:w-auto flex flex-wrap justify-around md:justify-between space-y-4 md:space-y-0">
-            <ul className="space-y-2 text-center md:text-left">
-              <li>Misión</li>
-              <li>Quiénes Somos</li>
-              <li>Visión</li>
-              <li>Comentarios</li>
-            </ul>
-            <ul className="space-y-2 text-center md:text-left">
-              <li>Consumo Responsable</li>
-              <li>Términos y Condiciones</li>
-              <li>Aviso de Privacidad</li>
-            </ul>
-            <div className="flex justify-center md:justify-start space-x-4">
-              <i className="fab fa-facebook text-2xl"></i>
-              <i className="fab fa-instagram text-2xl"></i>
-              <i className="fab fa-twitter text-2xl"></i>
-              <i className="fab fa-tiktok text-2xl"></i>
-            </div>
-          </div>
-        </div>
-      </footer>
+{/* Sección de Contáctanos */}
+<section className="bg-white dark:bg-gray-900 py-10 px-6">
+  <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">📞 Contáctanos</h2>
+
+  <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-8">
+    {/* Teléfono */}
+    <div className="flex items-center space-x-3">
+      <i className="fas fa-phone text-2xl text-orange-600"></i>
+      <span className="text-gray-800 dark:text-white font-semibold">+52 1 771 568 5117</span>
+    </div>
+
+    {/* Correo Electrónico */}
+    <div className="flex items-center space-x-3">
+      <i className="fas fa-envelope text-2xl text-orange-600"></i>
+      <span className="text-gray-800 dark:text-white font-semibold">SmokeyGrill@gmail.com</span>
+    </div>
+
+    {/* WhatsApp */}
+    <div className="flex items-center space-x-3">
+      <i className="fab fa-whatsapp text-2xl text-green-500"></i>
+      <a
+        href="https://wa.me/5217715685117"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-800 dark:text-white font-semibold hover:text-orange-600 transition"
+      >
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+
+        {/* Footer */}
+            <footer className="bg-gray-950 dark:bg-gray-800 text-white py-6 px-4 mt-10">
+              <div className="container mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
+                {/* Logo */}
+                <div className="w-full md:w-auto flex justify-center md:justify-start">
+                  <img src={logo} alt="Logo" className="h-12" />
+                </div>
+      
+                {/* Enlaces */}
+                <div className="w-full md:w-auto flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-8">
+                  <ul className="space-y-2 text-center md:text-left">
+                    <li>Misión</li>
+                    <li>Quiénes Somos</li>
+                    <li>Visión</li>
+                    
+                  </ul>
+                  <ul className="space-y-2 text-center md:text-left">
+                    
+                    <li>Términos y Condiciones</li>
+                    <li>Aviso de Privacidad</li>
+                  </ul>
+                </div>
+      
+                {/* Redes Sociales */}
+                <div className="w-full md:w-auto flex justify-center md:justify-start space-x-4">
+                  <i className="fab fa-facebook text-2xl"></i>
+                  <i className="fab fa-instagram text-2xl"></i>
+                  <i className="fab fa-tiktok text-2xl"></i>
+                </div>
+              </div>
+            </footer>
     </div>
   );
 };
 
 export default Home;
+

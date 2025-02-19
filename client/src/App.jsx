@@ -21,43 +21,55 @@ import { ThemeProvider } from "./contex/ThemeContext";
 import Error404 from "./pages/404"
 import Error400 from "./pages/400"
 import Error500 from "./pages/500"
+import Menu from "./pages/Menu"
+import MenuPage from "./pages/MenuClient";
+import { SearchProvider } from "./contex/SearchContext";
 
 
 function App() {
   return (
     <ThemeProvider>
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/registrar" element={<RegisterPage />} />
-          <Route path="/verificar-codigo" element={<VerifyCodePage /> } />
-          <Route element={<ProtectedRoute onlyVerified={true} />}>
-            <Route path="/paginaCliente" element={<ClientPage />} />
-          </Route>
-          <Route path="/paginaAdministrador" element={<AdminPage />} />
-          <Route path="/politicas" element={<PoliticasPage />} />
-          <Route path="/terminosCondiciones" element={<TermsPage />} />
-          <Route path="/deslindeLegal" element={<DeslindePage />} />
-          <Route path="/empresa" element={<EmpresaPage />} />
-          <Route path="/incidencias" element={<IncidenciasPage />} />
-          <Route path="/configuracion" element={<ConfigPage />} />
+       <SearchProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/registrar" element={<RegisterPage />} />
+            <Route path="/verificar-codigo" element={<VerifyCodePage />} />
+            
+            {/* Rutas accesibles sin autenticación */}
+            <Route path="/menu" element={<Menu />} />
 
-          <Route path="/authModal" element={<AuthModal />} />
-          <Route path="/error-400" element={<Error400 />} />
-          <Route path="/error-500" element={<Error500 />} />
-          <Route path="*" element={<Error404 />} />
+            {/* Rutas protegidas */}
+            <Route element={<ProtectedRoute onlyVerified={true} />}>
+              <Route path="/paginaCliente" element={<ClientPage />} />
+              <Route path="/MenuPrincipal" element={<MenuPage />} />
+            </Route>
 
+            <Route path="/paginaAdministrador" element={<AdminPage />} />
+            <Route path="/politicas" element={<PoliticasPage />} />
+            <Route path="/terminosCondiciones" element={<TermsPage />} />
+            <Route path="/deslindeLegal" element={<DeslindePage />} />
+            <Route path="/empresa" element={<EmpresaPage />} />
+            <Route path="/incidencias" element={<IncidenciasPage />} />
+            <Route path="/configuracion" element={<ConfigPage />} />
 
-          <Route path="/recuperar-contraseña" element={<VerifyEmail />} />
-          <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />
-          <Route path="/recuperar-contraseña/nueva-contraseña" element={<NewPasswordPage />} />
-          
-          
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+            <Route path="/authModal" element={<AuthModal />} />
+            
+            {/* Rutas para errores */}
+            <Route path="/error-400" element={<Error400 />} />
+            <Route path="/error-500" element={<Error500 />} />
+            <Route path="*" element={<Error404 />} />
+
+            {/* Rutas para recuperación de contraseña */}
+            <Route path="/recuperar-contraseña" element={<VerifyEmail />} />
+            <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />
+            <Route path="/recuperar-contraseña/nueva-contraseña" element={<NewPasswordPage />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+      </SearchProvider>
     </ThemeProvider>
   );
 }
