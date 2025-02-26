@@ -4,7 +4,7 @@ import Incidencia from '../models/incidencia.model.js';
 export const getIncidencias = async (req, res) => {
   try {
     // Buscar todas las incidencias sin filtrar por eliminación
-    const incidencias = await Incidencia.find();
+    const incidencias = await Incidencia.findAll();
 
     // Verificar si no se encontraron incidencias
     if (!incidencias || incidencias.length === 0) {

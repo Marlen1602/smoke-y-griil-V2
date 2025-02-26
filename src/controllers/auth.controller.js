@@ -20,7 +20,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const userFound = await User.findOne({ email });
+    const userFound = await User.findOne({ where:{email} });
 
     if (!userFound) {
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -36,7 +36,6 @@ export const login = async (req, res) => {
       userFound.isBlocked = false;
       userFound.lockUntil = null;
       userFound.failedAttempts = 0;
-      await userFound.save();
     }
 
     // Verificar si la cuenta está bloqueada por tiempo
@@ -44,93 +43,90 @@ export const login = async (req, res) => {
       const remainingTime = Math.ceil((userFound.lockUntil - Date.now()) / 60000); // Minutos restantes
       
        // Registrar incidencia de cuenta bloqueada
-       const incidencia = new Incidencia({
+       await Incidencia.create({
         usuario: userFound.username,
         tipo: "Intento de inicio de sesión bloqueado",
         estado: true,
         motivo: `Cuenta bloqueada. Tiempo restante: ${remainingTime} minutos`,
         fecha: new Date(),
       });
-      await incidencia.save();
       
       return res.status(403).json({ 
         message: `Tu cuenta está bloqueada. Intenta nuevamente en ${remainingTime} minutos.`,
         });
     }
 
+    //Verifica la contraseña
     const isMatch = await bcrypt.compare(password, userFound.password);
     if (!isMatch) {
       // Incrementar intentos fallidos
-      userFound.failedAttempts += 1;
+      const failedAttempts = userFound.failedAttempts + 1;
 
-      // Bloquear la cuenta si llega a intentos fallidos
-      if (userFound.failedAttempts >= maxAttempts) {
-        userFound.lockUntil = Date.now() + lockDuration; // Establecer tiempo de bloqueo
-        userFound.failedAttempts = 0; // Reiniciar intentos
-        userFound.isBlocked = true;
+      if (failedAttempts >= maxAttempts) {
+        await userFound.update({
+          lockUntil: Date.now() + lockDuration,
+          failedAttempts: 0,
+          isBlocked: true,
+        });
 
          // Registrar incidencia de bloqueo
-         const incidencia = new Incidencia({
+         await Incidencia.create({
           usuario: userFound.username,
           tipo: "Bloqueo de cuenta",
           estado: true,
           motivo: "Exceso de intentos fallidos",
           fecha: new Date(),
         });
-        await incidencia.save();
 
-        await userFound.save();
         return res.status(403).json({
           message: `Tu cuenta ha sido bloqueada. Intenta nuevamente en ${lockDuration / 60000} minutos.`,
         });
       }
 
-    await userFound.save();
+    await userFound.update({failedAttempts});
    
     // Registrar incidencia de intento fallido
-    const incidencia = new Incidencia({
+   await Incidencia.create({
       usuario: userFound.username,
       tipo: "Intento de inicio de sesión fallido",
       estado: false,
       motivo: "Contraseña incorrecta",
       fecha: new Date(),
     });
-    await incidencia.save();
 
     return res.status(400).json({ message: "Contraseña incorrecta" });
     }
 
-     // Restablecer intentos fallidos y desbloquear en caso de éxito
-     userFound.failedAttempts = 0;
-     userFound.lockUntil = null;
-     userFound.isBlocked = false;
-     await userFound.save();
+      //  Restablecer intentos fallidos
+    await userFound.update({
+      failedAttempts: 0,
+      lockUntil: null,
+      isBlocked: false,
+    });
  
      // Registrar incidencia de intento exitoso
-     const incidencia = new Incidencia({
+     await Incidencia.create({
        usuario: userFound.username,
        tipo: "Inicio de sesión exitoso",
        estado: false,
        motivo: "Inicio de sesión correcto",
        fecha: new Date(),
      });
-     await incidencia.save();
 
     // Crear el token de acceso
-    const token = await createAccessToken({ id: userFound._id }, { expiresIn: '1h' });
+    const token = await createAccessToken({ id: userFound.id }, { expiresIn: '1h' });
 
-    // Establecer el token en las cookies
-    res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+     //Enviar el token en una cookie HTTP-only
+     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-    }));
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7 * 1000, // Expira en 7 días
+    });
 
     // Responder con los detalles del usuario y el token
     return res.json({
-      id: userFound._id,
+      id: userFound.id,
       username: userFound.username,
       email: userFound.email,
       role: userFound.role,
@@ -148,28 +144,34 @@ export const unlockUser = async (req, res) => {
   const { id } = req.params; // Recibe el ID del usuario desde el body
 
   try {
-    const userFound = await User.findById(id); // Busca al usuario por ID
+    // Busca al usuario por ID
+    const [userResult]=await politicasModel.query("SELECT * FROM users WHERE id=?", [id]);
 
-    if (!userFound) {
+    if (userResult.length === 0) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
+    const userFound = userResult[0];
 
     // Desbloquear al usuario
-    userFound.failedAttempts = 0; // Reiniciar intentos fallidos
-    userFound.lockUntil = null;
-    userFound.isBlocked = false; // Cambiar el estado de bloqueo
-  
-    await userFound.save(); // Guardar los cambios
+    await pool.query(
+      "UPDATE users SET failedAttempts = ?, lockUntil = ?, isBlocked = ? WHERE id = ?",
+      [0, null, false, id]
+    );
 
-    // Registrar incidencia de desbloqueo
-    const incidencia = new Incidencia({
-      usuario: userFound.username,
-      tipo: "Desbloqueo de cuenta",
-      estado: false,
-      motivo: "Cuenta desbloqueada por el administrador",
-      fecha: new Date(),
-    });
-    await incidencia.save();
+    // Registrar incidencia en la tabla de incidencias
+    const username = userFound.username;
+    const fecha = new Date(); // Fecha actual
+
+    await pool.query(
+      "INSERT INTO incidencias (usuario, tipo, estado, motivo, fecha) VALUES (?, ?, ?, ?, ?)",
+      [
+        username,
+        "Desbloqueo de cuenta", // Tipo de incidencia
+        false, // Estado (desbloqueado)
+        "Cuenta desbloqueada por el administrador", // Motivo
+        fecha,
+      ]
+    );
 
     res.status(200).json({ message: "Usuario desbloqueado exitosamente" });
   } catch (error) {
@@ -182,26 +184,26 @@ export const blockUser = async (req, res) => {
   const { id } = req.params; // ID del usuario en los parámetros de la ruta
 
   try {
-    const userFound = await User.findById(id); // Busca al usuario por su ID
+    const userFound = await User.findByPk(id); // Busca al usuario por su ID
 
     if (!userFound) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
     // Bloquear al usuario
-    userFound.isBlocked = true;
-    userFound.failedAttempts = 0; // Reiniciar intentos fallidos
-    await userFound.save();
-
-    // Registrar incidencia de bloqueo
-    const incidencia = new Incidencia({
-      usuario: userFound.username,
-      tipo: "Bloqueo manual de cuenta",
-      estado: true,
-      motivo: "Bloqueado por el administrador",
-      fecha: new Date(),
+    await userFound.update({
+      isBlocked: true, // Marcar al usuario como bloqueado
+      failedAttempts: 0, // Reiniciar intentos fallidos
     });
-    await incidencia.save();
+
+    // Registrar incidencia de bloqueo en la base de datos
+    await Incidencia.create({
+      usuario: userFound.username, // Nombre del usuario
+      tipo: "Bloqueo manual de cuenta", // Tipo de incidencia
+      estado: true, // Estado de bloqueo
+      motivo: "Bloqueado por el administrador", // Razón del bloqueo
+      fecha: new Date(), // Fecha del bloqueo
+    });
 
     return res.status(200).json({ message: "Usuario bloqueado exitosamente" });
   } catch (error) {
@@ -209,8 +211,6 @@ export const blockUser = async (req, res) => {
     return res.status(500).json({ message: "Error interno del servidor" });
   }
 };
-
-
 
 const sendVerificationEmail = async (email, code) => {
   const transporter = nodemailer.createTransport({
@@ -335,13 +335,15 @@ export const register = async (req, res) => {
       return res.status(400).json(["La verificación de reCAPTCHA falló"]);
     }
 
-    const usernameExists = await User.findOne({ username });
+    // Verificar si el nombre de usuario ya existe
+    const usernameExists = await User.findOne({ where:{username} });
     console.log(usernameExists)
     if (usernameExists) {
         return res.status(400).json(["El nombre de usuario ya está en uso"]);
     }
 
-    const emailExists = await User.findOne({ email });
+    // Verificar si el correo ya está registrado
+    const emailExists = await User.findOne({where:{email} });
     if (emailExists) {
         return res.status(400).json(["El correo ya está registrado"]);
     }
@@ -351,7 +353,7 @@ export const register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const newUser = new User.create({
       email,
       password: passwordHash,
       username,
@@ -361,12 +363,11 @@ export const register = async (req, res) => {
       isVerified: false, // No está verificado aún
     });
 
-    const userSaved = await newUser.save();
 
      // Enviar correo de verificación
      await sendVerificationEmail(email, verificationCode);
 
-    const token = await createAccessToken({ id: userSaved._id });
+    const token = await createAccessToken({ id: newUser.id });
 
      res.cookie('token', token, {
         httpOnly: true,
@@ -374,14 +375,15 @@ export const register = async (req, res) => {
         sameSite: 'lax',
         maxAge: 3600000, // 1 hora
     });
+    // Responder con los datos del usuario creado
     res.json({
-      id: userSaved._id,
-      username: userSaved.username,
-      nombre: userSaved.nombre,
-      apellidos: userSaved.apellidos,
-      email: userSaved.email,
-      createAt: userSaved.createdAt,
-      updatedAt: userSaved.updatedAt,
+      id: newUser.id,
+      username: newUser.username,
+      nombre: newUser.nombre,
+      apellidos: newUser.apellidos,
+      email: newUser.email,
+      createAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
     });
 
   } catch (error) {
@@ -397,15 +399,23 @@ export const logout = (req, res) => {
 };
 
 export const profile = async (req, res) => {
-    const userFound = await User.findById(req.user.id);
-    if (!userFound) return res.status(400).json({ message: "User not found" });
+  try{
+    
+    const userFound = await User.findByPk(req.user.id);
+    if (!userFound) {
+    return res.status(400).json({ message: "Usuario no encontrado" });
+    }
     return res.json({
-        id: userFound._id,
-        username: userFound.username,
-        nombre: userFound.nombre,
-        apellidos: userFound.apellidos,
-        email: userFound.email,
-        createAt: userFound.createdAt,
-        updatedAt: userFound.updatedAt,
+      id: userFound.id,
+      username: userFound.username,
+      nombre: userFound.nombre,
+      apellidos: userFound.apellidos,
+      email: userFound.email,
+      createdAt: userFound.createdAt,
+      updatedAt: userFound.updatedAt,
     });
+  } catch (error) {
+    console.error("Error al obtener el perfil:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
 };

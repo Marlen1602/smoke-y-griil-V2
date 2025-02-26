@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const AuthContext = createContext();
-const API = 'https://backend-gamma-nine-68.vercel.app/api'; 
+const API = 'http://localhost:3000/api'; 
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "https://backend-gamma-nine-68.vercel.app/api/verify-email",
+        "http://localhost:3000/api/verify-email",
         formData
       );
       setErrors([]);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
      
       // TODO : cambiar a variables de entorno
       const res = await axios.put(
-        "https://backend-gamma-nine-68.vercel.app/api/update-password",
+        "http://localhost:3000/api/update-password",
         formData
       );
       setErrors([]);
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "https://backend-gamma-nine-68.vercel.app/api/verify-code-password",
+        "http://localhost:3000/api/verify-code-password",
         {
           email: email,
           code: formData.code,
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "https://backend-gamma-nine-68.vercel.app/api/email-reset-password",
+        "http://localhost:3000/api/email-reset-password",
         {
           email: formData,
         }
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // TODO : cambiar a variables de entorno
       const res = await axios.post(
-        "https://backend-gamma-nine-68.vercel.app/api/verify-email",
+        "http://localhost:3000/api/verify-email",
         {
           email: formData, }
       );

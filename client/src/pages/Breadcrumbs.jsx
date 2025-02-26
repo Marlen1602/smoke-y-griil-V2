@@ -6,7 +6,7 @@ const Breadcrumbs = () => {
   const pathSegments = location.pathname.split("/").filter((segment) => segment);
 
   return (
-    <nav className="py-3 px-6 flex items-center space-x-2 text-gray-700">
+    <nav className="py-1 px-4 flex items-center space-x-2 text-gray-700">
       {/* Enlace a Inicio con icono */}
       <Link to="/" className="flex items-center text-gray-600 hover:text-orange-500 transition-all duration-300 font-semibold">
         <span className="text-lg">🏠</span>

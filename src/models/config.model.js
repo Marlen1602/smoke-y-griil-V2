@@ -1,8 +1,17 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../db.js';
 
-const configSchema = new mongoose.Schema({
-  maxAttempts: { type: Number, default: 3 }, // Máximo de intentos fallidos
-  lockDuration: { type: Number, default: 30 * 60 * 1000 }, // Duración del bloqueo en milisegundos (30 minutos por defecto)
-});
+const Config = sequelize.define('Config', {
+  maxAttempts: {
+    type: DataTypes.INTEGER,
+    defaultValue: 3,
+    allowNull: false
+  },
+  lockDuration: {
+    type: DataTypes.INTEGER,
+    defaultValue: 30 * 60 * 1000, // 30 minutos en milisegundos
+    allowNull: false
+  }
+}, { timestamps: false });
 
-export default mongoose.model("Config", configSchema);
+export default Config;

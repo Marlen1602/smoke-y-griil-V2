@@ -1,52 +1,70 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../db.js';
 
-const userSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      match: /^[a-zA-Z0-9]+$/,
-    },
-    nombre: {
-      type: String,
-      required: true,
-      unique: false,
-      trim: true,
-    },
-    apellidos: {
-      type: String,
-      required: true,
-      unique: false,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ["cliente", "administrador"],
-      default: "cliente",
-    },
-    verificationCode: { type: String },
-    resetPasswordToken: { type: String },
-    isVerified: { type: Boolean, default: false },
-    isVeriedForResetPassword: { type: Boolean, default: false },
-    failedAttempts: { type: Number, default: 0 }, // Contador de intentos fallidos
-    isBlocked: { type: Boolean, default: false }, // True si la cuenta está bloqueada
-    lockUntil: { type: Date, default: null },
+const User = sequelize.define('User', {
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isAlphanumeric: true
+    }
   },
-  {
-    timestamps: true,
+  nombre: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  apellidos: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true
+    }
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  role: {
+    type: DataTypes.ENUM('cliente', 'administrador'),
+    defaultValue: 'cliente'
+  },
+  verificationCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  isVerifiedForResetPassword: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  failedAttempts: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  isBlocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  lockUntil: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
-);
+}, { timestamps: true });
 
-export default mongoose.model("User", userSchema);
+export default User;
+
+
+

@@ -1,5 +1,5 @@
 import  axios from 'axios';
-const API='https://backend-gamma-nine-68.vercel.app/api';
+const API='http://localhost:3000/api';
 //const API = 'http://localhost:3000/api'; 
 
 export const registerRequest = (user) => {
@@ -59,6 +59,8 @@ export const createIncidencia = async (data) => axios.post(`${API}/incidencias`,
 export const updateIncidencia = async (id, data) => axios.put(`${API}/incidencias${id}`, data);
 export const deleteIncidencia = async (id) => axios.delete(`${API}/incidencias${id}`);
 
+
+
 //lista de usuarios 
 export const getUsuarios = async () => axios.get(`${API}/usuarios`);
 export const unlock = async (id) => {
@@ -69,3 +71,13 @@ export const blockUser = async (id) => {
   return axios.put(`${API}/block/${id}`, {}, { withCredentials: true });
 };
 
+// Obtener todas las preguntas frecuentes
+export const getPreguntasRequest = () => axios.get(`${API}/preguntas`);
+
+// Crear una nueva pregunta frecuente
+export const createPreguntaRequest = (pregunta) =>
+  axios.post(`${API}/preguntas`, pregunta);
+
+// Eliminar una pregunta por ID
+export const deletePreguntaRequest = (id) =>
+  axios.delete(`${API}/preguntas/${id}`);

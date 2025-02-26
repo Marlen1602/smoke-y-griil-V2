@@ -1,26 +1,18 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../db.js"; // Asegúrate de importar tu conexión a la BD
 
-const Incidencia = sequelize.define("Incidencia", {
+const Preguntas = sequelize.define("Preguntas", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  usuario: {
-    type: DataTypes.STRING,
+  pregunta: {
+    type: DataTypes.TEXT,
     allowNull: false, // No puede estar vacío
   },
-  tipo: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  estado: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-  },
-  motivo: {
-    type: DataTypes.STRING,
+  respuesta: {
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   fecha: {
@@ -29,8 +21,7 @@ const Incidencia = sequelize.define("Incidencia", {
   },
 }, {
   timestamps: false, // Desactivar `createdAt` y `updatedAt` si no los necesitas
-  tableName: "Incidencias", // Nombre de la tabla en la BD
+  tableName: "Preguntas", // Nombre de la tabla en la BD
 });
 
-export default Incidencia;
-
+export default Preguntas;

@@ -9,6 +9,7 @@ import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
 import menuRoutes from "./routes/menu.routes.js";
+import faqRoutes from "./routes/faq.routes.js";
 import xss from 'xss-clean';
 import cookieParser from 'cookie-parser';
 
@@ -35,5 +36,6 @@ app.use("/api/empresa", empresaRoutes);
 app.use('/api',incidenciaRoutes);
 app.use('/api',configuracion);
 app.use("/api/menu", menuRoutes);
+app.use("/api", faqRoutes);
 
 export default app;

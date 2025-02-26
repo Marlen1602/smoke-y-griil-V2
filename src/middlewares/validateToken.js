@@ -17,7 +17,7 @@ export const authRequired = async (req, res, next) => {
         }
 
         // Buscar al usuario en la base de datos
-        const userDb = await User.findById(user.id);
+        const userDb = await User.findByPk(user.id);
 
         if (!userDb) {
             return res.status(401).json({ message: "Invalid token, authentication denied" });
@@ -29,7 +29,7 @@ export const authRequired = async (req, res, next) => {
 
         // Adjuntar la información del usuario al objeto de solicitud (req.user)
         req.user = {
-            id: userDb._id,
+            id: userDb.id,
             username: userDb.username,
             nombre: userDb.nombre,
             apellidos: userDb.apellidos,
