@@ -13,8 +13,6 @@ import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
 import faqRoutes from "./routes/faq.routes.js";
-
-
 const app=express();
 
 // Protección con Helmet (Cabeceras seguras)
@@ -22,31 +20,24 @@ app.use(helmet({
     contentSecurityPolicy: false, // Evitar errores con frameworks frontend
     crossOriginEmbedderPolicy: false, // Para evitar problemas con iframes
 }));
-
 // Limitar el tamaño de las solicitudes JSON (prevención de DoS)
 app.use(express.json({ limit: "10kb" }));
-
 //Limpia entradas para evitar inyección de código malicioso (XSS)
 app.use(xss());
-
 // Middleware para cookies seguras
 app.use(cookieParser());
-
 // Rate limiting global (para todas las rutas)
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100, // Máximo 100 solicitudes por IP
     message: "Demasiadas solicitudes, intenta más tarde.",
 });
-
-
 // Rate limiting específico para autenticación
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 5, // Solo 5 intentos de login por usuario
     message: "Demasiados intentos de inicio de sesión, intenta más tarde."
 });
-
 // Aplicar limitador global a todas las rutas
 app.use(globalLimiter);
 
