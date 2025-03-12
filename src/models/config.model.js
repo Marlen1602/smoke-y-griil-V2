@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db.js';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../db.js";
 
-const Config = sequelize.define('Config', {
+const Config = sequelize.define("Config", {
   maxAttempts: {
     type: DataTypes.INTEGER,
     defaultValue: 3,

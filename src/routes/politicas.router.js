@@ -13,13 +13,13 @@ import { createPoliticaschema } from "../schemas/politicas.schema.js";
 
 const router = Router();
 
-router.get('/politicas',  getPoliticas);
-router.post('/politicas', authRequired, validateSchema(createPoliticaschema), createPolitica);
-router.get('/politicas/:id', authRequired, getPolitica);
-router.put('/politicas/:id', authRequired, updatePolitica);
-router.delete('/politicas/:id', authRequired, deletePolitica);
+router.get("/politicas",  getPoliticas);
+router.post("/politicas", authRequired, validateSchema(createPoliticaschema), createPolitica);
+router.get("/politicas/:id", authRequired, getPolitica);
+router.put("/politicas/:id", authRequired, updatePolitica);
+router.delete("/politicas/:id", authRequired, deletePolitica);
 
 // Nueva ruta para obtener historial
-router.get('/politicas/:id/history', authRequired, getPolicyHistory);
+router.get("/politicas/:id/history", authRequired, getPolicyHistory);
 
 export default router;

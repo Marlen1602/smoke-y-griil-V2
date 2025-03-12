@@ -1,6 +1,6 @@
 import Incidencia from "../models/incidencia.model.js";
 import User from "../models/user.model.js";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 
 export const getUserByEmail =  async ( req, res) => {
@@ -20,7 +20,7 @@ export const getUserByEmail =  async ( req, res) => {
     console.error("Error al buscar usuario por email:", error.message);
     return res.status(500).json({ message: "Error al buscar el usuario" });
   }
-}
+};
 
 export const updatePassword = async (req, res) => {
    const { email, password } = req.body;
@@ -29,7 +29,7 @@ export const updatePassword = async (req, res) => {
       const userFound = await User.findOne({where: { email} });
   
       if (!userFound) {
-        return res.status(404).json({ message: 'El usuario no existe' });
+        return res.status(404).json({ message: "El usuario no existe" });
       }
   
       // Verificar si la cuenta está bloqueada
@@ -55,9 +55,9 @@ export const updatePassword = async (req, res) => {
      try {
       await Incidencia.create({
         usuario: userFound.username, // Asegúrate de que userFound.username exista
-        tipo: 'Cambio de contraseña',
+        tipo: "Cambio de contraseña",
         estado: false, // La cuenta no está bloqueada
-        motivo: 'El usuario ha cambiado su contraseña con éxito',
+        motivo: "El usuario ha cambiado su contraseña con éxito",
         fecha: new Date(), // La fecha actual
       });
       } catch (error) {
@@ -69,7 +69,7 @@ export const updatePassword = async (req, res) => {
   
     } catch (error) {
       console.error("Error completo en updatePassword:", error.message, error.stack);
-      return res.status(500).json({ message: 'Error interno del servi' });
+      return res.status(500).json({ message: "Error interno del servi" });
     }
   };
 

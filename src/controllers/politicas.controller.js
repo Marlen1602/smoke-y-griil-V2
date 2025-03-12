@@ -1,4 +1,4 @@
-import Politica from '../models/politicas.model.js';
+import Politica from "../models/politicas.model.js";
 
 // Obtener todas las políticas vigentes
 export const getPoliticas = async (req, res) => {
@@ -32,7 +32,7 @@ export const createPolitica = async (req, res) => {
 export const getPolitica = async (req, res) => {
   try {
     const politica = await Politica.findById(req.params.id);
-    if (!politica) return res.status(404).json({ message: "Política no encontrada" });
+    if (!politica) {return res.status(404).json({ message: "Política no encontrada" });}
     res.json(politica);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener la política" });
@@ -44,7 +44,7 @@ export const updatePolitica = async (req, res) => {
   try {
     const { title, descripcion, fechaVigencia } = req.body;
     const politica = await Politica.findById(req.params.id);
-    if (!politica) return res.status(404).json({ message: "Política no encontrada" });
+    if (!politica) {return res.status(404).json({ message: "Política no encontrada" });}
 
     // Guardar versión actual en historial
     await Politica.create({
@@ -73,7 +73,7 @@ export const updatePolitica = async (req, res) => {
 export const deletePolitica = async (req, res) => {
   try {
     const politica = await Politica.findById(req.params.id);
-    if (!politica) return res.status(404).json({ message: "Política no encontrada" });
+    if (!politica) {return res.status(404).json({ message: "Política no encontrada" });}
     politica.isDeleted = true;
     await politica.save();
     res.json({ message: "Política marcada como eliminada" });

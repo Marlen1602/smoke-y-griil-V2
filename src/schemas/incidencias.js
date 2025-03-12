@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Definir el esquema de la incidencia
 const incidenciaSchema = new mongoose.Schema({
@@ -8,7 +8,7 @@ const incidenciaSchema = new mongoose.Schema({
 });
 
 // Crear el modelo
-const Incidencia = mongoose.model('Incidencia', incidenciaSchema);
+const Incidencia = mongoose.model("Incidencia", incidenciaSchema);
 
 // Exportar el modelo
 export default Incidencia;

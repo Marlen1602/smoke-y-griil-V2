@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import DOMPurify from "dompurify";
 import { useEffect, useState, useRef } from "react";
 import { Link ,useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
@@ -11,11 +12,14 @@ import Header from './PrincipalNavBar'; // Importa el componente Header
 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
+const sanitizeInput = (input) => {
+    return DOMPurify.sanitize(input); // Sanitiza los valores ingresados por el usuario
+};
+
 function RegisterPage() {
     const { register, handleSubmit, watch, formState: { errors }, getValues } = useForm();
     const { signup, isAuthenticated, errors: registerErrors, setErrors } = useAuth();
     const navigate = useNavigate();
-    const password = watch("password");
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?!.*(\d)\1{2})(?!.*([a-zA-Z])\2{2})(?!.*(\W)\3{2})(?!.*0123456789)(?!.*123456789)(?!.*23456789)(?!.*34567890)(?!.*45678901)(?!.*987654321)(?!.*98765432)[A-Za-z\d\W_]{12,}$/;
 
@@ -41,19 +45,7 @@ function RegisterPage() {
         }
         clearErrors("password");
     };
-     // Función de validación de la contraseña
-    const handlePasswordChange = (password) => {
-        // Comprobamos si la contraseña es segura
-        if (passwordRegex.test(password)) {
-            setPasswordStrength("Strong");
-            clearErrors("password"); // Limpiar errores cuando la contraseña sea válida
-        } else {
-            setPasswordStrength("Weak");
-            // Establecer error si la contraseña no es válida
-            setErrors("password", { type: "manual", message: "La contraseña no cumple con los requisitos de seguridad." });
-        }
-    };
-
+    
     useEffect(() => {
         if (isAuthenticated && registerErrors.length === 0 && email) {
             navigate("/verificar-codigo", { state: { email } });
@@ -65,12 +57,21 @@ function RegisterPage() {
             alert("Por favor verifica que no eres un robot.");
             return;
         }
-
+        
         clearErrors();
         localStorage.setItem("email", values.email);
 
-        const formData = { ...values, recaptchaToken };
-        await signup(formData).catch((error) => {
+        // Sanitizar los datos antes de enviarlos
+        const sanitizedValues = {
+        username: sanitizeInput(values.username),
+        nombre: sanitizeInput(values.nombre),
+        apellidos: sanitizeInput(values.apellidos),
+        email: sanitizeInput(values.email),
+        password: values.password,
+        recaptchaToken
+         };
+
+         await signup(sanitizedValues).catch((error) => {
             console.log(error.response?.data || "Unexpected error");
         });
 
@@ -115,6 +116,7 @@ function RegisterPage() {
                         <input
                             type="text"
                             {...register("username", { required: true })}
+                            onChange={(e) => e.target.value = sanitizeInput(e.target.value)} 
                             className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
                             placeholder="Nombre de usuario"
                         />
@@ -128,6 +130,7 @@ function RegisterPage() {
                         <input
                             type="text"
                             {...register("nombre", { required: true })}
+                            onChange={(e) => e.target.value = sanitizeInput(e.target.value)} 
                             className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
                             placeholder="Nombre"
                         />
@@ -141,6 +144,7 @@ function RegisterPage() {
                         <input
                             type="text"
                             {...register("apellidos", { required: true })}
+                            onChange={(e) => e.target.value = sanitizeInput(e.target.value)} 
                             className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
                             placeholder="Apellidos"
                         />
@@ -161,6 +165,7 @@ function RegisterPage() {
                 message: "Por favor, introduce un correo electrónico válido con un dominio válido.",
             },
         })}
+        onChange={(e) => e.target.value = sanitizeInput(e.target.value)} 
         className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${
             isDarkMode
                 ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
@@ -172,9 +177,6 @@ function RegisterPage() {
         <p className="text-red text-sm mt-1">{errors.email.message}</p>
     )}
 </div>
-
-
-
                     <div>
                         <label className="block text-sm font-bold mb-1">Contraseña</label>
                         <div className="grid relative">
@@ -189,6 +191,7 @@ function RegisterPage() {
                                         message: "Verifique que su contraseña cumpla con todos los puntos para ser una contrasseña segura"
                                     }
                                 })}
+                                
                                 className={`w-full px-4 py-2 md:py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-gray-100 border-gray-300 text-gray-800"}`}
                                 placeholder="Contraseña"
                                 onFocus={() => setShowPasswordRequirements(true)} // Muestra el menú al enfocar

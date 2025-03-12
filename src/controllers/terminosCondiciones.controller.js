@@ -1,4 +1,4 @@
-import TerminosCondiciones from '../models/terminosCondiciones.model.js';
+import TerminosCondiciones from "../models/terminosCondiciones.model.js";
 
 // Obtener términos y condiciones vigentes
 export const getTerminosCondiciones = async (req, res) => {
@@ -32,7 +32,7 @@ export const createTerminosCondiciones = async (req, res) => {
 export const getTerminosCondicionesById = async (req, res) => {
     try {
         const terminos = await TerminosCondiciones.findById(req.params.id);
-        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
+        if (!terminos) {return res.status(404).json({ message: "Términos y condiciones no encontrados" });}
         res.json(terminos);
     } catch (error) {
         res.status(500).json({ message: "Error al obtener los términos y condiciones" });
@@ -44,7 +44,7 @@ export const updateTerminosCondiciones = async (req, res) => {
     try {
         const { title, descripcion, fechaVigencia } = req.body;
         const terminos = await TerminosCondiciones.findById(req.params.id);
-        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
+        if (!terminos) {return res.status(404).json({ message: "Términos y condiciones no encontrados" });}
 
         // Crear versión histórica
         await TerminosCondiciones.create({
@@ -73,7 +73,7 @@ export const updateTerminosCondiciones = async (req, res) => {
 export const deleteTerminosCondiciones = async (req, res) => {
     try {
         const terminos = await TerminosCondiciones.findById(req.params.id);
-        if (!terminos) return res.status(404).json({ message: "Términos y condiciones no encontrados" });
+        if (!terminos) {return res.status(404).json({ message: "Términos y condiciones no encontrados" });}
 
         terminos.isDeleted = true;
         await terminos.save();

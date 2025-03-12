@@ -1,17 +1,19 @@
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import dotenv from "dotenv";
+dotenv.config();
 
 cloudinary.config({
-  cloud_name: 'dbvbgueus', // nombre de Cloudinary
-  api_key: '374619935212288',       //  API Key de Cloudinary
-  api_secret: 'Ba3cxa6aOvFb6BdkN_xF3OuLhyM', //API Secret de Cloudinary
+  cloud_name: "dbvbgueus", // nombre de Cloudinary
+  api_key: process.env.api_key,       //  API Key de Cloudinary
+  api_secret: process.env.api_secret, //API Secret de Cloudinary
 
 });
 
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "smokey-grill", // Cambia esto por el nombre de tu carpeta en Cloudinary
+    folder: "smokey-grill", // Carpeta de Cloudinary
     allowedFormats: ["jpg", "png", "jpeg"],
   },
 });

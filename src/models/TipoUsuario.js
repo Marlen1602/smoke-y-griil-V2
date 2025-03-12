@@ -1,9 +1,18 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db.js';
+import { DataTypes } from "sequelize";
+import { sequelize } from "../db.js";
 
-const TipoUsuario = sequelize.define('TipoUsuario', {
-  ID_Tipo: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  Nombre: { type: DataTypes.STRING, allowNull: false }
+const TipoUsuario = sequelize.define("TipoUsuario", {
+  ID: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  descripcion: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  }
 }, { timestamps: false });
 
 export default TipoUsuario;
+

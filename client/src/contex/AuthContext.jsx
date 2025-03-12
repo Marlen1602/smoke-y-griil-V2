@@ -35,18 +35,19 @@ export const AuthProvider = ({ children }) => {
   // Función de verificación de código
   const verifyCode = async (formData) => {
     try {
-      // TODO : cambiar a variables de entorno
-      const res = await axios.post(
-        "http://localhost:3000/api/verify-email",
-        formData
-      );
+      console.log("📤 Enviando código de verificación:", formData);
+  
+      const res = await axios.post(`${API}/verify-email`, formData, { withCredentials: true });
+  
+      console.log("✅ Respuesta del backend:", res.data);
       setErrors([]);
       return res.data;
     } catch (error) {
-      console.log(error.response.data.message);
-      setErrors([error.response?.data.message] || ["Error inesperado"]);
+      console.error("❌ Error en verifyCode:", error.response?.data || error.message);
+      setErrors([error.response?.data?.message || "Error inesperado"]);
     }
   };
+  
 
   const updatePassword = async (formData) => {
     try {
@@ -141,7 +142,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setErrors([]);
 
-      if (res.data.role === "administrador") {
+      if (res.data.role === 1) {
         navigate("/paginaAdministrador");
       } else {
         navigate("/paginaCliente");

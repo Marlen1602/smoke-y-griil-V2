@@ -11,7 +11,7 @@ export const loginRequest = (user)=> axios.post(`${API}/login`,user, {withCreden
 
 export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {withCredentials: true})
 
-export const logoutRequest = () => axios.get(`${API}/logout`, {withCredentials: true})
+export const logoutRequest = () => axios.post(`${API}/logout`, {}, { withCredentials: true });
 
 // Funciones CRUD para políticas
 

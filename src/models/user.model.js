@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../db.js';
-
-const User = sequelize.define('User', {
+import { DataTypes } from "sequelize";
+import { sequelize } from "../db.js";
+import TipoUsuario from "../models/TipoUsuario.js"; 
+const User = sequelize.define("User", {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,9 +30,14 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  role: {
-    type: DataTypes.ENUM('cliente', 'administrador'),
-    defaultValue: 'cliente'
+  tipoUsuarioId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 2, // Se asigna "Cliente" por defecto
+    references: {
+      model: TipoUsuario,
+      key: "ID"
+    }
   },
   verificationCode: {
     type: DataTypes.STRING,
@@ -64,7 +69,6 @@ const User = sequelize.define('User', {
   }
 }, { timestamps: true });
 
+User.belongsTo(TipoUsuario, { foreignKey: "tipoUsuarioId" });
+
 export default User;
-
-
-

@@ -102,9 +102,9 @@ export const sendCodeForReset = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where:{email} });
     if (!user)
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      {return res.status(400).json({ message: "Usuario no encontrado" });}
 
     // generar un JWT para el usuario
     const verificationCode = Math.floor(
@@ -133,12 +133,12 @@ export const verifyCode = async (req, res) => {
  
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where:{email} });
     if (!user)
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      {return res.status(400).json({ message: "Usuario no encontrado" });}
    
     if (user.resetPasswordToken === code) {
-      user.resetPasswordToken = undefined; // Eliminar código después de verificado
+      user.resetPasswordToken = null; // Eliminar código después de verificado
       user.isVeriedForResetPassword = true;
       await user.save();
 

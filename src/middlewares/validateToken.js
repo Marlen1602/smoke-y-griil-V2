@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
-import { TOKEN_SECRET } from '../config.js';
-import User from '../models/user.model.js';
+import jwt from "jsonwebtoken";
+import { TOKEN_SECRET } from "../config.js";
+import User from "../models/user.model.js";
 
 export const authRequired = async (req, res, next) => {
     const { token } = req.cookies;

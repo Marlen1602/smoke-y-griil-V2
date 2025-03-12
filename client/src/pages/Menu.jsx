@@ -164,14 +164,23 @@ const MenuPage = () => {
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{category}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredMenu[category].map((item) => (
-                <div key={item.name} className="border rounded-lg p-4 shadow-md flex justify-between items-center cursor-pointer" onClick={() => handleOpenModal(item, category)}>
-                  <div>
-                    <h3 className="text-lg font-medium">{item.name}</h3>
-                    <p className="text-gray-500">{item.description}</p>
-                    <p className="text-orange-600 font-bold">${item.price}</p>
-                  </div>
-                  <img src={item.image || "https://via.placeholder.com/300x200"} alt={item.name} className="w-24 h-24 object-cover rounded-lg" />
+                <div 
+                className="border rounded-lg p-4 shadow-md flex justify-between items-center cursor-pointer transition-transform transform hover:scale-105"
+                onMouseEnter={() => console.log("Hover sobre:", item.name)}
+                onClick={() => handleOpenModal(item, category)}
+              >
+                <div>
+                  <h3 className="text-lg font-medium">{item.name}</h3>
+                  <p className="text-gray-500">{item.description}</p>
+                  <p className="text-orange-600 font-bold">${item.price}</p>
                 </div>
+                <img 
+                  src={item.image || "https://via.placeholder.com/300x200"} 
+                  alt={item.name} 
+                  className="w-24 h-24 object-cover rounded-lg transition-transform transform hover:scale-110"
+                />
+              </div>
+              
               ))}
             </div>
           </div>

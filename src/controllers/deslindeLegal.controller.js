@@ -30,7 +30,7 @@ export const updateDeslindeLegal = async (req, res) => {
   try {
     const { title, descripcion, fechaVigencia } = req.body;
     const doc = await DeslindeLegal.findById(req.params.id);
-    if (!doc) return res.status(404).json({ message: "Documento no encontrado" });
+    if (!doc) {return res.status(404).json({ message: "Documento no encontrado" });}
 
     await DeslindeLegal.create({
       originalDocumentId: doc._id,
@@ -56,7 +56,7 @@ export const updateDeslindeLegal = async (req, res) => {
 export const deleteDeslindeLegal = async (req, res) => {
   try {
     const doc = await DeslindeLegal.findById(req.params.id);
-    if (!doc) return res.status(404).json({ message: "Documento no encontrado" });
+    if (!doc) {return res.status(404).json({ message: "Documento no encontrado" });}
 
     doc.isDeleted = true;
     await doc.save();

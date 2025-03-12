@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const terminosCondicionesSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -6,9 +6,9 @@ const terminosCondicionesSchema = new mongoose.Schema({
     fechaVigencia: { type: Date, required: true },
     version: { type: Number, default: 1 },
     isDeleted: { type: Boolean, default: false },
-    originalPolicyId: { type: mongoose.Schema.Types.ObjectId, ref: 'TerminosCondiciones', default: null }
+    originalPolicyId: { type: mongoose.Schema.Types.ObjectId, ref: "TerminosCondiciones", default: null }
 }, {
     timestamps: true
 });
 
-export default mongoose.model('TerminosCondiciones', terminosCondicionesSchema);
+export default mongoose.model("TerminosCondiciones", terminosCondicionesSchema);

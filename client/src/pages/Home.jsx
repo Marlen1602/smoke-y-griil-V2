@@ -44,7 +44,7 @@ const Home = () => {
     setShowModal(false); // Cierra el modal
   };
 
-  // 🔥 Cargar imágenes correctamente con `new URL()`
+  // Cargar imágenes correctamente con `new URL()`
   useEffect(() => {
     try {
       const alitas = new URL("../assets/Alitas.jpg", import.meta.url).href;

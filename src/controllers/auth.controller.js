@@ -1,19 +1,21 @@
-import User from '../models/user.model.js';
-import bcrypt from 'bcryptjs';
-import { createAccessToken } from '../libs/jwt.js';
-import axios from 'axios';
-import { body, validationResult } from 'express-validator';
-import nodemailer from 'nodemailer';
-import * as cookie from 'cookie';
-import Incidencia from '../models/incidencia.model.js'; 
+import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
+import logger from "../libs/logger.js";
+import dotenv from "dotenv";
+import { createAccessToken } from "../libs/jwt.js";
+import axios from "axios";
+import { body, validationResult } from "express-validator";
+import nodemailer from "nodemailer";
+import Incidencia from "../models/incidencia.model.js"; 
 import Config from "../models/config.model.js";
+dotenv.config();
 export const validateRegister = [
-  body('email').isEmail().withMessage('Debe proporcionar un correo electrónico válido'),
-  body('username').trim().isLength({ min: 3 }).withMessage('El nombre de usuario debe tener al menos 3 caracteres'),
-  body('nombre').trim().notEmpty().withMessage('El nombre es obligatorio'),
-  body('apellidos').trim().notEmpty().withMessage('Los apellidos son obligatorios'),
-  body('password'),
-  body('email').normalizeEmail(), // Normaliza el email para eliminar espacios y normalizar el formato
+  body("email").isEmail().withMessage("Debe proporcionar un correo electrónico válido"),
+  body("username").trim().isLength({ min: 3 }).withMessage("El nombre de usuario debe tener al menos 3 caracteres"),
+  body("nombre").trim().notEmpty().withMessage("El nombre es obligatorio"),
+  body("apellidos").trim().notEmpty().withMessage("Los apellidos son obligatorios"),
+  body("password"),
+  body("email").normalizeEmail(), // Normaliza el email para eliminar espacios y normalizar el formato
 ];
 
 export const login = async (req, res) => {
@@ -23,7 +25,7 @@ export const login = async (req, res) => {
     const userFound = await User.findOne({ where:{email} });
 
     if (!userFound) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "Credenciales invalidas" });
     }
 
     // Obtener configuración global
@@ -94,7 +96,7 @@ export const login = async (req, res) => {
       fecha: new Date(),
     });
 
-    return res.status(400).json({ message: "Contraseña incorrecta" });
+    return res.status(400).json({ message: "Credenciales invalidas" });
     }
 
       //  Restablecer intentos fallidos
@@ -107,14 +109,14 @@ export const login = async (req, res) => {
      // Registrar incidencia de intento exitoso
      await Incidencia.create({
        usuario: userFound.username,
-       tipo: "Inicio de sesión exitoso",
+       tipo: "Inicio de sesión",
        estado: false,
        motivo: "Inicio de sesión correcto",
        fecha: new Date(),
      });
 
     // Crear el token de acceso
-    const token = await createAccessToken({ id: userFound.id }, { expiresIn: '1h' });
+    const token = await createAccessToken({ id: userFound.id }, { expiresIn: "1h" });
 
      //Enviar el token en una cookie HTTP-only
      res.cookie("token", token, {
@@ -141,37 +143,28 @@ export const login = async (req, res) => {
 };
 
 export const unlockUser = async (req, res) => {
-  const { id } = req.params; // Recibe el ID del usuario desde el body
+  const { id } = req.params;
 
   try {
-    // Busca al usuario por ID
-    const [userResult]=await politicasModel.query("SELECT * FROM users WHERE id=?", [id]);
+    const userFound = await User.findByPk(id);
 
-    if (userResult.length === 0) {
+    if (!userFound) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    const userFound = userResult[0];
 
-    // Desbloquear al usuario
-    await pool.query(
-      "UPDATE users SET failedAttempts = ?, lockUntil = ?, isBlocked = ? WHERE id = ?",
-      [0, null, false, id]
-    );
+    await userFound.update({
+      failedAttempts: 0,
+      lockUntil: null,
+      isBlocked: false,
+    });
 
-    // Registrar incidencia en la tabla de incidencias
-    const username = userFound.username;
-    const fecha = new Date(); // Fecha actual
-
-    await pool.query(
-      "INSERT INTO incidencias (usuario, tipo, estado, motivo, fecha) VALUES (?, ?, ?, ?, ?)",
-      [
-        username,
-        "Desbloqueo de cuenta", // Tipo de incidencia
-        false, // Estado (desbloqueado)
-        "Cuenta desbloqueada por el administrador", // Motivo
-        fecha,
-      ]
-    );
+    await Incidencia.create({
+      usuario: userFound.username,
+      tipo: "Desbloqueo de cuenta",
+      estado: false,
+      motivo: "Cuenta desbloqueada por el administrador",
+      fecha: new Date(),
+    });
 
     res.status(200).json({ message: "Usuario desbloqueado exitosamente" });
   } catch (error) {
@@ -181,46 +174,43 @@ export const unlockUser = async (req, res) => {
 };
 
 export const blockUser = async (req, res) => {
-  const { id } = req.params; // ID del usuario en los parámetros de la ruta
+  const { id } = req.params;
 
   try {
-    const userFound = await User.findByPk(id); // Busca al usuario por su ID
+    const userFound = await User.findByPk(id);
 
     if (!userFound) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // Bloquear al usuario
     await userFound.update({
-      isBlocked: true, // Marcar al usuario como bloqueado
-      failedAttempts: 0, // Reiniciar intentos fallidos
+      isBlocked: true,
+      failedAttempts: 0
     });
 
-    // Registrar incidencia de bloqueo en la base de datos
     await Incidencia.create({
-      usuario: userFound.username, // Nombre del usuario
-      tipo: "Bloqueo manual de cuenta", // Tipo de incidencia
-      estado: true, // Estado de bloqueo
-      motivo: "Bloqueado por el administrador", // Razón del bloqueo
-      fecha: new Date(), // Fecha del bloqueo
+      usuario: userFound.username,
+      tipo: "Bloqueo manual de cuenta",
+      estado: true,
+      motivo: "Bloqueado por el administrador",
+      fecha: new Date(),
     });
 
-    return res.status(200).json({ message: "Usuario bloqueado exitosamente" });
+    res.status(200).json({ message: "Usuario bloqueado exitosamente" });
   } catch (error) {
     console.error("Error al bloquear usuario:", error);
-    return res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 
 const sendVerificationEmail = async (email, code) => {
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: "Gmail",
     auth: {
-      user: 'marlen04h@gmail.com',
-      pass: 'hcxi yvbl flvl ivbd',
+      user: "marlen04h@gmail.com",
+      pass: "hcxi yvbl flvl ivbd",
     },
-    // !Quitas esto si ati si te envian bien los correos
-    tls: {
+        tls: {
       rejectUnauthorized: false, // Desactiva la validación del certificado
     },
   });
@@ -228,9 +218,9 @@ const sendVerificationEmail = async (email, code) => {
   console.log(transporter);
 
   const mailOptions = {
-    from: 'Somoke&Grill@gmail.com',
+    from: "Somoke&Grill@gmail.com",
     to: email,
-    subject: 'Verifica tu correo electrónico',
+    subject: "Verifica tu correo electrónico",
     html: `
       <html>
         <head>
@@ -310,7 +300,6 @@ const sendVerificationEmail = async (email, code) => {
   await transporter.sendMail(mailOptions);
 };
 
-
 export const register = async (req, res) => {
   // Validar los resultados de express-validator
   const errors = validationResult(req);
@@ -322,30 +311,30 @@ export const register = async (req, res) => {
   try {
     // Validar reCAPTCHA
     const recaptchaResponse = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify`,
+      "https://www.google.com/recaptcha/api/siteverify",
       {},
       {
         params: {
-          secret: '6LdPD2cqAAAAAI2JnFcexqN--us1l7GsaT6g59w-', 
+          secret: process.env.secret_Recapcha, 
           response: recaptchaToken,
         },
       }
     );
     if (!recaptchaResponse.data.success) {
-      return res.status(400).json(["La verificación de reCAPTCHA falló"]);
+      return res.status(400).json(["No se pudo completar el registro"]);
     }
 
     // Verificar si el nombre de usuario ya existe
     const usernameExists = await User.findOne({ where:{username} });
-    console.log(usernameExists)
+    console.log(usernameExists);
     if (usernameExists) {
-        return res.status(400).json(["El nombre de usuario ya está en uso"]);
+        return res.status(400).json(["No se pudo completar el registro"]);
     }
 
     // Verificar si el correo ya está registrado
     const emailExists = await User.findOne({where:{email} });
     if (emailExists) {
-        return res.status(400).json(["El correo ya está registrado"]);
+        return res.status(400).json(["No se pudo completar el registro"]);
     }
 
     // Generar código de verificación
@@ -353,7 +342,7 @@ export const register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = new User.create({
+    const newUser = await User.create({
       email,
       password: passwordHash,
       username,
@@ -369,10 +358,10 @@ export const register = async (req, res) => {
 
     const token = await createAccessToken({ id: newUser.id });
 
-     res.cookie('token', token, {
+     res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 3600000, // 1 hora
     });
     // Responder con los datos del usuario creado
