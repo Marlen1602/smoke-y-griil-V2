@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, code) => {
       user: "marlen04h@gmail.com",
       pass: "hcxi yvbl flvl ivbd",
     },
-    // !Quitas esto si ati si te envian bien los correos
+    
     tls: {
       rejectUnauthorized: false, // Desactiva la validación del certificado
     },

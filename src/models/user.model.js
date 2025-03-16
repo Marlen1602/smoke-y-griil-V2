@@ -6,9 +6,6 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-    validate: {
-      isAlphanumeric: true
-    }
   },
   nombre: {
     type: DataTypes.STRING,
@@ -22,21 +19,18 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-    validate: {
-      isEmail: true
-    }
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  tipoUsuarioId: {
+  tipoUsuarioId: {  // 🔹 Relación con TipoUsuario
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 2, // Se asigna "Cliente" por defecto
+    defaultValue: 2, // Cliente por defecto
     references: {
       model: TipoUsuario,
-      key: "ID"
+      key: "ID"  // 🔹 Coincide con la base de datos
     }
   },
   verificationCode: {
@@ -69,6 +63,6 @@ const User = sequelize.define("User", {
   }
 }, { timestamps: true });
 
-User.belongsTo(TipoUsuario, { foreignKey: "tipoUsuarioId" });
+User.belongsTo(TipoUsuario, { foreignKey: "tipoUsuarioId", as: "TipoUsuario" });
 
 export default User;

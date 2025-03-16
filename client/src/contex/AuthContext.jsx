@@ -142,9 +142,13 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setErrors([]);
 
-      if (res.data.role === 1) {
+      if (res.data.tipoUsuarioId === 1) {
         navigate("/paginaAdministrador");
-      } else {
+      } 
+     else if (res.data.tipoUsuarioId === 2) {
+        navigate("/paginaCliente");
+      } 
+      else {
         navigate("/paginaCliente");
       }
     } catch (error) {

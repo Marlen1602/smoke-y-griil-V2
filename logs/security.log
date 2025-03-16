@@ -1,0 +1,18 @@
+2025-03-12 01:15:00 [WARN]: Intento fallido de inicio de sesión - Usuario: Marlen12
+2025-03-12 01:15:12 [INFO]: Inicio de sesión exitoso - Usuario: Marlen12
+2025-03-12 01:49:16 [WARN]: Intento fallido de inicio de sesión - Usuario: Marlen12
+2025-03-12 01:49:21 [WARN]: Intento fallido de inicio de sesión - Usuario: Marlen12
+2025-03-12 01:49:25 [ERROR]: Cuenta bloqueada por intentos fallidos - Usuario: Marlen12
+2025-03-12 01:49:36 [WARN]: Intento de acceso a cuenta bloqueada - Usuario: Marlen12, Tiempo restante: 5 minutos
+2025-03-12 02:23:43 [INFO]: Inicio de sesión exitoso - Usuario: Marlen12
+2025-03-15 15:15:32 [WARN]: Intento fallido de inicio de sesión - Usuario: Marlen12
+2025-03-15 15:15:38 [INFO]: Inicio de sesión exitoso - Usuario: Marlen12
+2025-03-15 15:35:26 [INFO]: Inicio de sesión exitoso - Usuario: Marlen12
+2025-03-15 15:35:57 [WARN]: Intento fallido de inicio de sesión - Usuario: Marlen16
+2025-03-15 15:36:01 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16
+2025-03-15 15:59:41 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16
+2025-03-15 15:59:54 [INFO]: Inicio de sesión exitoso - Usuario: Marlen12
+2025-03-15 16:23:19 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16
+2025-03-15 16:29:15 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16
+2025-03-15 16:33:01 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16
+2025-03-15 16:57:07 [INFO]: Inicio de sesión exitoso - Usuario: Marlen16

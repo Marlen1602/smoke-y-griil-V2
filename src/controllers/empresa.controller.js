@@ -1,17 +1,29 @@
 import Empresa from "../models/empresa.model.js";
+import RedesSociales from "../models/redes.Model.js";
 
 // Obtener el perfil de la empresa
 export const getEmpresaProfile = async (req, res) => {
   try {
-    const empresa = await Empresa.findOne(); // Encuentra la primera empresa en la BD
+    const empresa = await Empresa.findOne({
+      where: { ID_empresa: 1 }, // 🔹 Solo hay una empresa
+      include: [
+        {
+          model: RedesSociales,
+          as: "RedesSociales", // Relación definida en Sequelize
+        },
+      ],
+    });
     if (!empresa) {
       return res.status(404).json({ message: "Empresa no encontrada" });
     }
+
     res.json(empresa);
   } catch (error) {
+    console.error("Error al obtener el perfil de la empresa:", error);
     res.status(500).json({ message: "Error al obtener el perfil de la empresa", error: error.message });
   }
 };
+
 
 // Actualizar el perfil de la empresa
 export const updateEmpresaProfile = async (req, res) => {

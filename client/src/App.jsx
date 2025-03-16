@@ -23,6 +23,9 @@ import Error400 from "./pages/400"
 import Error500 from "./pages/500"
 import Menu from "./pages/Menu"
 import MenuPage from "./pages/MenuClient";
+import QuienesSomosPage from "./pages/QuienesSomosPage";
+import VisionPage from "./pages/VisionPage";
+import MisionPage from "./pages/MisionPage";
 import { SearchProvider } from "./contex/SearchContext";
 
 
@@ -37,6 +40,9 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registrar" element={<RegisterPage />} />
             <Route path="/verificar-codigo" element={<VerifyCodePage />} />
+            <Route path="/quienes-somos" element={<QuienesSomosPage />} />
+            <Route path="/vision" element={<VisionPage />} />
+            <Route path="/mision" element={<MisionPage />} />
             
             {/* Rutas accesibles sin autenticación */}
             <Route path="/menu" element={<Menu />} />

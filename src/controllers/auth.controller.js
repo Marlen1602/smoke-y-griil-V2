@@ -1,12 +1,13 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import logger from "../libs/logger.js";
+import logger, { logSecurityEvent } from "../libs/logger.js";
 import dotenv from "dotenv";
 import { createAccessToken } from "../libs/jwt.js";
 import axios from "axios";
 import { body, validationResult } from "express-validator";
 import nodemailer from "nodemailer";
 import Incidencia from "../models/incidencia.model.js"; 
+import TipoUsuario from "../models/TipoUsuario.js";
 import Config from "../models/config.model.js";
 dotenv.config();
 export const validateRegister = [
@@ -22,9 +23,15 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const userFound = await User.findOne({ where:{email} });
+    // 🔹 Buscar el usuario en la base de datos incluyendo su TipoUsuario
+    const userFound = await User.findOne({
+      where: { email },
+      include: [{ model: TipoUsuario, as: "TipoUsuario" }] // 🔹 Usa el alias correcto,
+    });
 
     if (!userFound) {
+      await logSecurityEvent(email, "Intento de inicio de sesión fallido", false, "Credenciales inválidas");
+      logger.warn(`Intento de inicio de sesión fallido - Usuario: ${email}`);
       return res.status(404).json({ message: "Credenciales invalidas" });
     }
 
@@ -45,13 +52,9 @@ export const login = async (req, res) => {
       const remainingTime = Math.ceil((userFound.lockUntil - Date.now()) / 60000); // Minutos restantes
       
        // Registrar incidencia de cuenta bloqueada
-       await Incidencia.create({
-        usuario: userFound.username,
-        tipo: "Intento de inicio de sesión bloqueado",
-        estado: true,
-        motivo: `Cuenta bloqueada. Tiempo restante: ${remainingTime} minutos`,
-        fecha: new Date(),
-      });
+       await logSecurityEvent(userFound.username, "Intento de inicio de sesión bloqueado", true, `Cuenta bloqueada. Tiempo restante: ${remainingTime} minutos`);
+      logger.warn(`Intento de acceso a cuenta bloqueada - Usuario: ${userFound.username}, Tiempo restante: ${remainingTime} minutos`);
+
       
       return res.status(403).json({ 
         message: `Tu cuenta está bloqueada. Intenta nuevamente en ${remainingTime} minutos.`,
@@ -71,14 +74,9 @@ export const login = async (req, res) => {
           isBlocked: true,
         });
 
-         // Registrar incidencia de bloqueo
-         await Incidencia.create({
-          usuario: userFound.username,
-          tipo: "Bloqueo de cuenta",
-          estado: true,
-          motivo: "Exceso de intentos fallidos",
-          fecha: new Date(),
-        });
+        await logSecurityEvent(userFound.username, "Bloqueo de cuenta", true, "Exceso de intentos fallidos");
+        logger.error(`Cuenta bloqueada por intentos fallidos - Usuario: ${userFound.username}`);
+
 
         return res.status(403).json({
           message: `Tu cuenta ha sido bloqueada. Intenta nuevamente en ${lockDuration / 60000} minutos.`,
@@ -88,13 +86,9 @@ export const login = async (req, res) => {
     await userFound.update({failedAttempts});
    
     // Registrar incidencia de intento fallido
-   await Incidencia.create({
-      usuario: userFound.username,
-      tipo: "Intento de inicio de sesión fallido",
-      estado: false,
-      motivo: "Contraseña incorrecta",
-      fecha: new Date(),
-    });
+    await logSecurityEvent(userFound.username, "Intento de inicio de sesión fallido", false, "Contraseña incorrecta");
+      logger.warn(`Intento fallido de inicio de sesión - Usuario: ${userFound.username}`);
+
 
     return res.status(400).json({ message: "Credenciales invalidas" });
     }
@@ -107,13 +101,8 @@ export const login = async (req, res) => {
     });
  
      // Registrar incidencia de intento exitoso
-     await Incidencia.create({
-       usuario: userFound.username,
-       tipo: "Inicio de sesión",
-       estado: false,
-       motivo: "Inicio de sesión correcto",
-       fecha: new Date(),
-     });
+     await logSecurityEvent(userFound.username, "Inicio de sesión exitoso", false, "Inicio de sesión correcto");
+    logger.info(`Inicio de sesión exitoso - Usuario: ${userFound.username}`);
 
     // Crear el token de acceso
     const token = await createAccessToken({ id: userFound.id }, { expiresIn: "1h" });
@@ -131,8 +120,9 @@ export const login = async (req, res) => {
       id: userFound.id,
       username: userFound.username,
       email: userFound.email,
-      role: userFound.role,
-      createAt: userFound.createdAt,
+      tipoUsuarioId: userFound.TipoUsuario.ID,  
+      tipoUsuario: userFound.TipoUsuario.descripcion, 
+        createAt: userFound.createdAt,
       updatedAt: userFound.updatedAt,
       token,
     });
@@ -158,13 +148,9 @@ export const unlockUser = async (req, res) => {
       isBlocked: false,
     });
 
-    await Incidencia.create({
-      usuario: userFound.username,
-      tipo: "Desbloqueo de cuenta",
-      estado: false,
-      motivo: "Cuenta desbloqueada por el administrador",
-      fecha: new Date(),
-    });
+    await logSecurityEvent(userFound.username, "Desbloqueo de cuenta", false, "Cuenta desbloqueada por el administrador");
+    logger.info(`Cuenta desbloqueada - Usuario: ${userFound.username}`);
+
 
     res.status(200).json({ message: "Usuario desbloqueado exitosamente" });
   } catch (error) {
@@ -180,6 +166,7 @@ export const blockUser = async (req, res) => {
     const userFound = await User.findByPk(id);
 
     if (!userFound) {
+      logger.warn(`Intento fallido de bloqueo - Usuario ID: ${id} no encontrado`);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -188,17 +175,17 @@ export const blockUser = async (req, res) => {
       failedAttempts: 0
     });
 
-    await Incidencia.create({
-      usuario: userFound.username,
-      tipo: "Bloqueo manual de cuenta",
-      estado: true,
-      motivo: "Bloqueado por el administrador",
-      fecha: new Date(),
-    });
+    await logSecurityEvent(
+      userFound.username,
+      "Bloqueo manual de cuenta",
+      true,
+      "Bloqueado por el administrador"
+    );
 
+    logger.info(`Usuario bloqueado - Usuario: ${userFound.username}`);
     res.status(200).json({ message: "Usuario bloqueado exitosamente" });
   } catch (error) {
-    console.error("Error al bloquear usuario:", error);
+    logger.error(`Error al bloquear usuario ${id}: ${error.message}`);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
@@ -356,7 +343,7 @@ export const register = async (req, res) => {
      // Enviar correo de verificación
      await sendVerificationEmail(email, verificationCode);
 
-    const token = await createAccessToken({ id: newUser.id });
+    const token = await createAccessToken({ id: newUser.id }, { expiresIn: "1h" });//expira en 1 hora
 
      res.cookie("token", token, {
         httpOnly: true,
@@ -382,7 +369,10 @@ export const register = async (req, res) => {
 
 export const logout = (req, res) => {
     res.cookie("token", "", {
-        expires: new Date(0),
+      expires: new Date(0),
+      httpOnly: true, // Evita acceso desde JavaScript
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
     return res.sendStatus(200);
 };

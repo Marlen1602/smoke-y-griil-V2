@@ -1,23 +1,33 @@
-import winston from "winston";
-import path from "path";
-import fs from "fs";
+import { createLogger, format, transports } from "winston";
+import Incidencia from "../models/incidencia.model.js"; // Importamos el modelo de incidencias
 
-// Asegurar que la carpeta de logs exista
-const logDir = "logs";
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
-
-// Configuración de winston para guardar logs en un archivo
-const logger = winston.createLogger({
-  level: "error", // Solo guardará errores
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: path.join(logDir, "errors.log") })
-  ]
+// Configuración de Winston
+const logger = createLogger({
+    level: "info", // Nivel de logs (info, warn, error)
+    format: format.combine(
+        format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        format.printf(({ timestamp, level, message }) => `${timestamp} [${level.toUpperCase()}]: ${message}`)
+    ),
+    transports: [
+        new transports.Console(), // Muestra los logs en la consola
+        new transports.File({ filename: "logs/security.log" }) // Guarda logs en un archivo
+    ]
 });
 
+// 📌 Función para registrar eventos en la base de datos
+export const logSecurityEvent = async (usuario, tipo, estado, motivo) => {
+    try {
+        await Incidencia.create({
+            usuario,
+            tipo,
+            estado,
+            motivo,
+            fecha: new Date(),
+        });
+    } catch (error) {
+        console.error("Error al registrar incidencia en la BD:", error);
+    }
+};
+
 export default logger;
+

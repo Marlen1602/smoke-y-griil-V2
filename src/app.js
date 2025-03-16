@@ -13,11 +13,22 @@ import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
 import faqRoutes from "./routes/faq.routes.js";
+
 const app=express();
 
 // Protección con Helmet (Cabeceras seguras)
 app.use(helmet({
-    contentSecurityPolicy: false, // Evitar errores con frameworks frontend
+    contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],  // Solo permite contenido de la misma fuente
+          scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com"], // Permite scripts locales y Google (modifica según tu necesidad)
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // Permite estilos de Google Fonts
+          imgSrc: ["'self'", "data:", "https://yourdomain.com"], // Permite imágenes locales y de un dominio específico
+          connectSrc: ["'self'", "https://api.yourbackend.com"], // Permite conexiones a tu backend
+          frameSrc: ["'self'"], // Bloquea iframes de terceros
+          objectSrc: ["'none'"], // Evita la carga de objetos (Flash, ActiveX)
+        },
+      },
     crossOriginEmbedderPolicy: false, // Para evitar problemas con iframes
 }));
 // Limitar el tamaño de las solicitudes JSON (prevención de DoS)

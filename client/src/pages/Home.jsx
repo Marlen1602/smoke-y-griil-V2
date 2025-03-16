@@ -6,6 +6,7 @@ import {getPreguntasRequest} from '../api/auth.js';
 import Breadcrumbs from "../pages/Breadcrumbs";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false); // Control del modal
@@ -43,7 +44,38 @@ const Home = () => {
   const handleCloseModal = () => {
     setShowModal(false); // Cierra el modal
   };
+  const navigate = useNavigate();
 
+  const handleMision = () => {
+    navigate("/mision", {
+      state: {
+        titulo: "Misión",
+        descripcion:
+          "Brindar un servicio eficiente y de calidad para el comensal, ofreciendo la comodidad, seguridad e higiene en cada uno de nuestros productos. De igual forma, aprovechamos los ingredientes nativos de la región en la preparación de nuestros platillos.",
+      },
+    });
+  };
+  
+  const handleVision = () => {
+    navigate("/vision", {
+      state: {
+        titulo: "Visión",
+        descripcion:
+          "Convertirnos en una empresa reconocida en la región de Huejutla Hidalgo, por medio de un servicio distinguido y de calidad a nuestros clientes. De igual manera, ser reconocidos por nuestros productos estrella (AHUMADO).",
+      },
+    });
+  };
+  
+  const handleQuienesSomos = () => {
+    navigate("/quienes-somos", {
+      state: {
+        titulo: "Quiénes Somos",
+        descripcion:
+          "Somos un restaurante comprometido con ofrecer platillos de alta calidad con ingredientes frescos y un excelente servicio.",
+      },
+    });
+  };
+  
   // Cargar imágenes correctamente con `new URL()`
   useEffect(() => {
     try {
@@ -113,8 +145,7 @@ const Home = () => {
         )}
       </section>
 
-
-        <div className="md:w-1/2 text-center md:text-left">
+          <div className="md:w-1/2 text-center md:text-left">
           <h1 className="text-3xl md:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-2">
             ¡Disfruta de envío gratis!
           </h1>
@@ -204,9 +235,14 @@ const Home = () => {
                 {/* Enlaces */}
                 <div className="w-full md:w-auto flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-8">
                   <ul className="space-y-2 text-center md:text-left">
-                    <li>Misión</li>
-                    <li>Quiénes Somos</li>
-                    <li>Visión</li>
+                    <li className="cursor-pointer hover:underline" onClick={handleMision}>
+                      Misión</li>
+                    <li className="cursor-pointer hover:underline" onClick={handleQuienesSomos}>
+                      Quiénes Somos
+                  </li>
+                    <li className="cursor-pointer hover:underline" onClick={handleVision}>
+                      Visión
+                      </li>
                     
                   </ul>
                   <ul className="space-y-2 text-center md:text-left">
