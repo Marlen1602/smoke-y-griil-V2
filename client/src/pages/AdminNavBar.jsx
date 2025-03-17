@@ -8,32 +8,28 @@ const AdminNavBar = () => {
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false); // Estado para el menú móvil
   const [dropdownOpen, setDropdownOpen] = useState(false); // Estado del menú desplegable
-  const [logoUrl, setLogoUrl] = useState(""); // Estado para el logo desde la base de datos
   const { isDarkMode, toggleTheme } = useTheme();
+   const [empresa, setEmpresa] = useState({ Logo: ""});
 
-  useEffect(() => {
-    const fetchLogo = async () => {
-      try {
-        const response = await getEmpresaProfile();
-        setLogoUrl(response.data.logo); // Obtiene el logo de la BD
-      } catch (error) {
-        console.error("Error al cargar el logo:", error);
-      }
-    };
-    fetchLogo();
-  }, []);
+   useEffect(() => {
+      const fetchEmpresaData = async () => {
+        try {
+          const response = await getEmpresaProfile();
+          setEmpresa(response.data);
+        } catch (error) {
+          console.error("Error al cargar logo", error);
+        }
+      };
+      fetchEmpresaData();
+    }, []);
 
   return (
     <header className="bg-black text-white shadow-md">
       <div className="container mx-auto flex justify-between items-center p-4">
         {/* Logo */}
         <div className="flex items-center space-x-4">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="h-12 w-auto" />
-          ) : (
-            <span className="text-gray-400 italic">Cargando logo...</span>
-          )}
-          <span className="font-bold text-lg">Smoke & Grill</span>
+        {empresa.Logo && <img src={empresa.Logo} className="h-12 w-auto" />}
+          <span className="font-bold text-lg">{empresa.Nombre}</span>
         </div>
 
         {/* Menú para pantallas grandes */}
@@ -101,6 +97,9 @@ const AdminNavBar = () => {
           </Link>
           <Link to="/configuracion" className="hover:text-gray-300">
             usuarios
+          </Link>
+          <Link to="/productos" className="hover:text-gray-300">
+            Productos
           </Link>
         </nav>
 

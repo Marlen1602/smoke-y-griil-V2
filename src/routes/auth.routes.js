@@ -24,8 +24,10 @@ const validarCampos = (req, res, next) => {
 // Rate limiting para evitar ataques de fuerza bruta en login y reset password
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // Máximo 5 intentos por IP
-    message: "Demasiados intentos de inicio de sesión. Intenta más tarde."
+    max: 5, // Máximo 5 intentos por usuario (NO por IP)
+    keyGenerator: (req) => req.body.email || req.ip, // Se basa en el email, no en la IP
+    message: "Demasiados intentos fallidos en esta cuenta. Intenta más tarde."
+    
 });
 
 const resetPasswordLimiter = rateLimit({

@@ -41,7 +41,6 @@ export const deleteDeslindeLegalRequest = (id) => axios.delete(`${API}/deslindeL
 export const getDeslindeLegalHistoryRequest = (id) => axios.get(`${API}/deslindeLegal/history/${id}`, { withCredentials: true });
 
 //funciones CRUD para Perfil de la empresa
-// Obtener perfil
 export const getEmpresaProfile = async () =>
   axios.get(`${API}/empresa`, { withCredentials: true });
 
@@ -51,7 +50,6 @@ export const updateEmpresaProfile = async (id, data) => {
     withCredentials: true,
   });
 };
-
 
 
 export const getIncidencias = async () => axios.get(`${API}/incidencias`);
@@ -81,3 +79,28 @@ export const createPreguntaRequest = (pregunta) =>
 // Eliminar una pregunta por ID
 export const deletePreguntaRequest = (id) =>
   axios.delete(`${API}/preguntas/${id}`);
+
+
+//CRUD redes sociales
+export const getRedesSociales = async () => axios.get(API, { withCredentials: true });
+export const createRedSocial = async (data) => axios.post(API, data, { withCredentials: true });
+export const updateRedSocial = async (id, data) => axios.put(`${API}/${id}`, data, { withCredentials: true });
+export const deleteRedSocial = async (id) => axios.delete(`${API}/${id}`, { withCredentials: true });
+
+
+
+// 🔹 CRUD de Productos
+export const getProductosRequest = () => API.get("/productos");
+export const getProductoRequest = (id) => API.get(`/productos/${id}`);
+export const createProductoRequest = (producto) => API.post("/productos", producto);
+export const updateProductoRequest = (id, producto) => API.put(`/productos/${id}`, producto);
+export const deleteProductoRequest = (id) => API.delete(`/productos/${id}`);
+
+// 🔹 Subir imagen a Cloudinary
+export const uploadImagenRequest = (imagen) => {
+    const formData = new FormData();
+    formData.append("imagen", imagen);
+    return API.post("/productos/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+  };

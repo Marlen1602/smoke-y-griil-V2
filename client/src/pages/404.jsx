@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Header from "./PrincipalNavBar";
 import logo from "../assets/logo.png";
+import Footer from './footer.jsx';
 import sadBurger from "../assets/hamburguesa.png";
 
 const Error404 = () => {
@@ -36,38 +37,7 @@ const Error404 = () => {
           Volver al inicio
         </Link>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-950 dark:bg-gray-800 text-white py-6 px-4 mt-10">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
-          {/* Logo */}
-          <div className="w-full md:w-auto flex justify-center md:justify-start">
-            <img src={logo} alt="Logo" className="h-12" />
-          </div>
-
-          {/* Enlaces */}
-          <div className="w-full md:w-auto flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-8">
-            <ul className="space-y-2 text-center md:text-left">
-              <li>Misión</li>
-              <li>Quiénes Somos</li>
-              <li>Visión</li>
-              
-            </ul>
-            <ul className="space-y-2 text-center md:text-left">
-              
-              <li>Términos y Condiciones</li>
-              <li>Aviso de Privacidad</li>
-            </ul>
-          </div>
-
-          {/* Redes Sociales */}
-          <div className="w-full md:w-auto flex justify-center md:justify-start space-x-4">
-            <i className="fab fa-facebook text-2xl"></i>
-            <i className="fab fa-instagram text-2xl"></i>
-            <i className="fab fa-tiktok text-2xl"></i>
-          </div>
-        </div>
-      </footer>
+<Footer/>
     </div>
   );
 };

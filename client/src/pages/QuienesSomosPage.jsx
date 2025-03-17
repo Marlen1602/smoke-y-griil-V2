@@ -1,17 +1,28 @@
-import { useLocation } from "react-router-dom";
-import Header from "./PrincipalNavBar"; // Importamos el Header
-import logo from "../assets/logo.png"; // Importamos el logo
-import Breadcrumbs from "../pages/Breadcrumbs";
+import React, { useState, useEffect } from "react";
+import Footer from "../pages/Footer.jsx";
+import Header from "./PrincipalNavBar";
+import Breadcrumbs from "../pages/Breadcrumbs.jsx";
+import { getEmpresaProfile } from "../api/auth.js";
 
-const QuienesSomosPage = () => {
-  const location = useLocation();
-  const data = location.state || { 
-    titulo: "Quiénes Somos", 
-    descripcion: "No hay información disponible." 
+const QuienesPage = () => {
+  const [quienes, setQuienes] = useState("");
+
+  // Obtener la misión desde la base de datos
+  const fetchQuienes = async () => {
+    try {
+      const response = await getEmpresaProfile();
+      setQuienes(response.data.Eslogan);
+    } catch (error) {
+      console.error("Error al obtener quienes somos:", error);
+    }
   };
 
+  useEffect(() => {
+    fetchQuienes();
+  }, []);
+
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 dark:text-white min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
       {/* 🔹 Encabezado */}
       <Header />
 
@@ -20,47 +31,24 @@ const QuienesSomosPage = () => {
         <Breadcrumbs />
       </div>
 
-      {/* Contenido principal */}
-      <div className="container mx-auto px-6 py-12 text-center md:text-left">
-        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">{data.titulo}</h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">{data.descripcion}</p>
+      {/* 🔹 Contenido principal con diseño mejorado */}
+      <div className="flex-grow container mx-auto px-6 py-12 flex justify-center items-center">
+        <div className="relative bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 border-l-8 border-orange-500">
+          <h1 className="text-4xl font-extrabold text-orange-500 mb-4 text-center">
+            ¿Quienes Somos?
+          </h1>
 
-          
+          {/* 🔹 Mostrar la misión obtenida desde la BD */}
+          <p className="text-lg text-gray-700 text-center">
+            {quienes || "Cargando misión..."}
+          </p>
         </div>
       </div>
 
-      {/* 🔹 Footer (Copiado de `Home.jsx`) */}
-      <footer className="bg-gray-950 dark:bg-gray-800 text-white py-6 px-4 mt-10">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between space-y-6 md:space-y-0">
-          {/* Logo */}
-          <div className="w-full md:w-auto flex justify-center md:justify-start">
-            <img src={logo} alt="Logo" className="h-12" />
-          </div>
-
-          {/* Enlaces */}
-          <div className="w-full md:w-auto flex flex-col md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-8">
-            <ul className="space-y-2 text-center md:text-left">
-              <li className="hover:text-orange-400 cursor-pointer">Misión</li>
-              <li className="hover:text-orange-400 cursor-pointer">Quiénes Somos</li>
-              <li className="hover:text-orange-400 cursor-pointer">Visión</li>
-            </ul>
-            <ul className="space-y-2 text-center md:text-left">
-              <li className="hover:text-orange-400 cursor-pointer">Términos y Condiciones</li>
-              <li className="hover:text-orange-400 cursor-pointer">Aviso de Privacidad</li>
-            </ul>
-          </div>
-
-          {/* Redes Sociales */}
-          <div className="w-full md:w-auto flex justify-center md:justify-start space-x-4">
-            <i className="fab fa-facebook text-2xl hover:text-blue-400 cursor-pointer"></i>
-            <i className="fab fa-instagram text-2xl hover:text-pink-400 cursor-pointer"></i>
-            <i className="fab fa-tiktok text-2xl hover:text-white cursor-pointer"></i>
-          </div>
-        </div>
-      </footer>
+      {/* 🔹 Footer siempre pegado abajo */}
+      <Footer />
     </div>
   );
 };
 
-export default QuienesSomosPage;
+export default QuienesPage;

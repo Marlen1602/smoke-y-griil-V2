@@ -33,9 +33,7 @@ const Header = ({ onSearch }) => {
   };
 
   const handleOpenMaps = () => {
-    const mapsUrl =
-      "https://www.google.com/maps/place/Taquer%C3%ADa+Colalambre/@21.1349955,-98.4144672,3a,50.7y,283.47h,95.72t/data=!3m7!1e1!3m5!1sRUiW18igZu3ViDDHkDQfwg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-5.7182727014298536%26panoid%3DRUiW18igZu3ViDDHkDQfwg%26yaw%3D283.46798647937777!7i16384!8i8192!4m7!3m6!1s0x85d7269274b9b783:0x7e6bbe1a3c88de86!8m2!3d21.1350343!4d-98.4143591!10e5!16s%2Fg%2F11c0py_n1c?entry=ttu&g_ep=EgoyMDI1MDEyMi4wIKXMDSoASAFQAw%3D%3D";
-    window.open(mapsUrl, "_blank");
+    navigate("/ubicacion");
   };
 
   return (

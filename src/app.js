@@ -13,7 +13,9 @@ import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
 import faqRoutes from "./routes/faq.routes.js";
-
+import redes_sociales from "./routes/redes.routes.js";
+import productosRoutes from "./routes/productos.routes.js";
+import tamanosRoutes from "./routes/tamanoproducto.routes.js";
 const app=express();
 
 // Protección con Helmet (Cabeceras seguras)
@@ -43,12 +45,7 @@ const globalLimiter = rateLimit({
     max: 100, // Máximo 100 solicitudes por IP
     message: "Demasiadas solicitudes, intenta más tarde.",
 });
-// Rate limiting específico para autenticación
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 5, // Solo 5 intentos de login por usuario
-    message: "Demasiados intentos de inicio de sesión, intenta más tarde."
-});
+
 // Aplicar limitador global a todas las rutas
 app.use(globalLimiter);
 
@@ -62,8 +59,6 @@ app.use(cors({
 // Logs de peticiones
 app.use(morgan("dev"));
 
-// Aplicar rate limiting más estricto solo a rutas de autenticación
-app.use("/api/auth", authLimiter);
 
 //Rutas del sistema
 app.use("/api",authRoutes);
@@ -74,6 +69,9 @@ app.use("/api/empresa", empresaRoutes);
 app.use("/api",incidenciaRoutes);
 app.use("/api",configuracion);
 app.use("/api", faqRoutes);
+app.use("api/",redes_sociales);
+app.use("/api", productosRoutes);
+app.use("/api", tamanosRoutes);
 
 
 // Manejo centralizado de errores

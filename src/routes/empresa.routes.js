@@ -8,7 +8,7 @@ const router = Router();
 const upload = multer({ storage });
 
 // Ruta para obtener el perfil de la empresa
-router.get("/", authRequired, getEmpresaProfile);
+router.get("/", getEmpresaProfile);
 
 // Ruta para actualizar el perfil de la empresa (permite subir logo opcionalmente)
 router.put("/:id", authRequired, upload.single("logo"), async (req, res, next) => {

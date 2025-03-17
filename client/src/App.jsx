@@ -26,6 +26,9 @@ import MenuPage from "./pages/MenuClient";
 import QuienesSomosPage from "./pages/QuienesSomosPage";
 import VisionPage from "./pages/VisionPage";
 import MisionPage from "./pages/MisionPage";
+import UbicacionPage from "./pages/ubicacion";
+import ProductosPage from "./pages/ProductosPage";
+import { ProductosProvider } from "./contex/ProductosContext";
 import { SearchProvider } from "./contex/SearchContext";
 
 
@@ -35,6 +38,7 @@ function App() {
        <SearchProvider>
       <BrowserRouter>
         <AuthProvider>
+        <ProductosProvider>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
@@ -43,9 +47,11 @@ function App() {
             <Route path="/quienes-somos" element={<QuienesSomosPage />} />
             <Route path="/vision" element={<VisionPage />} />
             <Route path="/mision" element={<MisionPage />} />
+            <Route path="/ubicacion" element={<UbicacionPage />} />
             
             {/* Rutas accesibles sin autenticación */}
             <Route path="/menu" element={<Menu />} />
+            <Route path="/productos" element={<ProductosPage />} />
 
             {/* Rutas protegidas */}
             <Route element={<ProtectedRoute onlyVerified={true} />}>
@@ -73,6 +79,7 @@ function App() {
             <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />
             <Route path="/recuperar-contraseña/nueva-contraseña" element={<NewPasswordPage />} />
           </Routes>
+          </ProductosProvider>
         </AuthProvider>
       </BrowserRouter>
       </SearchProvider>

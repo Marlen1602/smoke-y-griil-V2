@@ -26,13 +26,14 @@ const User = sequelize.define("User", {
   },
   tipoUsuarioId: {  // 🔹 Relación con TipoUsuario
     type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 2, // Cliente por defecto
-    references: {
-      model: TipoUsuario,
-      key: "ID"  // 🔹 Coincide con la base de datos
-    }
-  },
+      allowNull: false,
+      references: {
+        model: "tipousuarios", // Solo referencia, pero NO genera FK en Sequelize
+        key: "ID",
+      },
+      foreignKeyConstraints: false, // Evita que Sequelize intente crear FK
+      defaultValue: 2
+    },
   verificationCode: {
     type: DataTypes.STRING,
     allowNull: true
@@ -63,6 +64,5 @@ const User = sequelize.define("User", {
   }
 }, { timestamps: true });
 
-User.belongsTo(TipoUsuario, { foreignKey: "tipoUsuarioId", as: "TipoUsuario" });
 
 export default User;

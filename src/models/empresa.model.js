@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../db.js";
-import RedesSociales from "./redes.Model" // 🔹 Ahora sí importamos RedesSociales
 
 const Empresa = sequelize.define(
   "Empresa",
@@ -26,6 +25,9 @@ const Empresa = sequelize.define(
     Direccion: {
       type: DataTypes.TEXT,
     },
+    Horario: {
+      type: DataTypes.TEXT,
+    },
     Logo: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -36,10 +38,6 @@ const Empresa = sequelize.define(
     tableName: "datos_empresa",
   }
 );
-
-// 🔹 Definir la relación después de que ambos modelos estén creados
-Empresa.hasMany(RedesSociales, { foreignKey: "ID_empresa", as: "RedesSociales" });
-RedesSociales.belongsTo(Empresa, { foreignKey: "ID_empresa" });
 
 export default Empresa;
 

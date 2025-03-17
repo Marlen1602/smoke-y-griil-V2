@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Header from "./PrincipalNavBar";
+import Footer from './footer.jsx';
 import logo from "../assets/logo.png";
 import confusedGrill from "../assets/error400.png"; // Imagen de la parrilla confundida
 
@@ -41,31 +42,7 @@ const Error400 = () => (
         🔄 Volver al Inicio
       </Link>
     </div>
-
-    {/* Footer */}
-    <footer className="bg-gray-900 text-white py-6 px-4 mt-10">
-      <div className="container mx-auto flex flex-wrap justify-between space-y-6 md:space-y-0">
-        <div className="w-full md:w-auto">
-          <img src={logo} alt="Logo" className="h-12 mx-auto md:mx-0" />
-        </div>
-        <div className="w-full md:w-auto flex flex-wrap justify-around md:justify-between space-y-4 md:space-y-0">
-          <ul className="space-y-2 text-center md:text-left">
-            <li>Misión</li>
-            <li>Quiénes Somos</li>
-            <li>Visión</li>
-          </ul>
-          <ul className="space-y-2 text-center md:text-left">
-            <li>Términos y Condiciones</li>
-            <li>Aviso de Privacidad</li>
-          </ul>
-          <div className="flex justify-center md:justify-start space-x-4">
-            <i className="fab fa-facebook text-2xl"></i>
-            <i className="fab fa-instagram text-2xl"></i>
-            <i className="fab fa-tiktok text-2xl"></i>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <Footer/>
   </div>
 );
 
