@@ -60,15 +60,13 @@ export const deleteIncidencia = async (id) => axios.delete(`${API}/incidencias${
 
 
 //lista de usuarios 
-export const getUsuarios = async () => axios.get(`${API}/usuarios`);
+export const getUsuarios = async () => axios.get(`${API}/usuarios`, { withCredentials: true });
 export const unlock = async (id) => {
   return axios.put(`${API}/unlock/${id}`, {}, { withCredentials: true });
 };
-
 export const blockUser = async (id) => {
   return axios.put(`${API}/block/${id}`, {}, { withCredentials: true });
 };
-
 // Obtener todas las preguntas frecuentes
 export const getPreguntasRequest = () => axios.get(`${API}/preguntas`);
 
@@ -87,20 +85,52 @@ export const createRedSocial = async (data) => axios.post(API, data, { withCrede
 export const updateRedSocial = async (id, data) => axios.put(`${API}/${id}`, data, { withCredentials: true });
 export const deleteRedSocial = async (id) => axios.delete(`${API}/${id}`, { withCredentials: true });
 
-
-
 // 🔹 CRUD de Productos
-export const getProductosRequest = () => API.get("/productos");
-export const getProductoRequest = (id) => API.get(`/productos/${id}`);
-export const createProductoRequest = (producto) => API.post("/productos", producto);
-export const updateProductoRequest = (id, producto) => API.put(`/productos/${id}`, producto);
-export const deleteProductoRequest = (id) => API.delete(`/productos/${id}`);
+export const getProductosRequest = () => axios.get(`${API}/productos`);
+export const getProductoRequest = (id) => axios.get(`${API}/productos/${id}`);
+export const createProductoRequest = (producto) => {
+  return axios.post(`${API}/productos`, producto, {
+      headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const updateProductoRequest = (id, producto) => {
+  console.log(`Actualizando producto ${id} con datos:`, producto)
+
+   // y que los datos son correctos antes de enviar
+  const productoJSON = {
+    Nombre: producto.Nombre,
+    Descripcion: producto.Descripcion,
+    ID_Categoria: Number(producto.ID_Categoria),
+    TieneTamanos: producto.TieneTamanos === true || producto.TieneTamanos === 1 ? 1 : 0,
+    Disponible: producto.Disponible === true || producto.Disponible === 1 ? 1 : 0,
+    Precio: producto.TieneTamanos ? null : Number(producto.Precio || 0),
+  }
+
+  console.log("Datos JSON a enviar:", productoJSON)
+
+  return axios.put(`${API}/productos/${id}`, productoJSON, {
+    headers: { "Content-Type": "application/json" },
+  })
+}
+
+
+export const deleteProductoRequest = (id) => axios.delete(`${API}/productos/${id}`);
+
+// 🔹 CRUD de Tamaños
+export const getTamanosRequest = () => axios.get(`${API}/tamanos`);
+export const getTamanoRequest = (id) => axios.get(`${API}/tamanos/${id}`);
+export const createTamanoRequest = (tamano) => axios.post(`${API}/tamanos`, tamano);
+export const updateTamanoRequest = (id, tamano) => axios.put(`${API}/tamanos/${id}`, tamano);
+export const deleteTamanoRequest = (id) => axios.delete(`${API}/tamanos/${id}`);
 
 // 🔹 Subir imagen a Cloudinary
-export const uploadImagenRequest = (imagen) => {
-    const formData = new FormData();
-    formData.append("imagen", imagen);
-    return API.post("/productos/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-    });
-  };
+export const uploadImagenRequest = (id, imagen) => {
+  return axios.post(`${API}/productos/${id}/upload`, imagen, {
+      headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+//Obtener categoria 
+
+export const getCategorias = () => axios.get(`${API}/categorias`);
+

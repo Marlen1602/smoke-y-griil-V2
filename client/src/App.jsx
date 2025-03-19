@@ -28,7 +28,6 @@ import VisionPage from "./pages/VisionPage";
 import MisionPage from "./pages/MisionPage";
 import UbicacionPage from "./pages/ubicacion";
 import ProductosPage from "./pages/ProductosPage";
-import { ProductosProvider } from "./contex/ProductosContext";
 import { SearchProvider } from "./contex/SearchContext";
 
 
@@ -38,7 +37,6 @@ function App() {
        <SearchProvider>
       <BrowserRouter>
         <AuthProvider>
-        <ProductosProvider>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
@@ -51,7 +49,10 @@ function App() {
             
             {/* Rutas accesibles sin autenticación */}
             <Route path="/menu" element={<Menu />} />
-            <Route path="/productos" element={<ProductosPage />} />
+            
+            <Route>
+                <Route path='/productos' element={<ProductosPage />} />
+            </Route>
 
             {/* Rutas protegidas */}
             <Route element={<ProtectedRoute onlyVerified={true} />}>
@@ -79,7 +80,6 @@ function App() {
             <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />
             <Route path="/recuperar-contraseña/nueva-contraseña" element={<NewPasswordPage />} />
           </Routes>
-          </ProductosProvider>
         </AuthProvider>
       </BrowserRouter>
       </SearchProvider>

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { getUsuarios, unlock, blockUser } from "../api/auth.js"; // Asegúrate de tener estas funciones en tu API
+import { getUsuarios, unlock, blockUser } from "../api/auth.js";
 import AdminNavBar from "./AdminNavBar";
 
 const UsuariosPage = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false); // Estado para mostrar u ocultar el modal
-  const [actionType, setActionType] = useState(""); // Acción a confirmar (block o unlock)
-  const [selectedUserId, setSelectedUserId] = useState(null); // ID del usuario seleccionado
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [actionType, setActionType] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   useEffect(() => {
     fetchUsuarios();
@@ -17,10 +18,12 @@ const UsuariosPage = () => {
     setLoading(true);
     try {
       const response = await getUsuarios();
-      setUsuarios(response.data); // Asume que tu backend regresa los datos de los usuarios
+      console.log("Usuarios obtenidos:", response.data);
+      setUsuarios(response.data);
+      setError(null);
     } catch (error) {
       console.error("Error al obtener usuarios:", error);
-      alert("Error al cargar la lista de usuarios.");
+      setError("Error al cargar la lista de usuarios. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -29,15 +32,15 @@ const UsuariosPage = () => {
   const handleAction = async () => {
     try {
       if (actionType === "block") {
-        await blockUser(selectedUserId); // Llama a la función para bloquear
+        await blockUser(selectedUserId);
       } else if (actionType === "unlock") {
-        await unlock(selectedUserId); // Llama a la función para desbloquear
+        await unlock(selectedUserId);
       }
-      fetchUsuarios(); // Recarga la lista de usuarios
+      fetchUsuarios();
+      setShowModal(false);
     } catch (error) {
       console.error("Error al realizar la acción:", error);
-    } finally {
-      setShowModal(false); // Oculta el modal
+      alert(`Error al ${actionType === "block" ? "bloquear" : "desbloquear"} al usuario.`);
     }
   };
 
@@ -48,11 +51,11 @@ const UsuariosPage = () => {
     }
     setActionType(action);
     setSelectedUserId(id);
-    setShowModal(true); // Muestra el modal
+    setShowModal(true);
   };
 
   const closeModal = () => {
-    setShowModal(false); // Oculta el modal
+    setShowModal(false);
     setActionType("");
     setSelectedUserId(null);
   };
@@ -62,8 +65,22 @@ const UsuariosPage = () => {
       <AdminNavBar />
       <h1 className="text-3xl font-bold text-center mt-4">Lista de Usuarios</h1>
       <div className="p-4 md:p-10">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+            <button 
+              className="ml-4 bg-red-500 text-white px-2 py-1 rounded"
+              onClick={fetchUsuarios}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+        
         {loading ? (
-          <p className="text-center text-lg">Cargando usuarios...</p>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-600">
@@ -77,35 +94,43 @@ const UsuariosPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((usuario) => (
-                  <tr key={usuario._id}>
-                    <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.nombre}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.email}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.role}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700">
-                      {usuario.isBlocked ? "Bloqueado" : "Activo"}
-                    </td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700">
-                      {usuario.isBlocked ? (
-                        <button
-                          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-                          onClick={() => openModal("unlock", usuario._id, usuario.role)}
-                        >
-                          Desbloquear
-                        </button>
-                      ) : usuario.role === "administrador" ? (
-                        <span className="text-gray-500">Sin acciones</span>
-                      ) : (
-                        <button
-                          className="bg-red text-white px-4 py-2 rounded hover:bg-red transition"
-                          onClick={() => openModal("block", usuario._id, usuario.role)}
-                        >
-                          Bloquear
-                        </button>
-                      )}
-                    </td>
+                {usuarios.length > 0 ? (
+                  usuarios.map((usuario) => (
+                    <tr key={usuario.id || usuario._id}>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.nombre}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.email}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">{usuario.role}</td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                        <span className={`px-2 py-1 rounded ${usuario.isBlocked ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}>
+                          {usuario.isBlocked ? "Bloqueado" : "Activo"}
+                        </span>
+                      </td>
+                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                        {usuario.isBlocked ? (
+                          <button
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                            onClick={() => openModal("unlock", usuario.id || usuario._id, usuario.role)}
+                          >
+                            Desbloquear
+                          </button>
+                        ) : usuario.role === "administrador" ? (
+                          <span className="text-gray-500">Sin acciones</span>
+                        ) : (
+                          <button
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                            onClick={() => openModal("block", usuario.id || usuario._id, usuario.role)}
+                          >
+                            Bloquear
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="py-4 text-center">No hay usuarios disponibles</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -123,7 +148,7 @@ const UsuariosPage = () => {
             </h2>
             <div className="flex justify-end space-x-4">
               <button
-                className="bg-red text-white px-4 py-2 rounded hover:bg-red transition"
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
                 onClick={closeModal}
               >
                 Cancelar

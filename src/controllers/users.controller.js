@@ -1,7 +1,7 @@
 import Incidencia from "../models/incidencia.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-
+import TipoUsuario from "../models/TipoUsuario.js";
 
 export const getUserByEmail =  async ( req, res) => {
    //sacar el email del parametro
@@ -73,20 +73,25 @@ export const updatePassword = async (req, res) => {
     }
   };
 
-  // Obtener lista de usuarios
+// Obtener lista de usuarios
 export const getUsers = async (req, res) => {
-try {
-    // Se obtiene el nombre, email, rol, estado de bloqueo (isBlocked) y número de intentos fallidos
-    const users = await User.findAll({}, "nombre email role isBlocked ");
+  try {
+    // Incluir la tabla relacionada tipousuarios
+    const users = await User.findAll({
+      include: [{
+        model: TipoUsuario, // Asegúrate de importar este modelo
+        as: 'tipoUsuarioRelacion', // Usa el alias que hayas definido en la asociación
+        attributes: ['nombre', 'descripcion'] // Campos que quieres obtener de tipousuarios
+      }],
+      attributes: ['id', 'nombre', 'email', 'tipoUsuario', 'isBlocked'] // Campos de Users
+    });
 
-    // Respuesta exitosa con los usuarios
     return res.status(200).json(users);
   } catch (error) {
     console.error("Error al obtener usuarios:", error);
     return res.status(500).json({ message: "Error al obtener usuarios." });
   }
 };
-
 
 
 

@@ -7,7 +7,6 @@ import {
   deleteProducto,
   uploadImagen,
 } from "../controllers/producto.controller.js";
-import { authRequired  } from "../middlewares/validateToken.js";
 import multer from "multer";
 import { storage } from "../libs/cloudinary.js";
 
@@ -20,16 +19,16 @@ router.get("/productos", getProductos);
 // 📌 Obtener un producto por ID
 router.get("/productos/:id", getProductoById);
 
-// 📌 Crear un nuevo producto
-router.post("/productos", authRequired , createProducto);
+// 📌 Crear un nuevo producto y subir imagen en la misma solicitud
+router.post("/productos", upload.single("imagen"), createProducto);
 
 // 📌 Actualizar un producto existente
-router.put("/productos/:id", authRequired , updateProducto);
+router.put("/productos/:id", updateProducto);
 
 // 📌 Eliminar un producto
-router.delete("/productos/:id", authRequired , deleteProducto);
+router.delete("/productos/:id", deleteProducto);
 
 // 📌 Subir imagen a Cloudinary
-router.post("/productos/:id/upload", authRequired , upload.single("imagen"), uploadImagen);
+router.post("/productos/:id/upload", upload.single("imagen"), uploadImagen);
 
 export default router;
