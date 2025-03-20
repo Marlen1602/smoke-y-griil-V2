@@ -4,11 +4,7 @@ import xss from "xss-clean";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.routes.js";
-import politicasRoutes from "./routes/politicas.router.js";
-import terminos from "./routes/terminosCondiciones.router.js";
-import deslinde from "./routes/deslindeLegal.router.js";
 import empresaRoutes from "./routes/empresa.routes.js";
 import incidenciaRoutes from "./routes/incidencias.routes.js";
 import configuracion from "./routes/config.routes.js";
@@ -17,6 +13,7 @@ import redes_sociales from "./routes/redes.routes.js";
 import productosRoutes from "./routes/productos.routes.js";
 import tamanosRoutes from "./routes/tamanoproducto.routes.js";
 import categorias from "./routes/categorias.routes.js";
+import documentos from "./routes/documentoslegales.js";
 const app=express();
 
 // Protección con Helmet (Cabeceras seguras)
@@ -65,17 +62,15 @@ app.use(morgan("dev"));
 
 //Rutas del sistema
 app.use("/api",authRoutes);
-app.use("/api",politicasRoutes);
-app.use("/api",terminos);
-app.use("/api",deslinde);
 app.use("/api/empresa", empresaRoutes);
 app.use("/api",incidenciaRoutes);
 app.use("/api",configuracion);
 app.use("/api", faqRoutes);
-app.use("api/",redes_sociales);
+app.use("/api",redes_sociales);
 app.use("/api", productosRoutes);
 app.use("/api", tamanosRoutes);
 app.use("/api",categorias)
+app.use("/api",documentos)
 
 
 // Manejo centralizado de errores

@@ -76,14 +76,8 @@ export const updatePassword = async (req, res) => {
 // Obtener lista de usuarios
 export const getUsers = async (req, res) => {
   try {
-    // Incluir la tabla relacionada tipousuarios
     const users = await User.findAll({
-      include: [{
-        model: TipoUsuario, // Asegúrate de importar este modelo
-        as: 'tipoUsuarioRelacion', // Usa el alias que hayas definido en la asociación
-        attributes: ['nombre', 'descripcion'] // Campos que quieres obtener de tipousuarios
-      }],
-      attributes: ['id', 'nombre', 'email', 'tipoUsuario', 'isBlocked'] // Campos de Users
+            attributes: ["id", "nombre","tipoUsuarioId", "email", "isBlocked"] // Ajusta los atributos
     });
 
     return res.status(200).json(users);
@@ -92,6 +86,7 @@ export const getUsers = async (req, res) => {
     return res.status(500).json({ message: "Error al obtener usuarios." });
   }
 };
+
 
 
 

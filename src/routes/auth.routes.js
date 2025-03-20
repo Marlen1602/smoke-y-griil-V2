@@ -56,20 +56,20 @@ router.post(
 );
 
 router.post("/verify-email", verifyEmail);
-router.post("/logout", authRequired, logout);
+router.post("/logout", logout);
 router.get("/profile", authRequired, profile);
 
 // Bloqueo y desbloqueo de usuarios con validación de ID
 router.put(
     "/unlock/:id",
-    param("id").isUUID().withMessage("El ID debe ser un UUID válido"),
+    param("id").isInt().withMessage("El ID debe ser un UUID válido"),
     validarCampos,
     unlockUser
 );
 
 router.put(
     "/block/:id",
-    param("id").isUUID().withMessage("El ID debe ser un UUID válido"),
+    param("id").isInt().withMessage("El ID debe ser un UUID válido"),
     validarCampos,
     blockUser
 );
@@ -98,6 +98,6 @@ router.post("/verify-code-password", verifyCode);
 router.put("/update-password", updatePassword);
 
 // Listado de usuarios (solo para administradores, aplicar middleware si es necesario)
-router.get("/usuarios", authRequired, getUsers);
+router.get("/usuarios", getUsers);
 
 export default router;

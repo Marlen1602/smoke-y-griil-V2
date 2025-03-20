@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
-import Footer from "../pages/Footer.jsx";
-import Header from "./PrincipalNavBar";
+import React, { useState, useEffect,useContext } from "react";
 import Breadcrumbs from "../pages/Breadcrumbs.jsx";
 import { getEmpresaProfile } from "../api/auth.js";
+import { AuthContext } from "../contex/AuthContext"
+import AdminLayout from "../layouts/AdminLayout.jsx"
+//import UserLayout from "../layouts/UserLayout"
+import PublicLayout from "../layouts/PublicLayaut.jsx"
 
 const QuienesPage = () => {
   const [quienes, setQuienes] = useState("");
+   const { user, isAuthenticated } = useContext(AuthContext)
 
   // Obtener la misión desde la base de datos
   const fetchQuienes = async () => {
@@ -21,10 +24,9 @@ const QuienesPage = () => {
     fetchQuienes();
   }, []);
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
-      {/* 🔹 Encabezado */}
-      <Header />
+   // Contenido de la página
+   const pageContent = (
+    <>
 
       {/* 🔹 Breadcrumbs */}
       <div className="bg-white py-3 px-8 rounded-md flex items-center">
@@ -44,11 +46,22 @@ const QuienesPage = () => {
           </p>
         </div>
       </div>
+</>
+ )
+ // Renderizar con el layout apropiado según el tipo de usuario
+ if (!isAuthenticated || !user) {
+  return <PublicLayout>{pageContent}</PublicLayout>
+}
 
-      {/* 🔹 Footer siempre pegado abajo */}
-      <Footer />
-    </div>
-  );
+// Usar tipoUsuarioId en lugar de role
+switch (user.tipoUsuarioId) {
+  case 1: // Administrador
+    return <AdminLayout>{pageContent}</AdminLayout>
+  case 2: // Cliente
+    return <UserLayout>{pageContent}</UserLayout>
+  default:
+    //return <PublicLayout>{pageContent}</PublicLayout>
+}
 };
 
 export default QuienesPage;

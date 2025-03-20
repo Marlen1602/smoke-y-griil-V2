@@ -13,33 +13,6 @@ export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {wi
 
 export const logoutRequest = () => axios.post(`${API}/logout`, {}, { withCredentials: true });
 
-// Funciones CRUD para políticas
-
-export const getPoliciesRequest = () => axios.get(`${API}/politicas`, { withCredentials: true });
-
-export const createPolicyRequest = (policy) => axios.post(`${API}/politicas`, policy, { withCredentials: true });
-
-export const updatePolicyRequest = (id, policy) => axios.put(`${API}/politicas/${id}`, policy, { withCredentials: true });
-
-export const deletePolicyRequest = (id) => axios.delete(`${API}/politicas/${id}`, { withCredentials: true });
-
-export const getPolicyHistoryRequest = (id) => axios.get(`${API}/politicas/${id}/history`, { withCredentials: true });
-
-
-// Funciones CRUD para Términos y Condiciones
-export const getTermsRequest = () => axios.get(`${API}/terminosCondiciones`, { withCredentials: true });
-export const createTermsRequest = (term) => axios.post(`${API}/terminosCondiciones`, term, { withCredentials: true });
-export const updateTermsRequest = (id, term) => axios.put(`${API}/terminosCondiciones/${id}`, term, { withCredentials: true });
-export const deleteTermsRequest = (id) => axios.delete(`${API}/terminosCondiciones/${id}`, { withCredentials: true });
-export const getTermsHistoryRequest = (id) => axios.get(`${API}/terminosCondiciones/history/${id}`, { withCredentials: true });
-
-// Funciones CRUD para Deslinde legal
-export const getDeslindeLegalRequest = () => axios.get(`${API}/deslindeLegal`, { withCredentials: true });
-export const createDeslindeLegalRequest = (term) => axios.post(`${API}/deslindeLegal`, term, { withCredentials: true });
-export const updateDeslindeLegalRequest = (id, term) => axios.put(`${API}/deslindeLegal/${id}`, term, { withCredentials: true });
-export const deleteDeslindeLegalRequest = (id) => axios.delete(`${API}/deslindeLegal/${id}`, { withCredentials: true });
-export const getDeslindeLegalHistoryRequest = (id) => axios.get(`${API}/deslindeLegal/history/${id}`, { withCredentials: true });
-
 //funciones CRUD para Perfil de la empresa
 export const getEmpresaProfile = async () =>
   axios.get(`${API}/empresa`, { withCredentials: true });
@@ -67,6 +40,7 @@ export const unlock = async (id) => {
 export const blockUser = async (id) => {
   return axios.put(`${API}/block/${id}`, {}, { withCredentials: true });
 };
+
 // Obtener todas las preguntas frecuentes
 export const getPreguntasRequest = () => axios.get(`${API}/preguntas`);
 
@@ -80,10 +54,10 @@ export const deletePreguntaRequest = (id) =>
 
 
 //CRUD redes sociales
-export const getRedesSociales = async () => axios.get(API, { withCredentials: true });
-export const createRedSocial = async (data) => axios.post(API, data, { withCredentials: true });
-export const updateRedSocial = async (id, data) => axios.put(`${API}/${id}`, data, { withCredentials: true });
-export const deleteRedSocial = async (id) => axios.delete(`${API}/${id}`, { withCredentials: true });
+export const getRedesSociales = () => axios.get(`${API}/redes_sociales`);
+export const createRedSocial = (data) => axios.post(`${API}/redes_sociales`, data, { withCredentials: true });
+export const updateRedSocial = (id, data) => axios.put(`${API}/redes_sociales/${id}`, data, { withCredentials: true });
+export const deleteRedSocial = (id) => axios.delete(`${API}/redes_sociales/${id}`, { withCredentials: true });
 
 // 🔹 CRUD de Productos
 export const getProductosRequest = () => axios.get(`${API}/productos`);
@@ -134,3 +108,9 @@ export const uploadImagenRequest = (id, imagen) => {
 
 export const getCategorias = () => axios.get(`${API}/categorias`);
 
+//CRUD documentos legales
+export const obtenerDocumentos=()=> axios.get(`${API}/documentos_legales`);
+export const obtenerDocumentoPorId = (id) => axios.get(`${API}/documentos_legales/${id}`);
+export const crearDocumento = (documento) => axios.post(`${API}/documentos_legales`, documento);
+export const actualizarDocumento = (id, documento) => axios.put(`${API}/documentos_legales/${id}`, documento);
+export const eliminarDocumento = (id) => axios.delete(`${API}/documentos_legales/${id}`);

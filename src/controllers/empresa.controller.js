@@ -33,7 +33,7 @@ export const getEmpresaProfile = async (req, res) => {
 export const updateEmpresaProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const { Nombre, Eslogan, Mision, Vision, Direccion, Logo } = req.body; // Los campos deben coincidir con el modelo en Sequelize
+    const { Nombre, Eslogan, Mision, Vision, Direccion,Horario, Logo } = req.body; // Los campos deben coincidir con el modelo en Sequelize
 
     // Buscar si la empresa existe
     const empresa = await Empresa.findByPk(id);

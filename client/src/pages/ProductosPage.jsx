@@ -8,6 +8,8 @@ import {
   getCategorias,
   updateProductoRequest,
 } from "../api/auth.js"
+import AdminNavBar from "./AdminNavBar";
+import Footer from './Footer.jsx';
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState([])
@@ -314,6 +316,8 @@ export default function ProductosPage() {
 
   // Actualizar la sección de estado de la API para mostrar más detalles
   return (
+    <div className="bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:to-gray-800 dark:text-white min-h-screen">
+      <AdminNavBar />
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Productos</h1>
 
@@ -899,7 +903,11 @@ export default function ProductosPage() {
             </form>
           </div>
         </div>
+        
       )}
+      
+      </div>
+      <Footer/>
     </div>
   )
 }

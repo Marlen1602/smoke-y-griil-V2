@@ -7,13 +7,10 @@ import AuthModal from "./pages/AuthModal";
 import { AuthProvider } from "./contex/AuthContext";
 import ClientPage from "./pages/ClientPage";
 import AdminPage from "./pages/AdminPage";
-import PoliticasPage from "./pages/PoliticasPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyCodePasswordPage from "./pages/VerifyCodePasswordPage";
 import NewPasswordPage  from "./pages/NewPasswordPage";
-import TermsPage from "./pages/TermsPage";
-import DeslindePage from "./pages/DeslindePage";
 import EmpresaPage from "./pages/EmpresaPage";
 import IncidenciasPage from "./pages/IncidenciaPage";
 import ConfigPage from "./pages/ConfigPage";
@@ -29,6 +26,7 @@ import MisionPage from "./pages/MisionPage";
 import UbicacionPage from "./pages/ubicacion";
 import ProductosPage from "./pages/ProductosPage";
 import { SearchProvider } from "./contex/SearchContext";
+import DocumentosPage from "./pages/documetosPage";
 
 
 function App() {
@@ -61,9 +59,7 @@ function App() {
             </Route>
 
             <Route path="/paginaAdministrador" element={<AdminPage />} />
-            <Route path="/politicas" element={<PoliticasPage />} />
-            <Route path="/terminosCondiciones" element={<TermsPage />} />
-            <Route path="/deslindeLegal" element={<DeslindePage />} />
+            <Route path="/documentos" element={<DocumentosPage />} />
             <Route path="/empresa" element={<EmpresaPage />} />
             <Route path="/incidencias" element={<IncidenciasPage />} />
             <Route path="/configuracion" element={<ConfigPage />} />

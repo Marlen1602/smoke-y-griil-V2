@@ -7,7 +7,7 @@ import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para e
 import ReCAPTCHA from "react-google-recaptcha";
 import '../styles/medidor.css';
 import Breadcrumbs from "../pages/Breadcrumbs";
-import Footer from './footer.jsx';
+import Footer from './Footer.jsx';
 import Header from './PrincipalNavBar'; // Importa el componente Header
 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
 import AdminNavBar from './AdminNavBar';
+import Footer from './Footer.jsx';
 
 const AdminPage = () => {
   const { logout } = useAuth();
@@ -38,7 +39,9 @@ const AdminPage = () => {
           />
         </div>
       </main>
+      <Footer/>
     </div>
+   
   );
 };
 

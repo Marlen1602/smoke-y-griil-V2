@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getIncidencias } from "../api/auth.js";
 import AdminNavBar from "./AdminNavBar";
+import Footer from './Footer.jsx';
 
 const IncidenciasPage = () => {
   const [incidencias, setIncidencias] = useState([]);
@@ -129,6 +130,7 @@ const IncidenciasPage = () => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

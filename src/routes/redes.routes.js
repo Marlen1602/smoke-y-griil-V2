@@ -8,9 +8,9 @@ import {
 
 const router = Router();
 
-router.get("/", getRedesSociales); // Obtener todas las redes
-router.post("/", createRedSocial); // Crear una red social
-router.put("/:id", updateRedSocial); // Actualizar una red social
-router.delete("/:id", deleteRedSocial); // Eliminar una red social
+router.get("/redes_sociales", getRedesSociales); // Obtener todas las redes
+router.post("/redes_sociales", createRedSocial); // Crear una red social
+router.put("/redes_sociales/:id", updateRedSocial); // Actualizar una red social
+router.delete("/redes_sociales/:id", deleteRedSocial); // Eliminar una red social
 
 export default router;
