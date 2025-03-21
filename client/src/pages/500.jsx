@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "./PrincipalNavBar";
 import logo from "../assets/logo.png";
-import Footer from './footer.jsx';
+import Footer from './Footer.jsx';
 import brokenGrill from "../assets/error500.png"; 
 
 const Error500 = () => (

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getEmpresaProfile, updateEmpresaProfile } from "../controllers/empresa.controller.js";
 import multer from "multer";
 import { storage } from "../libs/cloudinary.js";
+import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 const upload = multer({ storage });
@@ -10,7 +11,7 @@ const upload = multer({ storage });
 router.get("/", getEmpresaProfile);
 
 // Ruta para actualizar el perfil de la empresa (permite subir logo opcionalmente)
-router.put("/:id", upload.single("logo"), async (req, res, next) => {
+router.put("/:id",authRequired, adminRequired, upload.single("logo"), async (req, res, next) => {
   try {
     // Si se sube una imagen, se agrega al request para ser procesada en el controlador
     req.body.logo = req.file ? req.file.path : undefined;

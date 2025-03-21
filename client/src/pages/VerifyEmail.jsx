@@ -2,7 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
 import { useState } from "react";
-import { set } from "mongoose";
+import Breadcrumbs from "../pages/Breadcrumbs";
+import Footer from './Footer.jsx';
+import Header from './PrincipalNavBar'; // Importa el componente Header
 
 const VerifyEmail = () => {
     const { sendEmailResetPassword, errors } = useAuth(); // Usamos la función de login desde el contexto
@@ -26,6 +28,13 @@ const VerifyEmail = () => {
     };
 
     return (
+        <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
+      {/* Header */}
+      <Header />
+       {/* Breadcrumbs en la parte blanca */}
+  <div className="bg-white py-3 px-8  rounded-md flex items-center">
+    <Breadcrumbs />
+  </div>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md">
                 <h2 className="text-2xl font-bold text-center mb-6">Recuperar contraseña</h2>
@@ -62,9 +71,10 @@ const VerifyEmail = () => {
                     </button>
                 </form>
 
-          
-            </div>
+                     </div>
         </div>
+        <Footer/>
+    </div>
     );
 };
 

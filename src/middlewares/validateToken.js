@@ -2,48 +2,45 @@ import jwt from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config.js";
 import User from "../models/user.model.js";
 
+// Middleware para verificar token y autenticación
 export const authRequired = async (req, res, next) => {
-    const { token } = req.cookies;
+    const token = req.cookies.token;
 
     if (!token) {
         return res.status(401).json({ message: "No token, authentication denied" });
     }
 
     try {
-        const user = jwt.verify(token, TOKEN_SECRET);
+        const decoded = jwt.verify(token, TOKEN_SECRET);
+        const user = await User.findByPk(decoded.id);
 
         if (!user) {
             return res.status(401).json({ message: "Invalid token, authentication denied" });
         }
 
-        // Buscar al usuario en la base de datos
-        const userDb = await User.findByPk(user.id);
-
-        if (!userDb) {
-            return res.status(401).json({ message: "Invalid token, authentication denied" });
+        if (!user.isVerified) {
+            return res.status(401).json({ message: "User not verified", isVerified: user.isVerified });
         }
 
-        if (!userDb.isVerified) {
-            return res.status(401).json({ message: "User not verified", isVerified: userDb.isVerified });
-        }
-
-        // Adjuntar la información del usuario al objeto de solicitud (req.user)
         req.user = {
-            id: userDb.id,
-            username: userDb.username,
-            nombre: userDb.nombre,
-            apellidos: userDb.apellidos,
-            email: userDb.email,
-            createAt: userDb.createdAt,
-            updatedAt: userDb.updatedAt,
-            iat: user.iat,
-            exp: user.exp,
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            rol: user.tipoUsuarioId, // Verificamos tipoUsuarioId para roles
         };
 
-        // Continuar con el siguiente middleware o controlador
         next();
     } catch (error) {
         console.error("Error verifying token:", error);
+        res.clearCookie("token"); // 🔹 Borra el token si es inválido
         return res.status(401).json({ message: "Invalid token, authentication denied" });
     }
+};
+
+// 📌 Middleware para restringir acceso solo a administradores
+export const adminRequired = async (req, res, next) => {
+    if (!req.user || req.user.rol !== 1) {  // 🔹 1 = Admin en tipoUsuarioId
+        return res.status(403).json({ message: "Access denied. Admins only" });
+    }
+    next();
 };

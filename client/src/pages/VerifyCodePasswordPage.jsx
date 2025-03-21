@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
 import { useState } from "react";
 import { useTheme } from "../contex/ThemeContext";
-
+import Footer from "./Footer.jsx";
+import Breadcrumbs from "../pages/Breadcrumbs";
+import Header from "../pages/ClientBar.jsx";
 const VerifyCodePasswordPage = () => {
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm();
     const { verifyCodeForPassword, errors: verifyErrors } = useAuth();
@@ -28,6 +30,13 @@ const VerifyCodePasswordPage = () => {
     };
 
     return (
+        <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
+        {/* Header */}
+        <Header />
+         {/* Breadcrumbs en la parte blanca */}
+    <div className="bg-white py-3 px-8  rounded-md flex items-center">
+      <Breadcrumbs />
+    </div>
         <div className={`min-h-screen flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"}`}>
             <div className={`p-10 rounded-lg shadow-lg w-full max-w-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                 <h2 className="text-2xl font-bold text-center mb-6">Verificación de Código</h2>
@@ -69,6 +78,8 @@ const VerifyCodePasswordPage = () => {
                 </form>
             </div>
         </div>
+        <Footer/>
+    </div>
     );
 };
 

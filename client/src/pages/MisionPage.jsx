@@ -3,7 +3,7 @@ import Breadcrumbs from "../pages/Breadcrumbs.jsx";
 import { getEmpresaProfile } from "../api/auth.js";
 import { AuthContext } from "../contex/AuthContext"
 import AdminLayout from "../layouts/AdminLayout.jsx"
-//import UserLayout from "../layouts/UserLayout"
+import UserLayout from "../layouts/ClientLayaut.jsx"
 import PublicLayout from "../layouts/PublicLayaut.jsx"
 
 const MisionPage = () => {

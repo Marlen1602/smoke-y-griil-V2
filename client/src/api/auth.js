@@ -9,13 +9,13 @@ export const registerRequest = (user) => {
 
 export const loginRequest = (user)=> axios.post(`${API}/login`,user, {withCredentials: true});
 
-export const verifyAuthRequest = (user) => axios.get(`${API}/authenticated`, {withCredentials: true})
+export const verifyAuthRequest = () => axios.get(`${API}/profile`, { withCredentials: true });
 
 export const logoutRequest = () => axios.post(`${API}/logout`, {}, { withCredentials: true });
 
 //funciones CRUD para Perfil de la empresa
 export const getEmpresaProfile = async () =>
-  axios.get(`${API}/empresa`, { withCredentials: true });
+  axios.get(`${API}/empresa`);
 
 export const updateEmpresaProfile = async (id, data) => {
   return axios.put(`${API}/empresa/${id}`, data, {
@@ -25,10 +25,7 @@ export const updateEmpresaProfile = async (id, data) => {
 };
 
 
-export const getIncidencias = async () => axios.get(`${API}/incidencias`);
-export const createIncidencia = async (data) => axios.post(`${API}/incidencias`, data);
-export const updateIncidencia = async (id, data) => axios.put(`${API}/incidencias${id}`, data);
-export const deleteIncidencia = async (id) => axios.delete(`${API}/incidencias${id}`);
+export const getIncidencias = async () => axios.get(`${API}/incidencias`,{ withCredentials: true });
 
 
 
@@ -43,28 +40,25 @@ export const blockUser = async (id) => {
 
 // Obtener todas las preguntas frecuentes
 export const getPreguntasRequest = () => axios.get(`${API}/preguntas`);
-
-// Crear una nueva pregunta frecuente
 export const createPreguntaRequest = (pregunta) =>
   axios.post(`${API}/preguntas`, pregunta);
-
-// Eliminar una pregunta por ID
 export const deletePreguntaRequest = (id) =>
   axios.delete(`${API}/preguntas/${id}`);
 
 
 //CRUD redes sociales
-export const getRedesSociales = () => axios.get(`${API}/redes_sociales`);
+export const getRedesSociales = () => axios.get(`${API}/redes_sociales`,{ withCredentials: true });
 export const createRedSocial = (data) => axios.post(`${API}/redes_sociales`, data, { withCredentials: true });
 export const updateRedSocial = (id, data) => axios.put(`${API}/redes_sociales/${id}`, data, { withCredentials: true });
 export const deleteRedSocial = (id) => axios.delete(`${API}/redes_sociales/${id}`, { withCredentials: true });
 
 // 🔹 CRUD de Productos
 export const getProductosRequest = () => axios.get(`${API}/productos`);
-export const getProductoRequest = (id) => axios.get(`${API}/productos/${id}`);
+export const getProductoRequest = (id) => axios.get(`${API}/productos/${id}`,{ withCredentials: true });
 export const createProductoRequest = (producto) => {
   return axios.post(`${API}/productos`, producto, {
       headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
   });
 };
 
@@ -108,9 +102,24 @@ export const uploadImagenRequest = (id, imagen) => {
 
 export const getCategorias = () => axios.get(`${API}/categorias`);
 
-//CRUD documentos legales
-export const obtenerDocumentos=()=> axios.get(`${API}/documentos_legales`);
-export const obtenerDocumentoPorId = (id) => axios.get(`${API}/documentos_legales/${id}`);
-export const crearDocumento = (documento) => axios.post(`${API}/documentos_legales`, documento);
-export const actualizarDocumento = (id, documento) => axios.put(`${API}/documentos_legales/${id}`, documento);
-export const eliminarDocumento = (id) => axios.delete(`${API}/documentos_legales/${id}`);
+// CRUD Obtener todos los documentos
+export const obtenerDocumentos = () => axios.get(`${API}/documentos_legales`);
+export const obtenerDocumentoPorId = (id) => axios.get(`${API}/documentos_legales/${id}`, { withCredentials: true });
+export const crearDocumento = (documento) => axios.post(`${API}/documentos_legales`, documento, { withCredentials: true });
+export const actualizarDocumento = (id, documento) => axios.put(`${API}/documentos_legales/${id}`, documento, { withCredentials: true });
+export const eliminarDocumento = (id) => axios.delete(`${API}/documentos_legales/${id}`, { withCredentials: true });
+
+// 📌 Enviar código de recuperación al correo
+export const sendEmailResetPassword = async (email) => {
+  return axios.post(`${API}/send-code-for-reset`, { email });
+};
+
+// 📌 Verificar código ingresado
+export const verifyCodeForPassword = async (email, code) => {
+  return axios.post(`${API}/verify-code-password`, { email, code });
+};
+
+// 📌 Actualizar la contraseña después de la verificación
+export const updatePassword = async (email, newPassword) => {
+  return axios.put(`${API}/update-password`, { email, password: newPassword });
+};

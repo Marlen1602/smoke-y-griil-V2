@@ -4,7 +4,7 @@ import { useAuth } from "../contex/AuthContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para el modo oscuro
 import Breadcrumbs from "../pages/Breadcrumbs";
-import Footer from './footer.jsx';
+import Footer from './Footer.jsx';
 import Header from './PrincipalNavBar';
 const VerifyCodePage = () => {
     const { register, handleSubmit, formState: { errors: formErrors } } = useForm();

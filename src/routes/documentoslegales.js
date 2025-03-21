@@ -6,13 +6,14 @@ import {
     actualizarDocumento, 
     eliminarDocumento 
 } from "../controllers/documentoslegales.js";
+import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 
 router.get("/documentos_legales", obtenerDocumentos);
-router.get("/documentos_legales/:id", obtenerDocumentoPorId);
-router.post("/documentos_legales", crearDocumento);
-router.put("/documentos_legales/:id", actualizarDocumento);
-router.delete("/documentos_legales/:id", eliminarDocumento);
+router.get("/documentos_legales/:id",authRequired, obtenerDocumentoPorId);
+router.post("/documentos_legales", authRequired, adminRequired,crearDocumento);
+router.put("/documentos_legales/:id",authRequired, adminRequired, actualizarDocumento);
+router.delete("/documentos_legales/:id", authRequired, adminRequired,eliminarDocumento);
 
 export default router;

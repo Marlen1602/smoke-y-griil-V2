@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getIncidencias } from "../controllers/incidencias.controller.js";
 import rateLimit from "express-rate-limit";
+import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const incidenciaLimiter = rateLimit({
 });
 
 // Rutas protegidas
-router.get("/incidencias", incidenciaLimiter, getIncidencias);
+router.get("/incidencias",authRequired, adminRequired , incidenciaLimiter, getIncidencias);
 
 export default router;
 

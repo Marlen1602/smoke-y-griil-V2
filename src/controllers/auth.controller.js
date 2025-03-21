@@ -1,5 +1,4 @@
 import User from "../models/user.model.js";
-import { sequelize } from "../db.js";
 import bcrypt from "bcryptjs";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 import dotenv from "dotenv";
@@ -17,128 +16,85 @@ export const validateRegister = [
   body("email").normalizeEmail(), // Normaliza el email para eliminar espacios y normalizar el formato
 ];
 
+
+//  Login de usuario con JWT
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log(`📩 Email recibido: "${email}"`);
+    const user = await User.findOne({ where: { email } });
 
-    // 🔹 Buscar usuario en la BD
-    const [users] = await sequelize.query(
-      "SELECT id, username, email, password, tipoUsuarioId, failedAttempts, lockUntil, isBlocked, createdAt, updatedAt FROM users WHERE email = ? LIMIT 1",
-      { replacements: [email] }
-    );
-
-    if (!users || users.length === 0) {
-      console.warn(`⚠️ Usuario no encontrado en la BD: "${email}"`);
-      await logSecurityEvent(email, "Intento de inicio de sesión fallido", false, "Credenciales inválidas");
-      return res.status(404).json({ message: "Credenciales inválidas" });
+    // Verificar si el usuario existe
+    if (!user) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    let userFound = users[0];
-
-   // 🔹 Si el usuario está bloqueado, verificar si ya pasó el tiempo de espera
-// 🔹 Si el usuario está bloqueado, verificar si ya pasó el tiempo de espera
-// 🔹 Verificar si el usuario está bloqueado
-if (userFound.isBlocked && userFound.lockUntil) {
-  const lockTime = new Date(userFound.lockUntil);
-  const now = new Date();
-
-  if (lockTime > now) {
-      const remainingTime = Math.ceil((lockTime - now) / 60000);
-      console.warn(`⏳ Cuenta bloqueada - Tiempo restante: ${remainingTime} minutos`);
-      await logSecurityEvent(userFound.username, "Intento de inicio de sesión bloqueado", true, `Cuenta bloqueada. Tiempo restante: ${remainingTime} minutos`);
-      return res.status(403).json({ message: `Tu cuenta está bloqueada. Intenta nuevamente en ${remainingTime} minutos.` });
-  } else {
-      // ✅ **Desbloquear automáticamente al usuario**
-      console.log("🔓 Desbloqueando usuario automáticamente...");
-      await sequelize.query(
-          "UPDATE users SET isBlocked = 0, failedAttempts = 0, lockUntil = NULL WHERE id = ?",
-          { replacements: [userFound.id] }
-      );
-
-      // **Actualizar valores en el objeto userFound**
-      userFound.isBlocked = 0;
-      userFound.failedAttempts = 0;
-      userFound.lockUntil = null;
-
-      console.log(`✅ Usuario desbloqueado: ${userFound.email}`);
-  }
-
-
-          // ✅ Resetear Rate Limit después del desbloqueo
-      if (req.rateLimit && req.rateLimit.resetKey) {
-        req.rateLimit.resetKey(userFound.email);
-        console.log("✅ Rate Limit reseteado para el usuario:", userFound.email);
+    // Verificar si el usuario está bloqueado
+    if (user.isBlocked) {
+      const now = new Date();
+      if (user.lockUntil && user.lockUntil > now) {
+        return res.status(403).json({
+          message: "Tu cuenta está bloqueada. Inténtalo más tarde.",
+        });
+      } else {
+        // Desbloquear si ya pasó el tiempo de bloqueo
+        await user.update({ isBlocked: false, failedAttempts: 0, lockUntil: null });
       }
+    }
 
-  }
-  
+    // Comparar contraseñas
+    const isMatch = await bcrypt.compare(password, user.password);
 
-
-    // 🔹 Verificar la contraseña
-    const isMatch = await bcrypt.compare(password, userFound.password);
     if (!isMatch) {
-      console.warn(`🔐 Contraseña incorrecta para el usuario: ${userFound.username}`);
+      const failedAttempts = user.failedAttempts + 1;
 
-      let newFailedAttempts = userFound.failedAttempts + 1;
-      let isBlocked = 0;
-      let lockUntil = null;
+      if (failedAttempts >= 3) {
+        // Bloquear cuenta por 5 minutos
+        const lockUntil = new Date();
+        lockUntil.setMinutes(lockUntil.getMinutes() + 5);
 
-      if (newFailedAttempts >= 3) {
-        isBlocked = 1;
-        lockUntil = new Date(Date.now() + 5 * 60 * 1000) // Bloqueo por 5 minutos
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ");  // Formato correcto para MySQL DATETIME
+        await user.update({ failedAttempts, isBlocked: true, lockUntil });
+
+        return res.status(403).json({
+          message: "Demasiados intentos fallidos. Tu cuenta ha sido bloqueada por 5 minutos.",
+        });
+      } else {
+        // Incrementar intentos fallidos sin bloquear aún
+        await user.update({ failedAttempts });
+
+        return res.status(401).json({ message: "Credenciales inválidas" });
       }
-
-      // 🔹 Actualizar intentos fallidos y bloqueo en la BD
-      await sequelize.query(
-        "UPDATE users SET failedAttempts = ?, isBlocked = ?, lockUntil = ? WHERE id = ?",
-        { replacements: [newFailedAttempts, isBlocked, lockUntil, userFound.id] }
-      );
-
-      console.log(`🔄 BD actualizada: failedAttempts = ${newFailedAttempts}, isBlocked = ${isBlocked}, lockUntil = ${lockUntil}`);
-
-      if (isBlocked) {
-        return res.status(403).json({ message: "Tu cuenta ha sido bloqueada por demasiados intentos fallidos. Intenta más tarde." });
-      }
-
-      return res.status(400).json({ message: "Credenciales inválidas" });
     }
 
-    // 🔹 Restablecer intentos fallidos
-    await sequelize.query(
-      "UPDATE users SET failedAttempts = 0, isBlocked = 0, lockUntil = NULL WHERE id = ?",
-      { replacements: [userFound.id] }
-    );
+    // Si el login es exitoso, restablecer intentos fallidos
+    await user.update({ failedAttempts: 0, isBlocked: false, lockUntil: null });
 
-    // 🔹 Crear el token de acceso
-    const token = await createAccessToken({ id: userFound.id }, { expiresIn: "1h" });
+    //  Crear token de acceso
+    const token = await createAccessToken(
+      { id: user.id, tipoUsuarioId: user.tipoUsuarioId },
+      { expiresIn: "2h" }
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7 * 1000, // 7 días
+      maxAge: 2 * 60 * 60 * 1000, // 2 horas
     });
 
     return res.json({
-      id: userFound.id,
-      username: userFound.username,
-      email: userFound.email,
-      tipoUsuarioId: userFound.tipoUsuarioId,
-      createdAt: userFound.createdAt,
-      updatedAt: userFound.updatedAt,
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      tipoUsuarioId: user.tipoUsuarioId,
       token,
     });
-
   } catch (error) {
-    console.error("❌ Error en el servidor:", error);
+    console.error("Error en el servidor:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
+
 
 export const unlockUser = async (req, res) => {
   const { id } = req.params;
@@ -375,34 +331,31 @@ export const register = async (req, res) => {
   }
 };
 
+// 📌 Cerrar sesión correctamente
 export const logout = (req, res) => {
-    res.cookie("token", "", {
-      expires: new Date(0),
-      httpOnly: true, // Evita acceso desde JavaScript
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-    return res.sendStatus(200);
+  res.clearCookie("token");
+  return res.status(200).json({ message: "Sesión cerrada correctamente" });
 };
 
 export const profile = async (req, res) => {
-  try{
-    
-    const userFound = await User.findByPk(req.user.id);
-    if (!userFound) {
-    return res.status(400).json({ message: "Usuario no encontrado" });
-    }
-    return res.json({
-      id: userFound.id,
-      username: userFound.username,
-      nombre: userFound.nombre,
-      apellidos: userFound.apellidos,
-      email: userFound.email,
-      createdAt: userFound.createdAt,
-      updatedAt: userFound.updatedAt,
-    });
+  try {
+      const user = await User.findByPk(req.user.id);
+
+      if (!user) {
+          return res.status(400).json({ message: "Usuario no encontrado" });
+      }
+
+      res.json({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          tipoUsuarioId: user.tipoUsuarioId,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+      });
+
   } catch (error) {
-    console.error("Error al obtener el perfil:", error);
-    return res.status(500).json({ message: "Error interno del servidor" });
+      console.error("Error al obtener el perfil:", error);
+      return res.status(500).json({ message: "Error interno del servidor" });
   }
 };

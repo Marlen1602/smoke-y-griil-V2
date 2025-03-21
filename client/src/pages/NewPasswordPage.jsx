@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contex/AuthContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../contex/ThemeContext"; // Importa el contexto para el modo oscuro
+import Breadcrumbs from "../pages/Breadcrumbs";
+import Footer from './Footer.jsx';
+import Header from './PrincipalNavBar'; // Importa el componente Header
 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid'
 
@@ -63,6 +66,13 @@ const NewPasswordPage = () => {
   };
 
   return (
+    <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
+    {/* Header */}
+    <Header />
+     {/* Breadcrumbs en la parte blanca */}
+<div className="bg-white py-3 px-8  rounded-md flex items-center">
+  <Breadcrumbs />
+</div>
     <div
       className={`min-h-screen flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
         }`}
@@ -211,6 +221,8 @@ const NewPasswordPage = () => {
           </div>
         </form>
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 };

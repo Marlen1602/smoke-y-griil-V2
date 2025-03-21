@@ -1,20 +1,23 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../contex/AuthContext";
+import { useAuth } from "../contex/AuthContext.jsx";
 
-const ProtectedRoute = ({ onlyVerified = false }) => {
-  const { checkAuth } = useAuth();
+const ProtectedRoute = () => {
+  const { user, isAuthenticated, loading, checkAuth } = useAuth();
   const navigate = useNavigate();
+  const [isVerifying, setIsVerifying] = useState(true); // Estado de carga mientras se verifica la sesión
+
   useEffect(() => {
-    const checkIsAutenticated = async () => {
-        await checkAuth(navigate);
-    }
+    const verifyUser = async () => {
+      await checkAuth(navigate);
+      setIsVerifying(false); // Marcar que la verificación ha finalizado
+    };
+    verifyUser();
+  }, []);
 
-    checkIsAutenticated();
-  }, [])
+  if (loading || isVerifying) return <p>Cargando...</p>; // Evita parpadeo mientras se verifica la sesión
 
-
-  return <Outlet />; // Permite el acceso si pasa las verificaciones
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
