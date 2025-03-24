@@ -1,10 +1,9 @@
 import { useAuth } from "../contex/AuthContext"; 
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import Footer from "./Footer.jsx";
-import Breadcrumbs from "../pages/Breadcrumbs";
-import Header from "../pages/ClientBar.jsx";
 import { getPreguntasRequest } from "../api/auth.js";
+import Breadcrumbs from "../pages/Breadcrumbs";
+import ClientLayout from "../layouts/ClientLayaut.jsx";
 
 const ClientPage = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -50,8 +49,7 @@ const ClientPage = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900  dark:text-white min-h-screen">
-      <Header />
+    <ClientLayout>
       <div className="bg-white py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
       </div>
@@ -106,8 +104,8 @@ const ClientPage = () => {
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </ClientLayout>
+
   );
 };
 

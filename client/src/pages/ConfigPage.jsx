@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { getUsuarios, unlock, blockUser } from "../api/auth.js"
-import AdminNavBar from "./AdminNavBar"
-import Footer from './Footer.jsx';
+import AdminLayout from "../layouts/AdminLayout.jsx"
 
 const UsuariosPage = () => {
   const [usuarios, setUsuarios] = useState([])
@@ -138,9 +137,7 @@ const UsuariosPage = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white">
-      <AdminNavBar />
-
+    <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -445,8 +442,8 @@ const UsuariosPage = () => {
           </div>
         </div>
       )}
-      <Footer/>
-    </div>
+      </AdminLayout>
+
   )
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
-import AdminNavBar from "./AdminNavBar"
+import AdminLayout from "../layouts/AdminLayout.jsx"
 import { Pencil, Trash2, Plus, Save, Eye, AlertCircle, X, Loader2 } from "lucide-react"
-import Footer from './Footer.jsx';
+
 // Importamos directamente las funciones de tu archivo auth.js existente
 import {
   obtenerDocumentos,
@@ -263,10 +263,8 @@ const DocumentosPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white">
-      <AdminNavBar />
-
-      {/* Notificación */}
+    <AdminLayout>
+          {/* Notificación */}
       {notification.show && (
         <div
           className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transition-all transform translate-y-0 ${
@@ -301,7 +299,7 @@ const DocumentosPage = () => {
       <div className="container mx-auto p-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
           {/* Encabezado */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 text-white">
             <h1 className="text-3xl font-bold">Documentos Legales</h1>
             <p className="mt-2 opacity-80">Gestione los documentos legales de su organización</p>
           </div>
@@ -329,7 +327,7 @@ const DocumentosPage = () => {
               </div>
               <button
                 onClick={abrirDialogoCreacion}
-                className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center"
+                className="w-full md:w-auto px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors flex items-center justify-center"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Nuevo Documento
@@ -338,7 +336,7 @@ const DocumentosPage = () => {
 
             {/* Mensaje de error del servidor */}
             {errorServidor && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md">
+              <div className="bg-red-50 border-l-4 border-red text-red-700 p-4 mb-6 rounded-md">
                 <div className="flex items-center">
                   <AlertCircle className="h-5 w-5 mr-2" />
                   <p>{errorServidor}</p>
@@ -539,7 +537,7 @@ const DocumentosPage = () => {
                           } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
                           placeholder="Contenido del documento"
                         />
-                        {errores.contenido && <p className="mt-1 text-sm text-red-500">{errores.contenido}</p>}
+                        {errores.contenido && <p className="mt-1 text-sm text-red">{errores.contenido}</p>}
                       </div>
                     </div>
                   </div>
@@ -551,7 +549,7 @@ const DocumentosPage = () => {
                   className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
                     cargando
                       ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      : "bg-orange-600 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   } sm:ml-3 sm:w-auto sm:text-sm`}
                   onClick={guardarDocumento}
                   disabled={cargando}
@@ -621,7 +619,7 @@ const DocumentosPage = () => {
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => {
                     setDialogoVisualizacion(false)
                     if (documentoActual.id) {
@@ -661,8 +659,8 @@ const DocumentosPage = () => {
             <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                    <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red dark:bg-red sm:mx-0 sm:h-10 sm:w-10">
+                    <AlertCircle className="h-6 w-6 text-white dark:text-red" />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
@@ -682,7 +680,7 @@ const DocumentosPage = () => {
                   className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
                     cargando
                       ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                      : "bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      : "bg-red text-white hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   } sm:ml-3 sm:w-auto sm:text-sm`}
                   onClick={eliminarDocumentoConfirmado}
                   disabled={cargando}
@@ -712,9 +710,8 @@ const DocumentosPage = () => {
           </div>
         </div>
       )}
-      <Footer/>
-    </div>
-   
+          
+    </AdminLayout>
   )
 }
 

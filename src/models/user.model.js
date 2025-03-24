@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../db.js";
-import TipoUsuario from "../models/TipoUsuario.js"; 
+import PreguntaSecreta from "./PreguntaSecreta.js";
 const User = sequelize.define("User", {
   username: {
     type: DataTypes.STRING,
@@ -61,8 +61,27 @@ const User = sequelize.define("User", {
   lockUntil: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  preguntaSecretaId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'preguntas_secretas',
+      key: 'id',
+    },
+  },
+  respuestaSecreta: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
+  
+  
 }, { timestamps: true });
+
+User.belongsTo(PreguntaSecreta, {
+  foreignKey: "preguntaSecretaId",
+  as: "pregunta"
+});
 
 
 export default User;

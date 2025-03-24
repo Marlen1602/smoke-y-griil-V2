@@ -6,6 +6,7 @@ import AuthModal from "./AuthModal"
 import { AuthContext } from "../contex/AuthContext"
 import { useCart } from "../contex/CartContext"
 import ClientLayout from "../layouts/ClientLayaut.jsx"
+import Breadcrumbs from "../pages/Breadcrumbs";
 import { ShoppingCart, ShoppingBag } from "lucide-react"
 
 // Función para generar un color basado en el texto
@@ -484,7 +485,11 @@ const MenuClient = () => {
 
   // Contenido principal del menú
   const menuContent = (
+    
     <div className="p-6">
+      <div className="bg-white py-3 px-8 rounded-md flex items-center">
+        <Breadcrumbs />
+      </div>
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Menú del Restaurante</h1>
 
       {/* Barra de búsqueda y filtros */}

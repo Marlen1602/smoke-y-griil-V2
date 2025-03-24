@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext"
-import Footer from "./Footer.jsx"
 import logo from "../assets/logo.png"
 import AuthModal from "./AuthModal"
 import Breadcrumbs from "../pages/Breadcrumbs"
@@ -574,8 +573,7 @@ const MenuPage = () => {
       {/* MODAL DE AUTENTICACIÓN */}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
-      <Footer />
-    </div>
+      </div>
   )
 }
 

@@ -8,11 +8,12 @@ import {
     unlockUser,
     blockUser
 } from "../controllers/auth.controller.js";
-import { getUsers, updatePassword } from "../controllers/users.controller.js"
+import { getUsers, updatePassword,agregarPreguntaSecreta } from "../controllers/users.controller.js"
 import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { sendCodeForReset, verifyCode } from "../controllers/codeVerification.controller.js";
+import {verifyEmail} from "../controllers/emailVerification.controller.js"
 
 
 const router = Router();
@@ -35,8 +36,12 @@ router.get("/profile", authRequired, profile);
 router.post("/send-code-for-reset", sendCodeForReset);
 //  Ruta para verificar el código ingresado por el usuario
 router.post("/verify-code-password", verifyCode);
+//Ruta para verificar codigo del email
+router.post("/verify-code-email", verifyEmail);
 //  Ruta para actualizar la contraseña después de la verificación
 router.put("/update-password", updatePassword);
+//ruta para agregar pregunta secreta
+router.put("/pregunta-secreta/",authRequired,agregarPreguntaSecreta);
 
 
 //  Solo administradores pueden gestionar usuarios

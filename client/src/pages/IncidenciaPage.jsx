@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getIncidencias } from "../api/auth.js";
-import AdminNavBar from "./AdminNavBar";
-import Footer from './Footer.jsx';
+import AdminLayout from "../layouts/AdminLayout.jsx";
 
 const IncidenciasPage = () => {
   const [incidencias, setIncidencias] = useState([]);
@@ -57,8 +56,7 @@ const IncidenciasPage = () => {
     : [];
 
   return (
-    <div className="bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:to-gray-800 dark:text-white min-h-screen">
-      <AdminNavBar />
+    <AdminLayout>
       <h1 className="text-4xl font-extrabold text-center mt-8 text-gray-800 dark:text-gray-100">
         Usuarios e Incidencias
       </h1>
@@ -130,8 +128,7 @@ const IncidenciasPage = () => {
           </div>
         </div>
       )}
-      <Footer />
-    </div>
+      </AdminLayout>
   );
 };
 

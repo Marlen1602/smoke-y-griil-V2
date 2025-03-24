@@ -123,3 +123,53 @@ export const verifyCodeForPassword = async (email, code) => {
 export const updatePassword = async (email, newPassword) => {
   return axios.put(`${API}/update-password`, { email, password: newPassword });
 };
+
+
+//Rutas para la prediccion
+// 📌 Registrar ventas y generar predicción
+export const registrarVentas = async (datos) => {
+  return axios.post(`${API}/ventas`, datos);
+};
+
+// 📌 Obtener platillos vendidos por semana
+export const obtenerVentas = async () => {
+  return axios.get(`${API}/ventas`);
+};
+
+// 📌 Obtener carne usada por semana
+export const obtenerCarneUsada = async () => {
+  return axios.get(`${API}/carne-por-semana`);
+};
+
+// 📌 Obtener predicciones generadas
+export const obtenerPredicciones = async () => {
+  return axios.get(`${API}/predicciones`);
+};
+
+
+// Agregar pregunta secreta
+export const agregarPreguntaSecreta = (preguntaSecretaId, respuestaSecreta) => axios.put(`${API}/pregunta-secreta`,{ preguntaSecretaId,respuestaSecreta},{ withCredentials: true }
+);
+
+// Obtener todas las preguntas secretas
+export const obtenerPreguntasSecretas = () => axios.get(`${API}/preguntas-secretas`, { withCredentials: true });
+
+  // ✅ Buscar la pregunta secreta asociada a un correo
+export const getPreguntaSecretaPorCorreo = (email) =>
+  axios.post(`${API}/pregunta-secreta/buscar`, { email });
+
+// ✅ Verificar la respuesta secreta del usuario
+export const verificarRespuestaSecreta = ({ email, respuesta }) =>
+  axios.post(`${API}/pregunta-secreta/verificar`, { email, respuesta });
+
+// ✅ Verificar el token enviado por correo (tras responder la pregunta)
+export const verificarTokenSecreto = ({ email, token }) =>
+  axios.post(`${API}/pregunta-secreta/verificar-token`, { email, token });
+
+// ✅ Restablecer la contraseña
+export const restablecerPasswordConPregunta = ({ email, token, nuevaPassword }) =>
+  axios.put(`${API}/pregunta-secreta/restablecer-password`, {
+    email,
+    token,
+    nuevaPassword,
+  });

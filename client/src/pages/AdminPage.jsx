@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAuth } from "../contex/AuthContext"; // Importamos el contexto de autenticación
-import AdminNavBar from './AdminNavBar';
-import Footer from '../pages/footer';
+import AdminLayout from "../layouts/AdminLayout.jsx"
 
 const AdminPage = () => {
   const { logout } = useAuth();
@@ -12,8 +11,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white min-h-screen font-sans">
-      <AdminNavBar />
+    <AdminLayout>
       {/* Main content */}
       <main className="flex flex-col items-center justify-center p-8 md:flex-row md:justify-between md:items-center md:p-16 space-y-8 md:space-y-0">
         {/* Texto de bienvenida */}
@@ -39,8 +37,9 @@ const AdminPage = () => {
           />
         </div>
       </main>
-      <Footer/>
-    </div>
+      
+       
+       </AdminLayout>
    
   );
 };

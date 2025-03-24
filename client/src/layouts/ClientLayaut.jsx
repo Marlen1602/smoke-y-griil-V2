@@ -1,23 +1,71 @@
-import { useContext } from "react"
-import { AuthContext } from "../contex/AuthContext"
-import ClientNavBar from "../pages/ClientBar"
+import { useNavigate } from "react-router-dom"
+import logo from "../assets/logo.png"
+import { useAuth } from "../contex/AuthContext"
+import { useTheme } from "../contex/ThemeContext"
 import Footer from "../pages/Footer.jsx"
-import Breadcrumbs from "../pages/Breadcrumbs.jsx"
 
 const ClientLayout = ({ children }) => {
-  const { user, isAuthenticated } = useContext(AuthContext)
+  const { logout } = useAuth()
+  const { isDarkMode, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+
+  const handleSignup = async () => {
+    console.log("Cerrando sesión...")
+    logout()
+  }
 
   return (
-    <div className="bg-white dark:bg-gray-900 dark:text-white min-h-screen flex flex-col">
-      <ClientNavBar />
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? "dark" : ""}`}>
+      {/* Header/Navbar - Exactamente igual que ClientNavBar */}
+      <header className="flex flex-col shadow-md text-white bg-gray-950 dark:bg-gray-800 relative">
+        {/* Barra principal del header */}
+        <div className="flex flex-wrap justify-between items-center p-4 mt-4">
+          {/* Logo and navigation */}
+          <div className="flex items-center space-x-4">
+            <img src={logo || "/placeholder.svg"} alt="Logo" className="h-16 w-auto" />
+            <nav>
+              <ul className="flex space-x-4">
+                <li className="hover:text-gray-400 cursor-pointer" onClick={() => navigate("/inicioCliente")}>
+                  Inicio
+                </li>
+                <li className="hover:text-gray-400 cursor-pointer" onClick={() => navigate("/perfil")}>
+                  Perfil
+                </li>
+                <li className="hover:text-gray-400 cursor-pointer" onClick={() => navigate("/pedidos")}>
+                  Pedidos
+                </li>
+                <li className="hover:text-gray-400 cursor-pointer" onClick={() => navigate("/MenuPrincipal")}>
+                  Menú
+                </li>
+              </ul>
+            </nav>
+          </div>
 
-          {/* Contenido principal */}
-      <main className="flex-grow">{children}</main>
+          {/* Iconos de ingreso, carrito y modo oscuro */}
+          <div className="flex items-center space-x-6 text-white">
+            <button
+              onClick={toggleTheme}
+              className="bg-gray-600 text-white py-1 px-3 rounded-full text-sm hover:bg-gray-500 transition"
+            >
+              {isDarkMode ? "☀️" : "🌙"}
+            </button>
+            <i className="fas fa-shopping-cart text-xl cursor-pointer" onClick={() => navigate("/carrito")}></i>
+            <button className="hover:text-gray-400 cursor-pointer" onClick={handleSignup}>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </header>
 
+      {/* Contenido principal - Aquí se renderizarán los children */}
+      <main className="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{children}</main>
+
+      {/* Footer */}
       <Footer />
     </div>
   )
 }
 
 export default ClientLayout
+
 

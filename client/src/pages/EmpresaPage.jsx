@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react"
-import AdminNavBar from "./AdminNavBar"
 import { getEmpresaProfile, updateEmpresaProfile } from "../api/auth"
 import { getRedesSociales, createRedSocial, updateRedSocial, deleteRedSocial } from "../api/auth"
-import Footer from './Footer.jsx';
+import AdminLayout from "../layouts/AdminLayout.jsx";
 
 const EmpresaPage = () => {
   // Estados principales
@@ -538,8 +537,7 @@ const EmpresaPage = () => {
 
   // Renderizar el componente
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white">
-      <AdminNavBar />
+    <AdminLayout>
 
       {/* Notificación */}
       {notification.show && (
@@ -576,7 +574,7 @@ const EmpresaPage = () => {
       <div className="container mx-auto p-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
           {/* Encabezado */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 p-6 text-white">
             <h1 className="text-3xl font-bold">Perfil de la Empresa</h1>
             <p className="mt-2 opacity-80">Gestione la información y redes sociales de su empresa</p>
           </div>
@@ -587,7 +585,7 @@ const EmpresaPage = () => {
               <button
                 className={`py-4 px-6 font-medium text-sm border-b-2 transition-colors ${
                   activeTab === "informacion"
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    ? "border-orange-500 text-orange-600 dark:text-orange-400"
                     : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
                 onClick={() => setActiveTab("informacion")}
@@ -605,7 +603,7 @@ const EmpresaPage = () => {
               <button
                 className={`py-4 px-6 font-medium text-sm border-b-2 transition-colors ${
                   activeTab === "redes"
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    ? "border-orange-500 text-orange-600 dark:text-orange-400"
                     : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
                 onClick={() => setActiveTab("redes")}
@@ -627,7 +625,7 @@ const EmpresaPage = () => {
           <div className="p-6">
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
               </div>
             ) : (
               <>
@@ -697,7 +695,7 @@ const EmpresaPage = () => {
                           />
                           <label
                             htmlFor="logo-upload"
-                            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+                            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 cursor-pointer"
                           >
                             {logoPreview ? "Cambiar logo" : "Seleccionar logo"}
                           </label>
@@ -720,7 +718,7 @@ const EmpresaPage = () => {
                               className={`w-full px-4 py-2 rounded-md border ${
                                 errors.Nombre
                                   ? "border-red focus:ring-red focus:border-red"
-                                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+                                  : "border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500"
                               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
                               placeholder="Nombre de la empresa"
                             />
@@ -738,7 +736,7 @@ const EmpresaPage = () => {
                               className={`w-full px-4 py-2 rounded-md border ${
                                 errors.Eslogan
                                   ? "border-red focus:ring-red focus:border-red"
-                                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+                                  : "border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500"
                               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
                               placeholder="Eslogan de la empresa"
                             />
@@ -760,7 +758,7 @@ const EmpresaPage = () => {
                               className={`w-full px-4 py-2 rounded-md border ${
                                 errors.Direccion
                                   ? "border-red focus:ring-red focus:border-red"
-                                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+                                  : "border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500"
                               } bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
                               placeholder="Dirección física"
                             />
@@ -775,7 +773,7 @@ const EmpresaPage = () => {
                               name="Horario"
                               value={empresa.Horario || ""}
                               onChange={handleInputChange}
-                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                               placeholder="Ej: Lunes a Viernes 9:00 - 18:00"
                             />
                           </div>
@@ -792,7 +790,7 @@ const EmpresaPage = () => {
                               value={empresa.Mision || ""}
                               onChange={handleInputChange}
                               rows={4}
-                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                               placeholder="Misión de la empresa"
                             />
                           </div>
@@ -805,7 +803,7 @@ const EmpresaPage = () => {
                               value={empresa.Vision || ""}
                               onChange={handleInputChange}
                               rows={4}
-                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                              className="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                               placeholder="Visión de la empresa"
                             />
                           </div>
@@ -819,7 +817,7 @@ const EmpresaPage = () => {
                         className={`px-6 py-3 rounded-md shadow-md text-white font-medium transition-colors ${
                           isSaving
                             ? "bg-gray-500 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            : "bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                         }`}
                         onClick={handleSaveChanges}
                         disabled={isSaving}
@@ -863,7 +861,7 @@ const EmpresaPage = () => {
                       <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Redes Sociales</h2>
                       <button
                         onClick={openAddRedModal}
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center"
+                        className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors flex items-center"
                       >
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
@@ -906,7 +904,7 @@ const EmpresaPage = () => {
                         <div className="mt-6">
                           <button
                             onClick={openAddRedModal}
-                            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                           >
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -955,7 +953,7 @@ const EmpresaPage = () => {
                               <div className="flex space-x-2">
                                 <button
                                   onClick={() => openEditRedModal(red)}
-                                  className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                                  className="p-2 text-gray-500 hover:text-orange-600 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
                                   title="Editar"
                                 >
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1043,7 +1041,7 @@ const EmpresaPage = () => {
                           onChange={handleRedInputChange}
                           className={`mt-1 block w-full px-3 py-2 border ${
                             errors.nombre ? "border-red" : "border-gray-300 dark:border-gray-600"
-                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
+                          } rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white`}
                           placeholder="Ej: Facebook, Instagram, Twitter"
                         />
                         {errors.nombre && <p className="mt-1 text-sm text-red">{errors.nombre}</p>}
@@ -1060,7 +1058,7 @@ const EmpresaPage = () => {
                           onChange={handleRedInputChange}
                           className={`mt-1 block w-full px-3 py-2 border ${
                             errors.link ? "border-red" : "border-gray-300 dark:border-gray-600"
-                          } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
+                          } rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white`}
                           placeholder="https://www.ejemplo.com/perfil"
                         />
                         {errors.link && <p className="mt-1 text-sm text-red">{errors.link}</p>}
@@ -1075,7 +1073,7 @@ const EmpresaPage = () => {
                   className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
                     isSaving
                       ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      : "bg-orange-600 text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                   } sm:ml-3 sm:w-auto sm:text-sm`}
                   onClick={handleSaveRed}
                   disabled={isSaving}
@@ -1084,7 +1082,7 @@ const EmpresaPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={closeRedModal}
                   disabled={isSaving}
                 >
@@ -1155,7 +1153,7 @@ const EmpresaPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => {
                     setShowDeleteModal(false)
                     setRedToDelete(null)
@@ -1169,8 +1167,7 @@ const EmpresaPage = () => {
           </div>
         </div>
       )}
-      <Footer/>
-    </div>
+      </AdminLayout>
   )
 }
 

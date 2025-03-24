@@ -1,7 +1,6 @@
 import Incidencia from "../models/incidencia.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import TipoUsuario from "../models/TipoUsuario.js";
 
 export const getUserByEmail =  async ( req, res) => {
    //sacar el email del parametro
@@ -87,6 +86,32 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const agregarPreguntaSecreta = async (req, res) => {
+  try {
+    const  id  = req.user.id;
+    const { preguntaSecretaId, respuestaSecreta } = req.body;
+
+    if (!preguntaSecretaId || !respuestaSecreta) {
+      return res.status(400).json({ message: "La pregunta y respuesta son obligatorias" });
+    }
+
+    const usuario = await User.findByPk(id);
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    usuario.preguntaSecretaId = preguntaSecretaId;
+    usuario.respuestaSecreta = respuestaSecreta;
+
+    await usuario.save();
+
+    res.json({ message: "Pregunta secreta guardada correctamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al guardar pregunta secreta" });
+  }
+};
 
 
 

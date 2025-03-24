@@ -32,6 +32,10 @@ import TerminosPage from "./pages/TerminoPage";
 import PrivacidadPage from "./pages/PrivacidadPage";
 import CartPage from "./pages/CartPage"
 import CheckoutPage from "./pages/CheckoutPage"
+import PrediccionesPage from "./pages/predicconesPage"
+import Perfil from "./pages/PerfilPage"
+import MetodoRecuperar from "./pages/MetodoRecupe"
+import PreguntaSecreta from "./pages/PreguntaSecreta";
 
 function App() {
   return (
@@ -62,7 +66,9 @@ function App() {
                 <Route path="/carrito" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/MenuPrincipal" element={<MenuPage />} />
-             
+                <Route path="/inicioCliente" element={<ClientPage />} />
+                <Route path="/perfil" element={<Perfil />} />
+
                </Route>
 
               {/* 🔹 Rutas protegidas SOLO para administradores */}
@@ -72,6 +78,7 @@ function App() {
                 <Route path="/empresa" element={<EmpresaPage />} />
                 <Route path="/incidencias" element={<IncidenciasPage />} />
                 <Route path="/configuracion" element={<ConfigPage />} />
+                <Route path="/predicciones" element={<PrediccionesPage />} />
               </Route>
 
               {/* 🔹 Rutas de errores */}
@@ -80,6 +87,8 @@ function App() {
               <Route path="*" element={<Error404 />} />
 
               {/* 🔹 Rutas para recuperación de contraseña */}
+              <Route path="/metodo-recuperacion" element={<MetodoRecuperar />} />
+              <Route path="/recuperar-preguntasecreta" element={<PreguntaSecreta />} />
               <Route path="/recuperar-contraseña" element={<VerifyEmail />} />
               <Route path="/recuperar-contraseña/verificar-codigo" element={<VerifyCodePasswordPage />} />
               <Route path="/recuperar-contraseña/nueva-contraseña" element={<NewPasswordPage />} />

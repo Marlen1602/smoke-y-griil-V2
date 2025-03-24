@@ -30,7 +30,7 @@ const VerifyCodePage = () => {
             setLoading(false);
 
             if (res) {
-                navigate("/paginaCliente");
+                navigate("/login");
             } else {
                 // Mostrar mensaje de error si la verificación falla
                 setErrorMessage("Código incorrecto o expirado.");

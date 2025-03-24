@@ -29,10 +29,8 @@ const CheckoutPage = () => {
   const [orderNumber, setOrderNumber] = useState("")
 
   // Calcular impuestos y total
-  const taxRate = 0.16
-  const subtotal = cartTotal
-  const taxAmount = subtotal * taxRate
-  const totalWithTax = subtotal + taxAmount
+    const subtotal = cartTotal
+  const totalWithTax = subtotal
 
   // Manejar cambios en el formulario
   const handleChange = (e) => {
@@ -542,10 +540,7 @@ const CheckoutPage = () => {
                   <span>{formatPrice(subtotal)}</span>
                 </div>
 
-                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                  <span>IVA (16%)</span>
-                  <span>{formatPrice(taxAmount)}</span>
-                </div>
+                
 
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
                   <div className="flex justify-between font-bold text-gray-800 dark:text-white">

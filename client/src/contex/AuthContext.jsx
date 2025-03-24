@@ -207,7 +207,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("📤 Enviando código de verificación:", formData)
 
-      const res = await axios.post(`${API}/verify-code-password`, formData, { withCredentials: true })
+      const res = await axios.post(`${API}/verify-code-email`, formData, { withCredentials: true })
 
       console.log("✅ Respuesta del backend:", res.data)
       setErrors([])

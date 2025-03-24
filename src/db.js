@@ -12,7 +12,7 @@ export const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER,
 // Función para conectar a la base de datos
 export const connectDB = async () => {
   try {
-    await sequelize.sync({ alter: false })
+   // await sequelize.sync({ alter: false })
     console.log("Conectado a MySQL con Sequelize");
   } catch (error) {
     console.error("Error al conectar a MySQL:", error);

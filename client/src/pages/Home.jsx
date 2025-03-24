@@ -1,11 +1,11 @@
 import React, { useState,useEffect } from 'react';
-import Header from './PrincipalNavBar'; // Importa el componente Header
-import Footer from './Footer.jsx';
 import AuthModal from './AuthModal'; // Importa el modal
 import {getPreguntasRequest} from '../api/auth.js';
+import PublicLayaut from "../layouts/PublicLayaut"
 import Breadcrumbs from "../pages/Breadcrumbs";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
+
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false); // Control del modal
@@ -71,10 +71,7 @@ const Home = () => {
 
 
   return (
-    <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
-      {/* Header */}
-      <Header />
-       {/* Breadcrumbs en la parte blanca */}
+    <PublicLayaut>
   <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
   </div>
@@ -190,8 +187,7 @@ const Home = () => {
     </div>
   </div>
 </section>
-    <Footer />
-    </div>
+    </PublicLayaut>
   );
 };
 

@@ -5,8 +5,7 @@ import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid"; // Iconos para mostrar/ocultar contraseña
 import { useTheme } from "../contex/ThemeContext";
 import Breadcrumbs from "../pages/Breadcrumbs";
-import Footer from './Footer.jsx';
-import Header from './PrincipalNavBar'; // Importa el componente Header
+import PublicLayaut from "../layouts/PublicLayaut"
 
 const LoginPage = () => {
   const { login, errors } = useAuth();
@@ -22,10 +21,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
-      {/* Header */}
-      <Header />
-       {/* Breadcrumbs en la parte blanca */}
+    <PublicLayaut>
   <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
   </div>
@@ -106,15 +102,14 @@ const LoginPage = () => {
             </Link>
           </p>
           <p className="text-xs">
-            <Link to="/recuperar-contraseña" className="text-orange-500 hover:underline">
+            <Link to="/metodo-recuperacion" className="text-orange-500 hover:underline">
               ¿Olvidaste tu contraseña?
             </Link>
           </p>
         </div>
       </div>
     </div>
-    <Footer/>
-    </div>
+    </PublicLayaut>
   );
 };
 
