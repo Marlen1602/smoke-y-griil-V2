@@ -1,6 +1,5 @@
 import  axios from 'axios';
-const API='http://localhost:3000/api';
-//const API = 'http://localhost:3000/api'; 
+const API=import.meta.env.VITE_API_URL;
 
 export const registerRequest = (user) => {
     // console.log("Datos enviados:", user);
