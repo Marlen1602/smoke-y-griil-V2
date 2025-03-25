@@ -83,7 +83,7 @@ const Home = () => {
  {/* 🔥 Carrusel de imágenes */}
  <section className="max-w-5xl py-0 px-8 relative">
         {imagesLoaded && images.length > 0 ? (
-          <div className="relative w-[700px] h-[500px] mx-auto overflow-hidden rounded-lg shadow-lg">
+         <div className="relative w-full max-w-[700px] aspect-video mx-auto overflow-hidden rounded-lg shadow-lg">
             <img
               src={images[currentIndex]}
               alt={`slide-${currentIndex}`}

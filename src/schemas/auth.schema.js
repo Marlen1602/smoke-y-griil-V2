@@ -19,12 +19,8 @@ export const registerSchema=z.object({
 });
 
 export const loginSchema=z.object({
-    email:z.string({
-        required_error:"Email es requerido"
-    }),
-    password:z.string({
-        required_error:"Contraseña es requerida"
-    }).min(8,{
-        message:"La contraseña debe tener al menos 8 caracteres"
-    }),
+    identificador: z
+    .string()
+    .min(3, "El identificador (correo o usuario) es requerido"),
+    password: z.string().min(12, "La contraseña es requerida"),
 });

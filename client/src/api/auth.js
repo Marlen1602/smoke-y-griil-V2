@@ -78,12 +78,13 @@ export const updateProductoRequest = (id, producto) => {
   console.log("Datos JSON a enviar:", productoJSON)
 
   return axios.put(`${API}/productos/${id}`, productoJSON, {
+    withCredentials: true,
     headers: { "Content-Type": "application/json" },
   })
 }
 
 
-export const deleteProductoRequest = (id) => axios.delete(`${API}/productos/${id}`);
+export const deleteProductoRequest = (id) => axios.delete(`${API}/productos/${id}`, {withCredentials: true});
 
 // 🔹 CRUD de Tamaños
 export const getTamanosRequest = () => axios.get(`${API}/tamanos`);

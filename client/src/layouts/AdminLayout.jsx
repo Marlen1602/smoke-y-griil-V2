@@ -283,7 +283,7 @@ const AdminLayout = ({ children }) => {
           </button>
           <button
             onClick={logout}
-            className="flex items-center p-2 w-full text-red hover:bg-red dark:hover:bg-red rounded-md"
+            className="flex items-center p-2 w-full text-red hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
           >
             <svg
               className="w-5 h-5 mr-3"
@@ -406,7 +406,7 @@ const AdminLayout = ({ children }) => {
               <li>
                 <button
                   onClick={logout}
-                  className="flex items-center w-full p-2 text-red hover:bg-red dark:hover:bg-red rounded-md"
+                  className="flex items-center w-full p-2 text-red hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                 >
                   Cerrar Sesión
                 </button>

@@ -20,14 +20,14 @@ export const validateRegister = [
 
 //  Login de usuario con JWT
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { identificador, password } = req.body;
 
   try {
     const user = await User.findOne({
       where: {
         [Op.or]: [
-          { email },
-          { username: email } // porque el frontend manda el campo como 'email'
+          { email:identificador },
+          { username: identificador } // prque el frontend manda el campo como 'email'
         ]
       }
     });

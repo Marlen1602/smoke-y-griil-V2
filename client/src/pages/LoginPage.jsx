@@ -39,22 +39,19 @@ const LoginPage = () => {
         {/* Formulario de Login */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label className="block text-sm font-bold mb-2">Correo electrónico</label>
+            <label className="block text-sm font-bold mb-2">Correo o nombre de usuario</label>
             <input
-              type="email"
-              {...register("email", {
-                required: "El correo es requerido",
-                pattern: {
-                  value: /^[^\s@]+@(uthh\.edu\.mx|gmail\.com|hotmail\.com|yahoo\.com|outlook\.com)$/,
-                  message: "Por favor introduce un correo válido con un dominio aceptado.",
-                },
+              type="text"
+              {...register("identificador", {
+                required: "Este campo es requerido",
+                validate: (value)=> value.length>3 || "Debe tener al menos 3 caracteres",
               })}
               className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                 isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400" : "bg-white border-gray-300 text-gray-800"
               }`}
-              placeholder="Ingresa tu correo"
+              placeholder="Ingresa tu correo o nombre de usuario"
             />
-            {formErrors.email && <span className="text-red text-sm">{formErrors.email.message}</span>}
+            {formErrors.identificador && <span className="text-red text-sm">{formErrors.identificador.message}</span>}
           </div>
 
           <div>

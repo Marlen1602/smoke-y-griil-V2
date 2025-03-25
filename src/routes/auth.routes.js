@@ -22,7 +22,7 @@ const router = Router();
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 5,
-    keyGenerator: (req) => req.body.email || req.ip,
+    keyGenerator: (req) => req.body.identificador || req.ip,
     message: "Demasiados intentos fallidos en esta cuenta. Intenta más tarde."
 });
 
