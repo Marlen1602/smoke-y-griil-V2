@@ -5,13 +5,18 @@ import AdminLayout from "../layouts/AdminLayout.jsx"
 import UserLayout from "../layouts/ClientLayaut.jsx"
 import PublicLayout from "../layouts/PublicLayaut.jsx"
 import sadBurger from "../assets/hamburguesa.png"
+import Breadcrumbs from "../pages/Breadcrumbs";
 
 const Error404 = () => {
   const { user, isAuthenticated } = useContext(AuthContext)
 
   // Contenido principal de la página de error
   const pageContent = (
+    
+    <>
+    <Breadcrumbs />
     <div className="flex flex-col items-center justify-center flex-grow text-center px-6 py-8 relative">
+       
       {/* Ilustración de Error */}
       <div className="relative w-80 max-w-80">
         <img src={sadBurger || "/placeholder.svg"} alt="Hamburguesa triste" className="drop-shadow-lg" />
@@ -32,7 +37,9 @@ const Error404 = () => {
         Volver al inicio
       </Link>
     </div>
-  )
+    </>
+      )
+      
 
   // Renderizar con el layout apropiado según el tipo de usuario
   if (!isAuthenticated || !user) {
@@ -47,6 +54,7 @@ const Error404 = () => {
     default:
       return <PublicLayout>{pageContent}</PublicLayout>
   }
+  
 }
 
 export default Error404

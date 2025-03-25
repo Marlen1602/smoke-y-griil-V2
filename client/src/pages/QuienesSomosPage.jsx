@@ -27,11 +27,7 @@ const QuienesPage = () => {
    // Contenido de la página
    const pageContent = (
     <>
-
-      {/* 🔹 Breadcrumbs */}
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
-      </div>
 
       {/* 🔹 Contenido principal con diseño mejorado */}
       <div className="flex-grow container mx-auto px-6 py-12 flex justify-center items-center">

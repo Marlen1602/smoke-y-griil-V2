@@ -320,7 +320,7 @@ const MenuPage = () => {
               placeholder="Buscar por especialidad"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full p-2 rounded-full border dark:text-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+              className="w-full p-2 rounded-full border dark:text-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-red dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             />
             <button onClick={handleSearch}>
               <i className="fas fa-search text-xl text-white dark:text-white cursor-pointer"></i>
@@ -350,10 +350,7 @@ const MenuPage = () => {
         </div>
       </header>
 
-      {/* Breadcrumbs en la parte blanca */}
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
-        <Breadcrumbs />
-      </div>
+       <Breadcrumbs />
 
       {/* Filtros Avanzados */}
       {showFilters && (
@@ -409,7 +406,7 @@ const MenuPage = () => {
 
         {/* Mostrar mensaje de error */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div className="bg-red border border-red text-white px-4 py-3 rounded relative" role="alert">
             <strong className="font-bold">Error: </strong>
             <span className="block sm:inline">{error}</span>
           </div>

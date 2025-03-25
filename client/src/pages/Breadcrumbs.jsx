@@ -6,9 +6,11 @@ const Breadcrumbs = () => {
   const pathSegments = location.pathname.split("/").filter((segment) => segment);
 
   return (
-    <nav className="py-1 px-4 flex items-center space-x-2 text-gray-700">
+    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-4">
+
+    <nav className="py-1 px-4 flex items-center space-x-2 text-gray-700 dark:text-gray-300" >
       {/* Enlace a Inicio con icono */}
-      <Link to="/" className="flex items-center text-gray-600 hover:text-orange-500 transition-all duration-300 font-semibold">
+      <Link to="/" className="flex items-center text-gray-600 hover:text-orange-500 dark:text-gray-300 dark:hover:text-orange-400 transition-all duration-300 font-semibold">
         <span className="text-lg">🏠</span>
         <span className="ml-2">Inicio</span>
       </Link>
@@ -31,6 +33,7 @@ const Breadcrumbs = () => {
         );
       })}
     </nav>
+    </div>
   );
 };
 

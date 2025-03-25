@@ -28,12 +28,7 @@ const MisionPage = () => {
   // Contenido de la página
   const pageContent = (
     <>
-     
-           {/* 🔹 Breadcrumbs */}
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
-        <Breadcrumbs />
-      </div>
-
+             <Breadcrumbs />
       {/* 🔹 Contenido principal con diseño mejorado */}
       <div className="flex-grow container mx-auto px-6 py-12 flex justify-center items-center">
         <div className="relative bg-white rounded-lg shadow-lg max-w-3xl w-full p-8 border-l-8 border-orange-500">

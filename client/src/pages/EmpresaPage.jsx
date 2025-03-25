@@ -545,7 +545,7 @@ const EmpresaPage = () => {
           className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transition-all transform translate-y-0 ${
             notification.type === "success"
               ? "bg-green-50 border-l-4 border-green-500 text-green-700"
-              : "bg-red-50 border-l-4 border-red text-red"
+              : "bg-red border-l-4 border-red text-white"
           }`}
         >
           <div className="flex items-center">
@@ -967,7 +967,7 @@ const EmpresaPage = () => {
                                 </button>
                                 <button
                                   onClick={() => confirmDeleteRed(red)}
-                                  className="p-2 text-gray-500 hover:text-red dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                  className="p-2 text-gray-500 hover:text-red dark:text-gray-400 dark:hover:text-red transition-colors"
                                   title="Eliminar"
                                 >
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1110,9 +1110,9 @@ const EmpresaPage = () => {
             <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red dark:bg-red sm:mx-0 sm:h-10 sm:w-10">
                     <svg
-                      className="h-6 w-6 text-red dark:text-red-300"
+                      className="h-6 w-6 text-red dark:text-red"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

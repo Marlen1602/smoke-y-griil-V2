@@ -214,7 +214,7 @@ const PerfilUsuario = () => {
             className={`mb-6 p-4 rounded-md ${
               message.type === "success"
                 ? "bg-green-100 border border-green-400 text-green-700 dark:bg-green-900 dark:border-green-700 dark:text-green-300"
-                : "bg-red-100 border border-red-400 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-300"
+                : "bg-red border border-red text-white dark:bg-red dark:border-red dark:text-white"
             }`}
           >
             {message.text}

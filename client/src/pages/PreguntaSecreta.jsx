@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext"
 import PrincipalLayout from "../layouts/PublicLayaut"
+import Breadcrumbs from "../pages/Breadcrumbs";
 import {
   getPreguntaSecretaPorCorreo,
   verificarRespuestaSecreta,
@@ -161,11 +162,12 @@ const RecuperarPreguntaSecreta = () => {
 
   return (
     <PrincipalLayout>
+      <Breadcrumbs />
       <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-100 dark:bg-gray-900">
         <div className="p-6 md:p-10 rounded-lg shadow-lg w-full max-w-md bg-white dark:bg-gray-800">
           {/* Mensajes de error y éxito */}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
+            <div className="bg-red border border-red text-white dark:bg-red dark:border-red dark:text-white px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
@@ -204,7 +206,7 @@ const RecuperarPreguntaSecreta = () => {
                 <div className="flex justify-between items-center">
                   <button
                     type="button"
-                    onClick={() => navigate("/seleccionar-metodo-recuperacion")}
+                    onClick={() => navigate("/metodo-recuperacion")}
                     className="text-orange-500 hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300 text-sm font-medium"
                   >
                     Volver
@@ -414,7 +416,7 @@ const RecuperarPreguntaSecreta = () => {
                           ? "bg-green-500 w-full"
                           : passwordStrength === "medium"
                             ? "bg-yellow-500 w-2/3"
-                            : "bg-red-500 w-1/3"
+                            : "bg-red w-1/3"
                       }`}
                     ></div>
                   </div>
@@ -470,7 +472,7 @@ const RecuperarPreguntaSecreta = () => {
                     </button>
                   </div>
                   {password !== confirmPassword && confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden</p>
+                    <p className="text-red text-sm mt-1">Las contraseñas no coinciden</p>
                   )}
                 </div>
 

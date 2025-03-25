@@ -92,10 +92,8 @@ function RegisterPage() {
         <div className={`bg-white dark:bg-gray-900 dark:text-white min-h-screen`}>
       {/* Header */}
       <Header />
-       {/* Breadcrumbs en la parte blanca */}
-  <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
-  </div>
+  
         <div className={`min-h flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : " text-gray-800"}`}>
             <div className={`w-full max-w-3xl p-8 md:p-10 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
                 {/* Mostrar errores de registro */}

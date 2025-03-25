@@ -487,9 +487,7 @@ const MenuClient = () => {
   const menuContent = (
     
     <div className="p-6">
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
-      </div>
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Menú del Restaurante</h1>
 
       {/* Barra de búsqueda y filtros */}
@@ -571,7 +569,7 @@ const MenuClient = () => {
 
       {/* Mostrar mensaje de error */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div className="bg-red border border-red text-white px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error: </strong>
           <span className="block sm:inline">{error}</span>
         </div>
@@ -687,7 +685,7 @@ const MenuClient = () => {
                 {selectedItem.hasSizes && (
                   <div className="mt-4">
                     <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-                      Selecciona un tamaño: <span className="text-red-500">*</span>
+                      Selecciona un tamaño: <span className="text-red">*</span>
                     </h4>
                     <div className="flex flex-wrap gap-3">
                       {getProductSizes(selectedItem.id).map((tamano) => (
@@ -707,7 +705,7 @@ const MenuClient = () => {
                       ))}
                     </div>
                     {selectedItem.hasSizes && !selectedSize && (
-                      <p className="text-red-500 text-sm mt-1">Por favor selecciona un tamaño</p>
+                      <p className="text-red text-sm mt-1">Por favor selecciona un tamaño</p>
                     )}
                   </div>
                 )}

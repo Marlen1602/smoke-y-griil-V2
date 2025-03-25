@@ -90,10 +90,7 @@ const PrivacidadPage = () => {
   // Contenido de la página
   const pageContent = (
     <>
-      {/* Breadcrumbs */}
-      <div className="bg-white dark:bg-gray-800 py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
-      </div>
 
       {/* Contenido principal */}
       <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -111,8 +108,8 @@ const PrivacidadPage = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : error ? (
-                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-4">
-                  <p className="text-red-700 dark:text-red-400">{error}</p>
+                <div className="bg-red dark:bg-red border-l-4 border-red p-4 mb-4">
+                  <p className="text-white dark:text-white">{error}</p>
                 </div>
               ) : (
                 <div className="prose prose-lg max-w-none dark:prose-invert">

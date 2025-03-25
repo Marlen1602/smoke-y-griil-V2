@@ -22,10 +22,7 @@ const UbicacionPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
       <Header />
-      {/* 🔹 Breadcrumbs */}
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
-      </div>
 
       {/* 🔹 Contenedor con fondo atractivo */}
       <div className="flex-grow container mx-auto px-6 py-12">

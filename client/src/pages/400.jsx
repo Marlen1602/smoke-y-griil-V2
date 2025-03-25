@@ -5,13 +5,17 @@ import AdminLayout from "../layouts/AdminLayout.jsx"
 import UserLayout from "../layouts/ClientLayaut.jsx"
 import PublicLayout from "../layouts/PublicLayaut.jsx"
 import serverErrorImage from "../assets/error500.png" // Asegúrate de tener esta imagen
+import Breadcrumbs from "../pages/Breadcrumbs";
 
 const Error500 = () => {
   const { user, isAuthenticated } = useContext(AuthContext)
 
   // Contenido principal de la página de error
   const pageContent = (
-    <div className="flex flex-col items-center justify-center flex-grow text-center px-6 py-12 relative">
+    <>
+    <Breadcrumbs />
+      <div className="flex flex-col items-center justify-center flex-grow text-center px-6 py-12 relative">
+         
       {/* Ilustración */}
       <div className="relative w-full max-w-md">
         <img
@@ -36,6 +40,7 @@ const Error500 = () => {
         🔄 Intentar nuevamente
       </Link>
     </div>
+    </>
   )
 
   // Renderizar con el layout apropiado según el tipo de usuario

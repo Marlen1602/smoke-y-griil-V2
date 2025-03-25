@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "./PrincipalNavBar";
-import logo from "../assets/logo.png";
+import Breadcrumbs from "../pages/Breadcrumbs";
 import Footer from './Footer.jsx';
 import brokenGrill from "../assets/error500.png"; 
 
@@ -15,7 +15,7 @@ const Error500 = () => (
   >
     {/* Header */}
     <Header />
-
+    <Breadcrumbs />
     {/* Contenido Principal */}
     <div className="flex flex-col items-center justify-center flex-grow text-center px-6 relative">
       

@@ -253,9 +253,9 @@ const CheckoutPage = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.name ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    {errors.name && <p className="text-red text-xs mt-1">{errors.name}</p>}
                   </div>
 
                   <div>
@@ -267,9 +267,9 @@ const CheckoutPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.email ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                    {errors.email && <p className="text-red text-xs mt-1">{errors.email}</p>}
                   </div>
 
                   <div>
@@ -279,9 +279,9 @@ const CheckoutPage = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.phone ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.phone ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                    {errors.phone && <p className="text-red text-xs mt-1">{errors.phone}</p>}
                   </div>
 
                   <div>
@@ -293,9 +293,9 @@ const CheckoutPage = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.address ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.address ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                    {errors.address && <p className="text-red text-xs mt-1">{errors.address}</p>}
                   </div>
 
                   <div>
@@ -305,9 +305,9 @@ const CheckoutPage = () => {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.city ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.city ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                    {errors.city && <p className="text-red text-xs mt-1">{errors.city}</p>}
                   </div>
 
                   <div>
@@ -319,9 +319,9 @@ const CheckoutPage = () => {
                       name="zipCode"
                       value={formData.zipCode}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.zipCode ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                      className={`w-full px-3 py-2 border ${errors.zipCode ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                     />
-                    {errors.zipCode && <p className="text-red-500 text-xs mt-1">{errors.zipCode}</p>}
+                    {errors.zipCode && <p className="text-red text-xs mt-1">{errors.zipCode}</p>}
                   </div>
                 </div>
 
@@ -405,9 +405,9 @@ const CheckoutPage = () => {
                           onChange={handleCardNumberChange}
                           placeholder="1234 5678 9012 3456"
                           maxLength={19}
-                          className={`w-full px-3 py-2 border ${errors.cardNumber ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                          className={`w-full px-3 py-2 border ${errors.cardNumber ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                         />
-                        {errors.cardNumber && <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>}
+                        {errors.cardNumber && <p className="text-red text-xs mt-1">{errors.cardNumber}</p>}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -422,9 +422,9 @@ const CheckoutPage = () => {
                             onChange={handleExpiryChange}
                             placeholder="MM/YY"
                             maxLength={5}
-                            className={`w-full px-3 py-2 border ${errors.cardExpiry ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                            className={`w-full px-3 py-2 border ${errors.cardExpiry ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                           />
-                          {errors.cardExpiry && <p className="text-red-500 text-xs mt-1">{errors.cardExpiry}</p>}
+                          {errors.cardExpiry && <p className="text-red text-xs mt-1">{errors.cardExpiry}</p>}
                         </div>
 
                         <div>
@@ -436,9 +436,9 @@ const CheckoutPage = () => {
                             onChange={handleChange}
                             placeholder="123"
                             maxLength={4}
-                            className={`w-full px-3 py-2 border ${errors.cardCVC ? "border-red-500" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
+                            className={`w-full px-3 py-2 border ${errors.cardCVC ? "border-red" : "border-gray-300 dark:border-gray-600"} rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white`}
                           />
-                          {errors.cardCVC && <p className="text-red-500 text-xs mt-1">{errors.cardCVC}</p>}
+                          {errors.cardCVC && <p className="text-red text-xs mt-1">{errors.cardCVC}</p>}
                         </div>
                       </div>
                     </div>

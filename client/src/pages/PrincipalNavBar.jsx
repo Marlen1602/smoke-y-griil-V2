@@ -67,7 +67,7 @@ const Header = ({ onSearch }) => {
               placeholder="Buscar en el menú..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-2 rounded-full border dark:text-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+              className="w-full p-2 rounded-full border dark:text-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-red dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             />
             <button type="submit">
               <i className="fas fa-search text-xl text-white dark:text-white cursor-pointer ml-2"></i>

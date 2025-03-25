@@ -7,9 +7,7 @@ const SeleccionarMetodoRecuperacion = () => {
 
   return (
     <PublicLayaut>
-       <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
-  </div>
       <div className="container mx-auto px-4 py-16 flex flex-col items-center">
         <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <div className="text-center mb-8">

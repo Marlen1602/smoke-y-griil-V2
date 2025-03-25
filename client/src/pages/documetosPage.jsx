@@ -270,7 +270,7 @@ const DocumentosPage = () => {
           className={`fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transition-all transform translate-y-0 ${
             notification.type === "success"
               ? "bg-green-50 border-l-4 border-green-500 text-green-700"
-              : "bg-red-50 border-l-4 border-red-500 text-red-700"
+              : "bg-red border-l-4 border-red text-white"
           }`}
         >
           <div className="flex items-center">
@@ -336,7 +336,7 @@ const DocumentosPage = () => {
 
             {/* Mensaje de error del servidor */}
             {errorServidor && (
-              <div className="bg-red-50 border-l-4 border-red text-red-700 p-4 mb-6 rounded-md">
+              <div className="bg-red border-l-4 border-red text-white p-4 mb-6 rounded-md">
                 <div className="flex items-center">
                   <AlertCircle className="h-5 w-5 mr-2" />
                   <p>{errorServidor}</p>
@@ -449,7 +449,7 @@ const DocumentosPage = () => {
                             </button>
                             <button
                               onClick={() => confirmarEliminar(documento.id)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              className="text-red hover:text-red dark:text-red dark:hover:text-red"
                               title="Eliminar documento"
                             >
                               <Trash2 className="h-5 w-5" />
@@ -513,11 +513,11 @@ const DocumentosPage = () => {
                           value={documentoActual.nombre || ""}
                           onChange={manejarCambio}
                           className={`mt-1 block w-full px-3 py-2 border ${
-                            errores.nombre ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                            errores.nombre ? "border-red" : "border-gray-300 dark:border-gray-600"
                           } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
                           placeholder="Nombre del documento"
                         />
-                        {errores.nombre && <p className="mt-1 text-sm text-red-500">{errores.nombre}</p>}
+                        {errores.nombre && <p className="mt-1 text-sm text-red">{errores.nombre}</p>}
                       </div>
                       <div>
                         <label
@@ -533,7 +533,7 @@ const DocumentosPage = () => {
                           onChange={manejarCambio}
                           rows={10}
                           className={`mt-1 block w-full px-3 py-2 border ${
-                            errores.contenido ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                            errores.contenido ? "border-red" : "border-gray-300 dark:border-gray-600"
                           } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white`}
                           placeholder="Contenido del documento"
                         />
@@ -660,7 +660,7 @@ const DocumentosPage = () => {
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red dark:bg-red sm:mx-0 sm:h-10 sm:w-10">
-                    <AlertCircle className="h-6 w-6 text-white dark:text-red" />
+                    <AlertCircle className="h-6 w-6 text-white dark:text-white" />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
@@ -680,7 +680,7 @@ const DocumentosPage = () => {
                   className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
                     cargando
                       ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                      : "bg-red text-white hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      : "bg-red text-white hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red"
                   } sm:ml-3 sm:w-auto sm:text-sm`}
                   onClick={eliminarDocumentoConfirmado}
                   disabled={cargando}

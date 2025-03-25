@@ -80,7 +80,7 @@ const CarritoDetalle = () => {
     // Mostrar notificación de producto eliminado
     const notification = document.createElement("div")
     notification.className =
-      "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center"
+      "fixed top-4 right-4 bg-red text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center"
     notification.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -305,7 +305,7 @@ const CarritoDetalle = () => {
                       {/* Botón eliminar */}
                       <button
                         onClick={() => removeFromCart(index)}
-                        className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1"
+                        className="text-red hover:text-red transition-colors flex items-center gap-1"
                         aria-label="Eliminar producto"
                       >
                         <svg
@@ -352,7 +352,7 @@ const CarritoDetalle = () => {
                 </button>
                 <button
                   onClick={handleEmptyCart}
-                  className="flex items-center text-red-500 hover:text-red-700 transition-colors mt-2 sm:mt-0"
+                  className="flex items-center text-red hover:text-red transition-colors mt-2 sm:mt-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

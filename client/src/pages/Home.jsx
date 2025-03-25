@@ -72,9 +72,8 @@ const Home = () => {
 
   return (
     <PublicLayaut>
-  <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
-  </div>
+ 
       {/* Modal de autenticación */}
       {showModal && <AuthModal onClose={handleCloseModal} />}
 

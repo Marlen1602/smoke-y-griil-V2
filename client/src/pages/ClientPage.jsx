@@ -45,14 +45,12 @@ const ClientPage = () => {
 
   // 🚨 Si el usuario no existe, evitar errores y mostrar mensaje
   if (!user) {
-    return <p className="text-center text-red-500">Error: No se pudo cargar la información del usuario.</p>;
+    return <p className="text-center text-red">Error: No se pudo cargar la información del usuario.</p>;
   }
 
   return (
     <ClientLayout>
-      <div className="bg-white py-3 px-8 rounded-md flex items-center">
         <Breadcrumbs />
-      </div>
 
       {/* Main content */}
       <main className="flex flex-col md:flex-row items-center justify-center p-8 md:p-16 space-y-8 md:space-y-0">

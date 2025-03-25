@@ -22,9 +22,7 @@ const LoginPage = () => {
 
   return (
     <PublicLayaut>
-  <div className="bg-white py-3 px-8  rounded-md flex items-center">
     <Breadcrumbs />
-  </div>
     <div className={`min-h flex items-center justify-center px-4 ${isDarkMode ? "bg-gray-900 text-white" : " text-gray-800"}`}>
       <div className={`p-8 md:p-10 rounded-lg shadow-lg w-full max-w-md ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">Iniciar sesión</h2>

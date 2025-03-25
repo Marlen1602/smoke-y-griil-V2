@@ -400,7 +400,7 @@ export default function PrediccionesPage() {
         <div
           className={`fixed top-4 right-4 p-4 rounded-md shadow-md z-50 ${
             notification.type === "error"
-              ? "bg-red-100 text-red-800 border border-red-200"
+              ? "bg-red text-white border border-red"
               : "bg-green-100 text-green-800 border border-green-200"
           }`}
         >
@@ -721,7 +721,7 @@ export default function PrediccionesPage() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Carne Usada (kg)
+                      Insumo (carne de res en kg)
                     </th>
                   </tr>
                 </thead>
