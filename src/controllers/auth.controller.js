@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import { Op } from "sequelize";
 import bcrypt from "bcryptjs";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 import dotenv from "dotenv";
@@ -22,7 +23,15 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [
+          { email },
+          { username: email } // porque el frontend manda el campo como 'email'
+        ]
+      }
+    });
+    
 
     // Verificar si el usuario existe
     if (!user) {
@@ -34,7 +43,7 @@ export const login = async (req, res) => {
       const now = new Date();
       if (user.lockUntil && user.lockUntil > now) {
         return res.status(403).json({
-          message: "Tu cuenta está bloqueada. Inténtalo más tarde.",
+          message: "Ocurrió un error. Inténtalo más tarde.",
         });
       } else {
         // Desbloquear si ya pasó el tiempo de bloqueo
