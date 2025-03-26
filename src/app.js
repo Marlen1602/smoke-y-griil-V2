@@ -26,7 +26,7 @@ app.use(helmet({
           scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com"], // Permite scripts locales y Google (modifica según tu necesidad)
           styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // Permite estilos de Google Fonts
           imgSrc: ["'self'", "data:", "https://yourdomain.com"], // Permite imágenes locales y de un dominio específico
-          connectSrc: ["'self'", "https://api.yourbackend.com"], // Permite conexiones a tu backend
+          connectSrc: ["'self'", "https://backend-r0o1qwehl-marlen1602s-projects.vercel.app"], // Permite conexiones a tu backend
           frameSrc: ["'self'"], // Bloquea iframes de terceros
           objectSrc: ["'none'"], // Evita la carga de objetos (Flash, ActiveX)
         },
