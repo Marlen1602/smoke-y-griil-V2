@@ -23,6 +23,46 @@ const AdminLayout = ({ children }) => {
     fetchEmpresaData()
   }, [])
 
+  useEffect(() => {
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.error("🔴 Error global:", { message, source, lineno, colno, error });
+  
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          source,
+          lineno,
+          colno,
+          stack: error?.stack || null,
+          userRole: "admin",
+        }),
+      });
+    };
+  
+    const handleUnhandledRejection = (event) => {
+      console.error("🟠 Promesa no manejada:", event.reason);
+  
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: event.reason?.message || "Error en promesa no manejada",
+          stack: event.reason?.stack || null,
+          userRole: "admin",
+        }),
+      });
+    };
+  
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+  
+    return () => {
+      window.onerror = null;
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
+  }, []);
+  
   // Aplicar clase dark al elemento html cuando isDarkMode es true
   useEffect(() => {
     if (isDarkMode) {

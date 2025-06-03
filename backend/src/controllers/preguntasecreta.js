@@ -1,8 +1,8 @@
-import PreguntaSecreta from '../models/PreguntaSecreta.js';
+import PreguntaSecreta from "../models/PreguntaSecreta.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import logger, { logSecurityEvent } from "../libs/logger.js";
 
 export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
   try {
@@ -10,22 +10,25 @@ export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
 
     const usuario = await User.findOne({
       where: { email },
-      include: [{ model: PreguntaSecreta, as: 'pregunta', attributes: ['id', 'pregunta']}],
+      include: [{ model: PreguntaSecreta, as: "pregunta", attributes: ["id", "pregunta"]}],
     });
 
     if (!usuario) {
+      logger.warn("Correo no encontrado para pregunta secreta", { email });
       return res.status(404).json({ message: "Correo no encontrado" });
     }
 
     if (!usuario.preguntaSecretaId) {
+      logger.warn("Usuario sin pregunta secreta configurada", { email });
       return res.status(400).json({ message: "El usuario no ha configurado una pregunta secreta" });
     }
 
+    logger.info("Pregunta secreta consultada", { usuario: usuario.username });
     res.json({
       pregunta: usuario.pregunta.pregunta,
     });
   } catch (error) {
-    console.error(error);
+    logger.error("Error al obtener pregunta secreta", { error: error.message });
     res.status(500).json({ message: "Error al obtener pregunta secreta" });
   }
 };
@@ -33,11 +36,11 @@ export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
 export const obtenerPreguntasSecretas = async (req, res) => {
   try {
     const preguntas = await PreguntaSecreta.findAll({
-      attributes: ['id', 'pregunta']
+      attributes: ["id", "pregunta"]
     });
     res.json(preguntas);
   } catch (error) {
-    console.error("Error al obtener preguntas secretas:", error);
+    logger.error("Error al obtener preguntas secretas:", error);
     res.status(500).json({ message: "Error al obtener preguntas secretas" });
   }
 };
@@ -49,10 +52,14 @@ export const verificarRespuestaSecreta = async (req, res) => {
     const usuario = await User.findOne({ where: { email } });
 
     if (!usuario || !usuario.respuestaSecreta) {
+      logger.warn("Usuario no encontrado o sin respuesta secreta", { email });
+      await logSecurityEvent(email, "Intento de recuperación fallido", true, "Usuario no tiene respuesta secreta");
       return res.status(404).json({ message: "Usuario no encontrado o no tiene respuesta secreta" });
     }
     //Comparar respuesta
     if (usuario.respuestaSecreta.trim().toLowerCase() !== respuesta.trim().toLowerCase()) {
+      logger.warn("Respuesta secreta incorrecta", { usuario: usuario.username });
+      await logSecurityEvent(usuario.username, "Respuesta secreta incorrecta", true, "Falló verificación de identidad");
       return res.status(400).json({ message: "Respuesta incorrecta" });
     }
 
@@ -63,7 +70,7 @@ export const verificarRespuestaSecreta = async (req, res) => {
     usuario.resetPasswordToken = code;
     await usuario.save();
 
-    // ✉️ Enviar token al correo
+    //  Enviar token al correo
     const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -156,10 +163,13 @@ export const verificarRespuestaSecreta = async (req, res) => {
         `,
       };
       await transporter.sendMail(mailOptions);
+      logger.info("Código de recuperación enviado por pregunta secreta", { usuario: usuario.username });
+    await logSecurityEvent(usuario.username, "Código de recuperación enviado", false, "Verificación por pregunta secreta exitosa");
+
       res.json({ message: "Token enviado al correo" });
       
   } catch (error) {
-    console.error(error);
+    logger.error("Error al verificar respuesta secreta", { error: error.message });
     res.status(500).json({ message: "Error al validar la respuesta secreta" });
   }
 };
@@ -171,12 +181,14 @@ export const verificarTokenReset = async (req, res) => {
     const usuario = await User.findOne({ where: { email } });
 
     if (!usuario || usuario.resetPasswordToken !== token) {
-      return res.status(401).json({ message: "Token inválido o expirado" });
+      logger.warn("Token inválido usado para restablecer contraseña", { email });
+      await logSecurityEvent(email, "Token de recuperación inválido", true, "Token incorrecto o expirado");
+           return res.status(401).json({ message: "Token inválido o expirado" });
     }
-
+    logger.info("Token válido para restablecer contraseña", { usuario: usuario.username });
     res.json({ message: "Token válido", userId: usuario.id });
   } catch (error) {
-    console.error(error);
+    logger.error("Error al verificar token", { error: error.message });
     res.status(401).json({ message: "Token inválido o expirado" });
   }
 };
@@ -189,11 +201,14 @@ export const restablecerContrasena = async (req, res) => {
     const usuario = await User.findOne({ where: { email } });
 
     if (!usuario || usuario.resetPasswordToken !== token) {
+      logger.warn("Intento de restablecer contraseña con token inválido", { email });
+      await logSecurityEvent(email, "Restablecimiento fallido", true, "Token inválido");
       return res.status(401).json({ message: "Token inválido o expirado" });
     }
 
     // Validar si la cuenta está bloqueada
     if (usuario.isBlocked) {
+      logger.warn("Usuario bloqueado intentó cambiar contraseña", { usuario: usuario.username });
       return res.status(403).json({
         message: "Tu cuenta está bloqueada. No puedes cambiar la contraseña.",
       });
@@ -202,6 +217,7 @@ export const restablecerContrasena = async (req, res) => {
     // Verificar si la nueva contraseña es igual a la actual
     const mismaPassword = await bcrypt.compare(nuevaPassword, usuario.password);
     if (mismaPassword) {
+      logger.warn("Contraseña nueva igual a la anterior", { usuario: usuario.username });
       return res.status(400).json({
         message: "La nueva contraseña no puede ser igual a la anterior.",
       });
@@ -213,10 +229,12 @@ export const restablecerContrasena = async (req, res) => {
     usuario.resetPasswordToken = null;
 
     await usuario.save();
+    logger.info("Contraseña restablecida exitosamente", { usuario: usuario.username });
+    await logSecurityEvent(usuario.username, "Contraseña restablecida", false, "Restablecimiento exitoso");
 
     res.json({ message: "Contraseña actualizada correctamente" });
   } catch (error) {
-    console.error("❌ Error al restablecer contraseña:", error.message);
+    logger.error("Error al restablecer contraseña", { error: error.message });
     res.status(500).json({ message: "Error al restablecer la contraseña" });
   }
 };

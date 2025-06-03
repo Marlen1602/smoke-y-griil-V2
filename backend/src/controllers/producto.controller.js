@@ -1,5 +1,6 @@
 import { sequelize } from "../db.js";
 import { cloudinary } from "../libs/cloudinary.js";
+import logger, { logSecurityEvent } from "../libs/logger.js";
 
 // Obtener todos los productos
 export const getProductos = async (req, res) => {
@@ -9,7 +10,7 @@ export const getProductos = async (req, res) => {
     );
     res.json(productos);
   } catch (error) {
-    console.error("Error al obtener productos:", error);
+    logger.error("Error al obtener productos", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -23,11 +24,13 @@ export const getProductoById = async (req, res) => {
       { replacements: [id] }
     );
     if (producto.length === 0) {
+      logger.warn("Producto no encontrado", { id });
       return res.status(404).json({ message: "Producto no encontrado" });
     }
+    logger.info("Producto consultado por ID", { id });
     res.json(producto[0]);
   } catch (error) {
-    console.error("Error al obtener producto:", error);
+    logger.error("Error al obtener producto por ID", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -35,6 +38,7 @@ export const getProductoById = async (req, res) => {
 // Crear un nuevo producto
 export const createProducto = async (req, res) => {
   const { Nombre, Descripcion, ID_Categoria, TieneTamanos, Precio, Disponible } = req.body;
+  const usuario = req.user?.username || "Anónimo";
   let imageUrl = null;
 
   try {
@@ -54,10 +58,20 @@ export const createProducto = async (req, res) => {
       "INSERT INTO productos (Nombre, Descripcion, ID_Categoria, TieneTamanos, Precio, Disponible, Imagen) VALUES (?, ?, ?, ?, ?, ?, ?)",
       { replacements: [Nombre, Descripcion, ID_Categoria, tieneTamanosValue, Precio || null, disponibleValue, imageUrl] }
     );
+    logger.info("Producto creado correctamente", {
+      usuario,
+      productoId: result.insertId,
+    });
+    await logSecurityEvent(
+      usuario,
+      "Creación de producto",
+      false,
+      `Producto "${Nombre}" creado con ID ${result.insertId}`
+    );
 
     res.json({ message: "Producto creado correctamente", ID_Producto: result.insertId, Imagen: imageUrl });
   } catch (error) {
-    console.error("Error al crear producto:", error);
+    logger.error("Error al crear producto", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -65,8 +79,10 @@ export const createProducto = async (req, res) => {
 // Subir imagen a Cloudinary y asociarla al producto
 export const uploadImagen = async (req, res) => {
   const { id } = req.params;
+  const usuario = req.user?.username || "Anónimo";
   try {
     if (!req.file) {
+      logger.warn("Subida de imagen fallida: sin archivo", { usuario });
       return res.status(400).json({ message: "No se ha subido ninguna imagen" });
     }
 
@@ -77,10 +93,11 @@ export const uploadImagen = async (req, res) => {
     await sequelize.query("UPDATE productos SET Imagen = ? WHERE ID_Producto = ?", {
       replacements: [result.secure_url, id],
     });
+    logger.info("Imagen de producto actualizada", { usuario, productoId: id });
 
     res.json({ message: "Imagen subida correctamente", url: result.secure_url });
   } catch (error) {
-    console.error("Error al subir imagen:", error);
+    logger.error("Error al subir imagen de producto", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -90,9 +107,10 @@ export const updateProducto = async (req, res) => {
   const { id } = req.params;
   const { Nombre, Descripcion, ID_Categoria, TieneTamanos, Precio, Disponible } = req.body;
 
-  console.log("Datos recibidos para actualizar:", req.body); // 🔍 Verifica que llegan bien
+  const usuario = req.user?.username || "Anónimo";
 
   if (!Nombre || !Descripcion || !ID_Categoria || !Disponible) {
+    logger.warn("Actualización fallida: faltan datos", { usuario });
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
@@ -101,10 +119,18 @@ export const updateProducto = async (req, res) => {
       "UPDATE productos SET Nombre = ?, Descripcion = ?, ID_Categoria = ?, TieneTamanos = ?, Precio = ?, Disponible = ? WHERE ID_Producto = ?",
       { replacements: [Nombre, Descripcion, ID_Categoria, TieneTamanos ? 1 : 0, Precio || null, Disponible ? 1 : 0, id] }
     );
+    logger.info("Producto actualizado correctamente", { usuario, productoId: id });
+
+    await logSecurityEvent(
+      usuario,
+      "Actualización de producto",
+      false,
+      `Producto ID ${id} actualizado`
+    );
 
     res.json({ message: "Producto actualizado correctamente" });
   } catch (error) {
-    console.error("Error al actualizar producto:", error);
+    logger.error("Error al actualizar producto", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -113,13 +139,22 @@ export const updateProducto = async (req, res) => {
 // Eliminar un producto
 export const deleteProducto = async (req, res) => {
   const { id } = req.params;
+  const usuario = req.user?.username || "Anónimo";
   try {
     await sequelize.query("DELETE FROM productos WHERE ID_Producto = ?", {
       replacements: [id],
     });
+    logger.info("Producto eliminado", { usuario, productoId: id });
+
+    await logSecurityEvent(
+      usuario,
+      "Eliminación de producto",
+      true,
+      `Producto ID ${id} eliminado`
+    );
     res.json({ message: "Producto eliminado correctamente" });
   } catch (error) {
-    console.error("Error al eliminar producto:", error);
+    logger.error("Error al eliminar producto", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
   }
 };

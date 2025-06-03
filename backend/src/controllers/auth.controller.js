@@ -27,7 +27,7 @@ export const login = async (req, res) => {
       where: {
         [Op.or]: [
           { email:identificador },
-          { username: identificador } // prque el frontend manda el campo como 'email'
+          { username: identificador } 
         ]
       }
     });
@@ -35,6 +35,8 @@ export const login = async (req, res) => {
 
     // Verificar si el usuario existe
     if (!user) {
+      logger.warn(`Intento de inicio de sesión con usuario inexistente: ${identificador}`);
+      await logSecurityEvent(identificador, "Login fallido", true, "Usuario inexistente");
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
@@ -42,12 +44,16 @@ export const login = async (req, res) => {
     if (user.isBlocked) {
       const now = new Date();
       if (user.lockUntil && user.lockUntil > now) {
+        logger.error(`Intento login en cuenta bloqueada usuario: ${ user.username }`);
+        await logSecurityEvent(user.username, "Login en cuenta bloqueada", true, "Cuenta bloqueada");
+        
         return res.status(403).json({
           message: "Ocurrió un error. Inténtalo más tarde.",
         });
       } else {
         // Desbloquear si ya pasó el tiempo de bloqueo
         await user.update({ isBlocked: false, failedAttempts: 0, lockUntil: null });
+        logger.info(`Cuenta desbloqueada automáticamente al iniciar sesión usuario: ${user.username }`);
       }
     }
 
@@ -63,6 +69,8 @@ export const login = async (req, res) => {
         lockUntil.setMinutes(lockUntil.getMinutes() + 5);
 
         await user.update({ failedAttempts, isBlocked: true, lockUntil });
+        logger.warn(`Cuenta bloqueada automáticamente por intentos fallidos usuario: ${user.username }`);
+        await logSecurityEvent(user.username, "Bloqueo automático de cuenta", true, "Múltiples intentos fallidos");
 
         return res.status(403).json({
           message: "Demasiados intentos fallidos. Tu cuenta ha sido bloqueada por 5 minutos.",
@@ -70,7 +78,9 @@ export const login = async (req, res) => {
       } else {
         // Incrementar intentos fallidos sin bloquear aún
         await user.update({ failedAttempts });
-
+        logger.warn(`Intento fallido de inicio de sesión usuario: ${user.username }`);
+        await logSecurityEvent(user.username, "Login fallido", true, "Contraseña incorrecta");
+        
         return res.status(401).json({ message: "Credenciales inválidas" });
       }
     }
@@ -91,6 +101,9 @@ export const login = async (req, res) => {
       maxAge: 2 * 60 * 60 * 1000, // 2 horas
     });
 
+    logger.info(`Inicio de sesión exitoso usuario: ${user.username }`);
+    await logSecurityEvent(user.username, "Login exitoso", false, "Inicio de sesión correcto");
+
     return res.json({
       id: user.id,
       email: user.email,
@@ -99,7 +112,7 @@ export const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Error en el servidor:", error);
+    logger.error(`Error interno en el login error: ${error.message }`);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -112,6 +125,7 @@ export const unlockUser = async (req, res) => {
     const userFound = await User.findByPk(id);
 
     if (!userFound) {
+      logger.warn(`Desbloqueo fallido - usuario no encontrado (ID: ${id})`);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -127,7 +141,7 @@ export const unlockUser = async (req, res) => {
 
     res.status(200).json({ message: "Usuario desbloqueado exitosamente" });
   } catch (error) {
-    console.error("Error al desbloquear usuario:", error);
+    logger.error(`Error al desbloquear usuario ${error.message }`);
     res.status(500).json({ message: "Error en el servidor" });
   }
 };
@@ -139,7 +153,7 @@ export const blockUser = async (req, res) => {
     const userFound = await User.findByPk(id);
 
     if (!userFound) {
-      logger.warn(`Intento fallido de bloqueo - Usuario ID: ${id} no encontrado`);
+      logger.warn(`Bloqueo fallido - usuario no encontrado (ID: ${id})`);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
@@ -147,7 +161,7 @@ export const blockUser = async (req, res) => {
       isBlocked: true,
       failedAttempts: 0
     });
-
+    
     await logSecurityEvent(
       userFound.username,
       "Bloqueo manual de cuenta",
@@ -264,6 +278,7 @@ export const register = async (req, res) => {
   // Validar los resultados de express-validator
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    logger.warn(`Intento de registro fallido por validaciones incorrectas: ${ errors.array() }`);
     return res.status(400).json({ errors: errors.array() });
   }
   const { email, password, username, nombre, apellidos, recaptchaToken } = req.body;
@@ -342,7 +357,9 @@ export const register = async (req, res) => {
 
 // 📌 Cerrar sesión correctamente
 export const logout = (req, res) => {
+  const usuario = req.user?.username || "Desconocido";
   res.clearCookie("token");
+  logger.info(`Sesión cerrada correctamente - Usuario: ${usuario}`);
   return res.status(200).json({ message: "Sesión cerrada correctamente" });
 };
 
@@ -364,7 +381,7 @@ export const profile = async (req, res) => {
       });
 
   } catch (error) {
-      console.error("Error al obtener el perfil:", error);
+    logger.error("Error al obtener el perfil:");
       return res.status(500).json({ message: "Error interno del servidor" });
   }
 };

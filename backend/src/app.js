@@ -15,7 +15,9 @@ import tamanosRoutes from "./routes/tamanoproducto.routes.js";
 import categorias from "./routes/categorias.routes.js";
 import documentos from "./routes/documentoslegales.js";
 import ventas from "./routes/ventas.routes.js";
-import preguntas from "./routes/preguntasecreta.js"
+import preguntas from "./routes/preguntasecreta.js";
+import logRoutes from "./routes/log.routes.js";
+
 const app=express();
 
 // Protección con Helmet (Cabeceras seguras)
@@ -70,10 +72,11 @@ app.use("/api", faqRoutes);
 app.use("/api",redes_sociales);
 app.use("/api", productosRoutes);
 app.use("/api", tamanosRoutes);
-app.use("/api",categorias)
-app.use("/api",documentos)
+app.use("/api",categorias);
+app.use("/api",documentos);
 app.use("/api",ventas);
 app.use("/api",preguntas);
+app.use("/api", logRoutes);
 
 // Manejo centralizado de errores
 app.use((err, req, res, next) => {

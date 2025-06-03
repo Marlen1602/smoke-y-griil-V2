@@ -66,8 +66,8 @@ const User = sequelize.define("user", {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'preguntas_secretas',
-      key: 'id',
+      model: "preguntas_secretas",
+      key: "id",
     },
   },
   respuestaSecreta: {

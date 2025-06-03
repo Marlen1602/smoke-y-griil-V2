@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext.jsx"
 import logo from "../assets/logo.png"
@@ -36,6 +36,42 @@ const PrincipalLayout = ({ children, onSearch }) => {
   const handleOpenMaps = () => {
     navigate("/ubicacion")
   }
+
+  useEffect(() => {
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.error("🔴 Error global:", { message, source, lineno, colno, error });
+
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          source,
+          lineno,
+          colno,
+          stack: error?.stack || null,
+        }),
+      });
+    };
+
+    window.addEventListener("unhandledrejection", (event) => {
+      console.error("🟠 Promesa no manejada:", event.reason);
+
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: event.reason?.message || "Error en promesa no manejada",
+          stack: event.reason?.stack || null,
+        }),
+      });
+    });
+
+    return () => {
+      window.onerror = null;
+      window.removeEventListener("unhandledrejection", () => {});
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 dark:text-white">

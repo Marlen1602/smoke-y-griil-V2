@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categorias {
+  ID_Categoria Int         @id @default(autoincrement())
+  Nombre       String      @unique(map: "Nombre") @db.VarChar(255)
+  productos    productos[]
+}
+
+model configs {
+  id           Int @id @default(autoincrement())
+  maxAttempts  Int @default(3)
+  lockDuration Int @default(1800000)
+}
+
+model datos_empresa {
+  ID_empresa     Int              @id @default(autoincrement())
+  Nombre         String           @db.VarChar(255)
+  Eslogan        String?          @db.VarChar(255)
+  Mision         String?          @db.Text
+  Vision         String?          @db.Text
+  Direccion      String?          @db.Text
+  Horario        String?          @db.Text
+  Logo           String?          @db.VarChar(255)
+  redes_sociales redes_sociales[]
+}
+
+model documentos_legales {
+  id                  Int       @id @default(autoincrement())
+  nombre              String    @default("") @db.VarChar(200)
+  contenido           String    @db.Text
+  fecha_actualizacion DateTime? @db.Date
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model imagenes_carrusel {
+  id         Int?
+  url_imagen String? @db.Text
+
+  @@ignore
+}
+
+model incidencias {
+  id      Int       @id @default(autoincrement())
+  usuario String    @db.VarChar(255)
+  tipo    String    @db.VarChar(255)
+  estado  Boolean
+  motivo  String    @db.VarChar(255)
+  fecha   DateTime? @db.DateTime(0)
+}
+
+model prediccion_carne {
+  id              Int      @id @default(autoincrement())
+  prediction_date DateTime @db.Date
+  week_number     Int
+  predicted_kg    Float    @db.Float
+  k               Float    @db.Float
+  p0              Float    @db.Float
+}
+
+model preguntas {
+  id        Int       @id @default(autoincrement())
+  pregunta  String    @db.Text
+  respuesta String    @db.Text
+  fecha     DateTime? @db.DateTime(0)
+}
+
+model preguntas_secretas {
+  id       Int     @id @default(autoincrement())
+  pregunta String  @db.Text
+  users    users[]
+}
+
+model productos {
+  ID_Producto      Int                @id @default(autoincrement())
+  Nombre           String             @db.VarChar(255)
+  Descripcion      String?            @db.Text
+  Precio           Decimal            @db.Decimal(10, 2)
+  Disponible       Boolean?           @default(true)
+  Imagen           String?            @db.VarChar(500)
+  ID_Categoria     Int?
+  TieneTamanos     Boolean            @default(false)
+  categorias       categorias?        @relation(fields: [ID_Categoria], references: [ID_Categoria], onUpdate: Restrict, map: "productos_ibfk_1")
+  promociones      promociones?
+  tamanosproductos tamanosproductos[]
+
+  @@index([ID_Categoria], map: "ID_Categoria")
+}
+
+model promociones {
+  ID_Promocion Int                    @id @default(autoincrement())
+  Descuento    Decimal                @db.Decimal(5, 2)
+  Dia_Semana   promociones_Dia_Semana
+  ID_Producto  Int?                   @unique(map: "ID_Producto")
+  productos    productos?             @relation(fields: [ID_Producto], references: [ID_Producto], onDelete: Cascade, onUpdate: Restrict, map: "promociones_ibfk_1")
+}
+
+model redes_sociales {
+  id            Int           @id @default(autoincrement())
+  nombre        String        @db.VarChar(255)
+  link          String        @db.VarChar(255)
+  ID_empresa    Int
+  datos_empresa datos_empresa @relation(fields: [ID_empresa], references: [ID_empresa], onDelete: Cascade, map: "fk_empresa")
+
+  @@index([ID_empresa], map: "fk_empresa")
+}
+
+model tamanosproductos {
+  ID_Tama_o   Int       @id @default(autoincrement()) @map("ID_Tamaño")
+  ID_Producto Int
+  Tama_o      String    @map("Tamaño") @db.VarChar(50)
+  Precio      Decimal   @db.Decimal(10, 2)
+  productos   productos @relation(fields: [ID_Producto], references: [ID_Producto], onDelete: Cascade, map: "tamanosproductos_ibfk_1")
+
+  @@index([ID_Producto], map: "ID_Producto")
+}
+
+model tipousuarios {
+  ID          Int     @id @default(autoincrement())
+  descripcion String  @unique(map: "descripcion") @db.VarChar(255)
+  users       users[]
+}
+
+model users {
+  id                         Int                 @id @default(autoincrement())
+  username                   String              @unique(map: "username") @db.VarChar(255)
+  nombre                     String              @db.VarChar(255)
+  apellidos                  String              @db.VarChar(255)
+  email                      String              @unique(map: "email") @db.VarChar(255)
+  password                   String              @db.VarChar(255)
+  tipoUsuarioId              Int                 @default(2)
+  verificationCode           String?             @db.VarChar(255)
+  resetPasswordToken         String?             @db.VarChar(255)
+  isVerified                 Boolean?            @default(false)
+  isVerifiedForResetPassword Boolean?            @default(false)
+  failedAttempts             Int?                @default(0)
+  isBlocked                  Boolean?            @default(false)
+  lockUntil                  DateTime?           @db.DateTime(0)
+  createdAt                  DateTime            @db.DateTime(0)
+  updatedAt                  DateTime            @db.DateTime(0)
+  preguntaSecretaId          Int?
+  respuestaSecreta           String?             @db.VarChar(255)
+  preguntas_secretas         preguntas_secretas? @relation(fields: [preguntaSecretaId], references: [id], map: "fk_pregunta_secreta")
+  tipousuarios               tipousuarios        @relation(fields: [tipoUsuarioId], references: [ID], onUpdate: Restrict, map: "users_ibfk_1")
+
+  @@index([preguntaSecretaId], map: "fk_pregunta_secreta")
+  @@index([tipoUsuarioId], map: "tipoUsuarioId")
+}
+
+model ventas_semanales {
+  id            Int      @id @default(autoincrement())
+  start_date    DateTime @db.Date
+  end_date      DateTime @db.Date
+  hamburguesas  Int?     @default(0)
+  tacos         Int?     @default(0)
+  bolillos      Int?     @default(0)
+  burritos      Int?     @default(0)
+  gringas       Int?     @default(0)
+  baguettes     Int?     @default(0)
+  total_meat_kg Float?   @db.Float
+}
+
+enum promociones_Dia_Semana {
+  Lunes
+  Martes
+  Mi_rcoles @map("Miércoles")
+  Jueves
+  Viernes
+  S_bado    @map("Sábado")
+  Domingo
+}

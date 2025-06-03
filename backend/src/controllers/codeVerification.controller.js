@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import nodemaile from "nodemailer";
+import logger, { logSecurityEvent } from "../libs/logger.js";
 
 const sendVerificationEmail = async (email, code) => {
   const transporter = nodemaile.createTransport({
@@ -100,11 +101,13 @@ const sendVerificationEmail = async (email, code) => {
 
 export const sendCodeForReset = async (req, res) => {
   const { email } = req.body;
-
+  
   try {
     const user = await User.findOne({ where:{email} });
-    if (!user)
-      {return res.status(400).json({ message: "Usuario no encontrado" });}
+    if (!user) {
+      logger.warn("Intento restablecimiento con correo no registrado", { email });
+      await logSecurityEvent(email, "Restablecimiento contraseña fallido", true, "Correo no registrado");
+       return res.status(400).json({ message: "Usuario no encontrado" });}
 
     // generar un JWT para el usuario
     const verificationCode = Math.floor(
@@ -119,11 +122,19 @@ export const sendCodeForReset = async (req, res) => {
     // agregar el JWT al usuario en la base de datos
     user.resetPasswordToken = verificationCode;
     await user.save();
+    logger.info("Código para restablecer contraseña enviado", { usuario: user.username, email });
 
+    await logSecurityEvent(
+      user.username,
+      "Solicitud restablecimiento contraseña",
+      false,
+      "Código enviado al correo del usuario"
+    );
     
 
      res.json({ message: "Correo enviado exitosamente" });
   } catch (error) {
+    logger.error("Error interno al enviar código de restablecimiento", { error: error.message });
     return res.status(500).json({ message: error.message });
   }
 };
@@ -135,20 +146,41 @@ export const verifyCode = async (req, res) => {
   try {
     const user = await User.findOne({ where:{email} });
     if (!user)
-      {return res.status(400).json({ message: "Usuario no encontrado" });}
+      {
+        logger.warn("Intento de verificar código con correo inexistente", { email });
+      await logSecurityEvent(email, "Verificación código fallida", true, "Correo no registrado");
+       return res.status(400).json({ message: "Usuario no encontrado" });}
    
     if (user.resetPasswordToken === code) {
       user.resetPasswordToken = null; // Eliminar código después de verificado
       user.isVeriedForResetPassword = true;
       await user.save();
+      logger.info("Código de verificación para restablecimiento correcto", { usuario: user.username });
+
+      await logSecurityEvent(
+        user.username,
+        "Verificación código exitosa",
+        false,
+        "Usuario validado para restablecimiento de contraseña"
+      );
 
       return res.json({ message: "codigo verificado exitosamente" });
     } else {
+      logger.warn("Intento de verificación con código incorrecto", { usuario: user.username });
+
+      await logSecurityEvent(
+        user.username,
+        "Verificación código fallida",
+        true,
+        "Código proporcionado incorrecto"
+      );
+
       return res
         .status(400)
         .json({ message: "Código de verificación incorrecto" });
     }
   } catch (error) {
+    logger.error("Error interno al verificar código", { error: error.message });
     return res.status(500).json({ message: error.message });
   }
 };

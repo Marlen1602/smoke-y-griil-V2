@@ -8,12 +8,12 @@ import {
     unlockUser,
     blockUser
 } from "../controllers/auth.controller.js";
-import { getUsers, updatePassword,agregarPreguntaSecreta } from "../controllers/users.controller.js"
+import { getUsers, updatePassword,agregarPreguntaSecreta } from "../controllers/users.controller.js";
 import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 import { sendCodeForReset, verifyCode } from "../controllers/codeVerification.controller.js";
-import {verifyEmail} from "../controllers/emailVerification.controller.js"
+import {verifyEmail} from "../controllers/emailVerification.controller.js";
 
 
 const router = Router();

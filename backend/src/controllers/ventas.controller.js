@@ -1,5 +1,5 @@
-import VentasSemanales from '../models/ventas.model.js';
-import PrediccionCarne from '../models/PrediccionCarne.js';
+import VentasSemanales from "../models/ventas.model.js";
+import PrediccionCarne from "../models/PrediccionCarne.js";
 
 const generarPredicciones = (venta1, venta2, semanas = 4, ultimaSemana = 2) => {
     const k = Math.log(venta2 / venta1);
@@ -24,13 +24,13 @@ const generarPredicciones = (venta1, venta2, semanas = 4, ultimaSemana = 2) => {
       await VentasSemanales.create(datos);
   
       const ultimas = await VentasSemanales.findAll({
-        order: [['id', 'DESC']],
+        order: [["id", "DESC"]],
         limit: 2
       });
   
       if (ultimas.length < 2) {
         return res.json({
-          message: '✅ Venta registrada. Se necesitan al menos 2 semanas para predecir.'
+          message: "✅ Venta registrada. Se necesitan al menos 2 semanas para predecir."
         });
       }
   
@@ -57,7 +57,7 @@ const generarPredicciones = (venta1, venta2, semanas = 4, ultimaSemana = 2) => {
       );
   
       res.json({
-        message: '✅ Venta y predicciones guardadas',
+        message: "✅ Venta y predicciones guardadas",
         predicciones: predicciones.map(p => ({
           semana: p.week_number,
           prediccion: p.predicted_kg.toFixed(2)
@@ -75,8 +75,8 @@ const generarPredicciones = (venta1, venta2, semanas = 4, ultimaSemana = 2) => {
 export const obtenerVentas = async (req, res) => {
   try {
     const ventas = await VentasSemanales.findAll({
-      attributes: ['start_date','end_date', 'hamburguesas', 'tacos', 'bolillos', 'burritos', 'gringas', 'baguettes'],
-      order: [['start_date', 'ASC']]
+      attributes: ["start_date","end_date", "hamburguesas", "tacos", "bolillos", "burritos", "gringas", "baguettes"],
+      order: [["start_date", "ASC"]]
     });
     res.json(ventas);
   } catch (error) {
@@ -86,7 +86,7 @@ export const obtenerVentas = async (req, res) => {
 
 export const obtenerCarnePorSemana = async (req, res) => {
   try {
-    const ventas = await VentasSemanales.findAll({ order: [['start_date', 'ASC']] });
+    const ventas = await VentasSemanales.findAll({ order: [["start_date", "ASC"]] });
     const datos = ventas.map(v => ({
       start_date: v.start_date,
       end_date: v.end_date,
@@ -101,8 +101,8 @@ export const obtenerCarnePorSemana = async (req, res) => {
 export const obtenerPredicciones = async (req, res) => {
   try {
     const predicciones = await PrediccionCarne.findAll({
-      attributes: ['prediction_date', 'week_number', 'predicted_kg'],
-      order: [['week_number', 'ASC']]
+      attributes: ["prediction_date", "week_number", "predicted_kg"],
+      order: [["week_number", "ASC"]]
     });
     res.json(predicciones);
   } catch (error) {

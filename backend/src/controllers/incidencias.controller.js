@@ -11,7 +11,7 @@ export const getIncidencias = async (req, res) => {
 
     res.status(200).json(incidencias);
   } catch (error) {
-    console.error("Error en getIncidencias:", error); // Más detalles del error
+    logger.error("Error en getIncidencias:", error); // Más detalles del error
     res.status(500).json({ message: "Error al obtener las incidencias", error: error.message });
   }
 };

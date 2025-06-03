@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom"
 import logo from "../assets/logo.png"
 import { useAuth } from "../contex/AuthContext"
@@ -13,6 +14,43 @@ const ClientLayout = ({ children }) => {
     console.log("Cerrando sesión...")
     logout()
   }
+  
+  useEffect(() => {
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.error("🔴 Error global:", { message, source, lineno, colno, error });
+
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          source,
+          lineno,
+          colno,
+          stack: error?.stack || null,
+        }),
+      });
+    };
+
+    window.addEventListener("unhandledrejection", (event) => {
+      console.error("🟠 Promesa no manejada:", event.reason);
+
+      fetch("http://localhost:4000/api/log-error", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: event.reason?.message || "Error en promesa no manejada",
+          stack: event.reason?.stack || null,
+        }),
+      });
+    });
+
+    return () => {
+      window.onerror = null;
+      window.removeEventListener("unhandledrejection", () => {});
+    };
+  }, []);
+
 
   return (
     <div className={`flex flex-col min-h-screen ${isDarkMode ? "dark" : ""}`}>

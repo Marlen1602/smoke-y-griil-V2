@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {obtenerPreguntasSecretas,
     obtenerPreguntaSecretaPorCorreo,
     verificarRespuestaSecreta,
     verificarTokenReset,
-    restablecerContrasena} from "../controllers/preguntasecreta.js"
+    restablecerContrasena} from "../controllers/preguntasecreta.js";
 
 const router = Router();
 

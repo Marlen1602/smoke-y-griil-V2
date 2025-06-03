@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../db.js";
 
-const VentasSemanales = sequelize.define('VentasSemanales', {
+const VentasSemanales = sequelize.define("VentasSemanales", {
   start_date: DataTypes.DATEONLY,
   end_date: DataTypes.DATEONLY,
   hamburguesas: DataTypes.INTEGER,
@@ -24,7 +24,7 @@ const VentasSemanales = sequelize.define('VentasSemanales', {
     }
   }
 }, {
-  tableName: 'ventas_semanales',
+  tableName: "ventas_semanales",
   timestamps: false
 });
 
