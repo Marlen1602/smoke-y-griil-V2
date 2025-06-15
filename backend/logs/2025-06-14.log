@@ -82,3 +82,9 @@
 2025-06-14 17:38:06 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
 2025-06-14 17:38:19 [INFO]: Inicio de sesión exitoso usuario: Adela12 
 2025-06-14 17:39:02 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 17:41:45 [INFO]: Sesión cerrada correctamente - Usuario: Adriana12 
+2025-06-14 17:42:03 [INFO]: Inicio de sesión exitoso usuario: Adela12 
+2025-06-14 19:08:45 [INFO]: Sesión cerrada correctamente - Usuario: Adela12 
+2025-06-14 19:08:56 [WARN]: Intento fallido de inicio de sesión usuario: Marlen12 
+2025-06-14 19:09:01 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 19:09:16 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
