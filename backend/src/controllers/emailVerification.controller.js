@@ -1,4 +1,4 @@
-import User from "../models/user.model.js";
+import prisma from "../db.js";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
 export const verifyEmail = async (req, res) => {
@@ -6,16 +6,20 @@ export const verifyEmail = async (req, res) => {
 
 
     try {
-      const user = await User.findOne({ where: {email} });
+      const user = await prisma.users.findUnique({ where: {email} });
       if (!user) {
         logger.warn("Intento de verificación de correo con email no registrado", { email });
       await logSecurityEvent(email, "Verificación de correo fallida", true, "Correo no registrado");
        return res.status(400).json({ message: "Usuario no encontrado" });}
 
       if (user.verificationCode === code) {
-        user.isVerified = true;
-        user.verificationCode = undefined; // Eliminar código después de verificado
-        await user.save();
+        await prisma.users.update({
+        where: { id: user.id },
+        data: {
+          isVerified: true,
+          verificationCode: null, // Limpiar el código
+        }
+      });
         logger.info("Correo verificado exitosamente", { usuario: user.username });
 
       await logSecurityEvent(

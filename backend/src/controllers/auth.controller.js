@@ -1,5 +1,4 @@
-import User from "../models/user.model.js";
-import { Op } from "sequelize";
+import prisma from "../db.js";
 import bcrypt from "bcryptjs";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 import dotenv from "dotenv";
@@ -17,18 +16,17 @@ export const validateRegister = [
   body("email").normalizeEmail(), // Normaliza el email para eliminar espacios y normalizar el formato
 ];
 
-
-//  Login de usuario con JWT
+//  Login de usuario 
 export const login = async (req, res) => {
   const { identificador, password } = req.body;
 
   try {
-    const user = await User.findOne({
+    const user = await prisma.users.findFirst({
       where: {
-        [Op.or]: [
-          { email:identificador },
-          { username: identificador } 
-        ]
+        OR: [
+      { email: identificador },
+      { username: identificador }
+      ]
       }
     });
     
@@ -52,7 +50,13 @@ export const login = async (req, res) => {
         });
       } else {
         // Desbloquear si ya pasó el tiempo de bloqueo
-        await user.update({ isBlocked: false, failedAttempts: 0, lockUntil: null });
+        await prisma.users.update({ 
+          where:{id:user.id},
+          data:{
+          failedAttempts: 0, 
+          isBlocked: false,
+          lockUntil: null}
+       });
         logger.info(`Cuenta desbloqueada automáticamente al iniciar sesión usuario: ${user.username }`);
       }
     }
@@ -68,7 +72,11 @@ export const login = async (req, res) => {
         const lockUntil = new Date();
         lockUntil.setMinutes(lockUntil.getMinutes() + 5);
 
-        await user.update({ failedAttempts, isBlocked: true, lockUntil });
+        await prisma.users.update({
+          where:{id:user.id},
+          data:{ failedAttempts, isBlocked: true, lockUntil 
+          }
+          });
         logger.warn(`Cuenta bloqueada automáticamente por intentos fallidos usuario: ${user.username }`);
         await logSecurityEvent(user.username, "Bloqueo automático de cuenta", true, "Múltiples intentos fallidos");
 
@@ -77,7 +85,9 @@ export const login = async (req, res) => {
         });
       } else {
         // Incrementar intentos fallidos sin bloquear aún
-        await user.update({ failedAttempts });
+        await prisma.users.update({
+          where:{id:user.id},
+          data:{ failedAttempts }});
         logger.warn(`Intento fallido de inicio de sesión usuario: ${user.username }`);
         await logSecurityEvent(user.username, "Login fallido", true, "Contraseña incorrecta");
         
@@ -86,7 +96,9 @@ export const login = async (req, res) => {
     }
 
     // Si el login es exitoso, restablecer intentos fallidos
-    await user.update({ failedAttempts: 0, isBlocked: false, lockUntil: null });
+    await prisma.users.update({
+      where:{id:user.id},
+      data:{ failedAttempts: 0, isBlocked: false, lockUntil: null }});
 
     //  Crear token de acceso
     const token = await createAccessToken(
@@ -117,22 +129,25 @@ export const login = async (req, res) => {
   }
 };
 
-
 export const unlockUser = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const userFound = await User.findByPk(id);
+    const userFound = await prisma.users.findUnique({where:{id:Number(id)}
+  });
 
     if (!userFound) {
       logger.warn(`Desbloqueo fallido - usuario no encontrado (ID: ${id})`);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    await userFound.update({
+    await prisma.users.update({
+      where:{id:userFound.id},
+      data:{
       failedAttempts: 0,
       lockUntil: null,
       isBlocked: false,
+      }
     });
 
     await logSecurityEvent(userFound.username, "Desbloqueo de cuenta", false, "Cuenta desbloqueada por el administrador");
@@ -150,16 +165,19 @@ export const blockUser = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const userFound = await User.findByPk(id);
+    const userFound = await prisma.users.findUnique({where:{id:Number(id)}
+  });
 
     if (!userFound) {
       logger.warn(`Bloqueo fallido - usuario no encontrado (ID: ${id})`);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    await userFound.update({
+    await prisma.users.update({
+      where:{id:userFound.id},
+      data:{
       isBlocked: true,
-      failedAttempts: 0
+      failedAttempts: 0}
     });
     
     await logSecurityEvent(
@@ -300,14 +318,14 @@ export const register = async (req, res) => {
     }
 
     // Verificar si el nombre de usuario ya existe
-    const usernameExists = await User.findOne({ where:{username} });
+    const usernameExists = await prisma.users.findFirst({ where:{username} });
     console.log(usernameExists);
     if (usernameExists) {
         return res.status(400).json(["No se pudo completar el registro"]);
     }
 
     // Verificar si el correo ya está registrado
-    const emailExists = await User.findOne({where:{email} });
+    const emailExists = await prisma.users.findFirst({where:{email} });
     if (emailExists) {
         return res.status(400).json(["No se pudo completar el registro"]);
     }
@@ -317,7 +335,8 @@ export const register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
+    const newUser = await prisma.users.create({
+      data:{
       email,
       password: passwordHash,
       username,
@@ -325,6 +344,7 @@ export const register = async (req, res) => {
       apellidos,
       verificationCode, // Guardar el código de verificación
       isVerified: false, // No está verificado aún
+      }
     });
 
 
@@ -346,7 +366,7 @@ export const register = async (req, res) => {
       nombre: newUser.nombre,
       apellidos: newUser.apellidos,
       email: newUser.email,
-      createAt: newUser.createdAt,
+      createdAt: newUser.createdAt,
       updatedAt: newUser.updatedAt,
     });
 
@@ -354,8 +374,7 @@ export const register = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// 📌 Cerrar sesión correctamente
+// Cerrar sesión
 export const logout = (req, res) => {
   const usuario = req.user?.username || "Desconocido";
   res.clearCookie("token");
@@ -365,7 +384,9 @@ export const logout = (req, res) => {
 
 export const profile = async (req, res) => {
   try {
-      const user = await User.findByPk(req.user.id);
+      const user = await prisma.users.findUnique({
+        where:{id:req.user.id}
+      });
 
       if (!user) {
           return res.status(400).json({ message: "Usuario no encontrado" });

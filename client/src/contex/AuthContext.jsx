@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   // verificar si inicio sesion
   const checkAuth = async () => {
-    console.log("🔍 Ejecutando checkAuth()...");
+    console.log(" Ejecutando checkAuth()...");
     try {
       const res = await verifyAuthRequest();
       
@@ -56,8 +56,12 @@ export const AuthProvider = ({ children }) => {
         console.warn("No hay datos de usuario en la respuesta.");
       }
     } catch (error) {
-      logout();
-    } finally {
+  console.warn("No hay sesión activa. Limpiando estado local...");
+  setUser(null);
+  setIsAuthenticated(false);
+  localStorage.removeItem("user");
+}
+ finally {
       setLoading(false);
     }
   };
@@ -157,7 +161,7 @@ export const AuthProvider = ({ children }) => {
       } else if (res.data.tipoUsuarioId === 2) {
         navigate("/paginaCliente")
       } else {
-        navigate("/paginaCliente")
+        navigate("/paginaEmpleado")
       }
     } catch (error) {
       handleRequestError(error)
@@ -186,21 +190,25 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
+  try {
+    preserveUserCart(user);
+
     try {
-      // Preservar el carrito del usuario antes de cerrar sesión
-      preserveUserCart(user)
-
-      await logoutRequest()
-
-      setUser(null)
-      setIsAuthenticated(false)
-      setErrors([])
-      localStorage.removeItem("user")
-      navigate("/login")
-    } catch (error) {
-      console.log(error)
+      await logoutRequest(); // Si ya no hay sesión, esto puede fallar
+    } catch (err) {
+      console.warn("Sesión ya terminada en el backend");
     }
+
+    setUser(null);
+    setIsAuthenticated(false);
+    setErrors([]);
+    localStorage.removeItem("user");
+    navigate("/login");
+  } catch (error) {
+    console.log(error);
   }
+};
+
 
   // Función de verificación de código
   const verifyCode = async (formData) => {

@@ -1,13 +1,14 @@
-import User from "../models/user.model.js";
-import nodemaile from "nodemailer";
+import prisma from "../db.js";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 import logger, { logSecurityEvent } from "../libs/logger.js";
-
+dotenv.config();
 const sendVerificationEmail = async (email, code) => {
-  const transporter = nodemaile.createTransport({
+  const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
-      user: "marlen04h@gmail.com",
-      pass: "hcxi yvbl flvl ivbd",
+       user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
     },
     
     tls: {
@@ -103,13 +104,13 @@ export const sendCodeForReset = async (req, res) => {
   const { email } = req.body;
   
   try {
-    const user = await User.findOne({ where:{email} });
+    const user = await prisma.users.findFirst({ where:{email} });
     if (!user) {
       logger.warn("Intento restablecimiento con correo no registrado", { email });
       await logSecurityEvent(email, "Restablecimiento contraseña fallido", true, "Correo no registrado");
        return res.status(400).json({ message: "Usuario no encontrado" });}
 
-    // generar un JWT para el usuario
+    // generar un código de verificación de 6 dígitos
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
@@ -120,9 +121,12 @@ export const sendCodeForReset = async (req, res) => {
     //coockie con el correo
 
     // agregar el JWT al usuario en la base de datos
-    user.resetPasswordToken = verificationCode;
-    await user.save();
-    logger.info("Código para restablecer contraseña enviado", { usuario: user.username, email });
+    // Guardar el código en la base de datos (puedes usar un campo llamado resetPasswordToken)
+    await prisma.users.update({
+      where: { id: user.id },
+      data: { resetPasswordToken: verificationCode }
+    });
+      logger.info("Código para restablecer contraseña enviado", { usuario: user.username, email });
 
     await logSecurityEvent(
       user.username,
@@ -144,7 +148,7 @@ export const verifyCode = async (req, res) => {
  
 
   try {
-    const user = await User.findOne({ where:{email} });
+    const user = await prisma.users.findFirst({ where:{email} });
     if (!user)
       {
         logger.warn("Intento de verificar código con correo inexistente", { email });
@@ -152,9 +156,13 @@ export const verifyCode = async (req, res) => {
        return res.status(400).json({ message: "Usuario no encontrado" });}
    
     if (user.resetPasswordToken === code) {
-      user.resetPasswordToken = null; // Eliminar código después de verificado
-      user.isVeriedForResetPassword = true;
-      await user.save();
+      await prisma.users.update({
+        where: { id: user.id },
+        data: {
+      resetPasswordToken: null,// Eliminar código después de verificado
+      isVerifiedForResetPassword: true
+        }
+      });
       logger.info("Código de verificación para restablecimiento correcto", { usuario: user.username });
 
       await logSecurityEvent(

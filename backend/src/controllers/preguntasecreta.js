@@ -1,5 +1,4 @@
-import PreguntaSecreta from "../models/PreguntaSecreta.js";
-import User from "../models/user.model.js";
+import prisma from "../db.js";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import logger, { logSecurityEvent } from "../libs/logger.js";
@@ -8,9 +7,13 @@ export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const usuario = await User.findOne({
+    const usuario = await prisma.users.findUnique({
       where: { email },
-      include: [{ model: PreguntaSecreta, as: "pregunta", attributes: ["id", "pregunta"]}],
+      include: {
+        preguntas_secretas: {
+          select: { id: true, pregunta: true }
+        }
+      }
     });
 
     if (!usuario) {
@@ -25,7 +28,7 @@ export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
 
     logger.info("Pregunta secreta consultada", { usuario: usuario.username });
     res.json({
-      pregunta: usuario.pregunta.pregunta,
+      pregunta: usuario.preguntas_secretas.pregunta,
     });
   } catch (error) {
     logger.error("Error al obtener pregunta secreta", { error: error.message });
@@ -35,8 +38,11 @@ export const obtenerPreguntaSecretaPorCorreo = async (req, res) => {
 
 export const obtenerPreguntasSecretas = async (req, res) => {
   try {
-    const preguntas = await PreguntaSecreta.findAll({
-      attributes: ["id", "pregunta"]
+    const preguntas = await prisma.preguntas_secretas.findMany({
+      select: {
+        id: true,
+        pregunta: true,
+      },
     });
     res.json(preguntas);
   } catch (error) {
@@ -49,7 +55,11 @@ export const verificarRespuestaSecreta = async (req, res) => {
   try {
     const { email, respuesta } = req.body;
 
-    const usuario = await User.findOne({ where: { email } });
+    const usuario = await prisma.users.findUnique({ where: { email },
+    include: {
+        preguntas_secretas: true, // relación con preguntas_secretas
+      },
+    });
 
     if (!usuario || !usuario.respuestaSecreta) {
       logger.warn("Usuario no encontrado o sin respuesta secreta", { email });
@@ -66,9 +76,11 @@ export const verificarRespuestaSecreta = async (req, res) => {
     //  Generar código
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Generar token válido por 15 min
-    usuario.resetPasswordToken = code;
-    await usuario.save();
+    // Actualizar el token de recuperación
+    await prisma.users.update({
+      where: { id: usuario.id },
+      data: { resetPasswordToken: code },
+    });
 
     //  Enviar token al correo
     const transporter = nodemailer.createTransport({
@@ -178,7 +190,7 @@ export const verificarTokenReset = async (req, res) => {
   try {
     const { email, token } = req.body;
 
-    const usuario = await User.findOne({ where: { email } });
+    const usuario = await prisma.users.findUnique({ where: { email } });
 
     if (!usuario || usuario.resetPasswordToken !== token) {
       logger.warn("Token inválido usado para restablecer contraseña", { email });
@@ -193,12 +205,11 @@ export const verificarTokenReset = async (req, res) => {
   }
 };
 
-
 export const restablecerContrasena = async (req, res) => {
   try {
     const { email, token, nuevaPassword } = req.body;
 
-    const usuario = await User.findOne({ where: { email } });
+    const usuario = await prisma.users.findUnique({ where: { email } });
 
     if (!usuario || usuario.resetPasswordToken !== token) {
       logger.warn("Intento de restablecer contraseña con token inválido", { email });
@@ -225,10 +236,13 @@ export const restablecerContrasena = async (req, res) => {
 
     // Hashear y guardar nueva contraseña
     const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
-    usuario.password = hashedPassword;
-    usuario.resetPasswordToken = null;
-
-    await usuario.save();
+     await prisma.users.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+      },
+    });
     logger.info("Contraseña restablecida exitosamente", { usuario: usuario.username });
     await logSecurityEvent(usuario.username, "Contraseña restablecida", false, "Restablecimiento exitoso");
 

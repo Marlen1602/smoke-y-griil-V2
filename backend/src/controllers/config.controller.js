@@ -1,36 +1,64 @@
-import Config from "../models/config.model.js";
+import prisma from "../db.js";
+import logger from "../libs/logger.js";
 
-// Obtener la configuración actual
+// 🔹 Obtener configuración actual
 export const getConfig = async (req, res) => {
   try {
-    const config = await Config.findOne();
+    const config = await prisma.configs.findFirst();
+
     if (!config) {
-      return res.status(404).json({ message: "Configuración no encontrada." });
+      logger.warn("No se encontró configuración en la base de datos");
+      return res.status(404).json({ message: "No se encontró configuración" });
     }
-    return res.status(200).json(config);
+
+    res.json({
+      maxAttempts: config.maxAttempts,
+      lockDuration: config.lockDuration
+    });
   } catch (error) {
-    console.error("Error al obtener configuración:", error);
-    return res.status(500).json({ message: "Error interno del servidor." });
+    logger.error("Error al obtener configuración", {
+      modulo: "config.controller.js",
+      error: error.message
+    });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-// Actualizar la configuración
+// 🔹 Actualizar o crear configuración
 export const updateConfig = async (req, res) => {
   const { maxAttempts, lockDuration } = req.body;
 
   try {
-    const config = await Config.findOneAndUpdate(
-      {},
-      { maxAttempts, lockDuration },
-      { new: true, upsert: true } // Crear el documento si no existe
-    );
+    let config = await prisma.configs.findFirst();
 
-    return res.status(200).json({
-      message: "Configuración actualizada correctamente.",
-      config,
-    });
+    if (config) {
+      // Actualizar si ya existe
+      config = await prisma.configs.update({
+        where: { id: config.id },
+        data: { maxAttempts, lockDuration }
+      });
+      logger.info("Configuración actualizada", {
+        modulo: "config.controller.js",
+        config
+      });
+    } else {
+      // Crear si no existe
+      config = await prisma.configs.create({
+        data: { maxAttempts, lockDuration }
+      });
+      logger.info("Configuración creada", {
+        modulo: "config.controller.js",
+        config
+      });
+    }
+
+    res.json(config);
   } catch (error) {
-    console.error("Error al actualizar configuración:", error);
-    return res.status(500).json({ message: "Error interno del servidor." });
+    logger.error("Error al actualizar configuración", {
+      modulo: "config.controller.js",
+      error: error.message
+    });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 };
+

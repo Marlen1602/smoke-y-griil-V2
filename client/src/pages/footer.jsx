@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getEmpresaProfile } from "../api/auth";
 
 const Footer = () => {
-  const [empresa, setEmpresa] = useState({ Logo: "", RedesSociales: [] });
+  const [empresa, setEmpresa] = useState({ Logo: "", redes_sociales: [] });
 
   useEffect(() => {
     const fetchEmpresaData = async () => {
@@ -40,7 +40,7 @@ const Footer = () => {
 
         {/* Redes Sociales */}
         <div className="w-full md:w-auto flex justify-center md:justify-start space-x-4">
-          {empresa.RedesSociales.map((red, index) => (
+          {empresa.redes_sociales.map( (red, index) => (
             <a key={index} href={red.link} target="_blank" rel="noopener noreferrer">
               <i className={`fab fa-${red.nombre.toLowerCase()} text-2xl hover:text-blue-400`}></i>
             </a>

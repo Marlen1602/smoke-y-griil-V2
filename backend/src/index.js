@@ -1,19 +1,20 @@
 import app from "./app.js";
-import { connectDB } from "./db.js";
+import prisma from "./db.js"; // ya no necesitas connectDB
 
 const PORT = process.env.PORT || 3000;
 
-// Conectar a la base de datos y luego iniciar el servidor
 const startServer = async () => {
-    try {
-        await connectDB(); // Se conecta a la BD usando Sequelize
-        app.listen(PORT, () => {
-            console.log(`🚀 Server is running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error("❌ No se pudo iniciar el servidor:", error);
-    }
+  try {
+    // Opcional: probar una consulta para verificar conexión
+    await prisma.$connect(); // 🔄 conectar explícitamente (opcional)
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ No se pudo iniciar el servidor:", error);
+    process.exit(1);
+  }
 };
 
 startServer();
-

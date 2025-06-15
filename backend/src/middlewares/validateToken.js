@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config.js";
-import User from "../models/user.model.js";
+import prisma from "../db.js";
 
 // Middleware para verificar token y autenticación
 export const authRequired = async (req, res, next) => {
@@ -12,7 +12,9 @@ export const authRequired = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, TOKEN_SECRET);
-        const user = await User.findByPk(decoded.id);
+        const user = await await prisma.users.findUnique({
+            where: { id: decoded.id }
+        });
 
         if (!user) {
             return res.status(401).json({ message: "Invalid token, authentication denied" });

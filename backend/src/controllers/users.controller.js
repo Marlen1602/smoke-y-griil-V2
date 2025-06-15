@@ -1,5 +1,4 @@
-import Incidencia from "../models/incidencia.model.js";
-import User from "../models/user.model.js";
+import prisma from "../db.js";
 import bcrypt from "bcryptjs";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
@@ -9,7 +8,7 @@ export const getUserByEmail =  async ( req, res) => {
 
   try {
     // Buscar el usuario en Sequelize
-    const userFound = await User.findOne({ where: { email } });
+    const userFound = await prisma.users.findUnique({ where: { email } });
 
     if (!userFound) {
       logger.warn("Usuario no encontrado por email", { email });
@@ -27,7 +26,7 @@ export const updatePassword = async (req, res) => {
    const { email, password } = req.body;
    try {
       // Verificar si el usuario existe
-      const userFound = await User.findOne({where: { email} });
+      const userFound = await prisma.users.findUnique({where: { email} });
   
       if (!userFound) {
         logger.warn("Intento de cambio de contraseña con email inexistente", { email });
@@ -65,8 +64,11 @@ export const updatePassword = async (req, res) => {
   
       // Actualizar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-    await userFound.update({ password: hashedPassword });
-      
+    await prisma.users.update({
+      where: { email },
+      data: { password: hashedPassword }
+    });
+
     logger.info("Contraseña actualizada correctamente", { usuario: userFound.username });
 
     await logSecurityEvent(
@@ -77,12 +79,14 @@ export const updatePassword = async (req, res) => {
     );
       // Crear la incidencia con los campos correctos
      try {
-      await Incidencia.create({
-        usuario: userFound.username, // Asegúrate de que userFound.username exista
-        tipo: "Cambio de contraseña",
-        estado: false, // La cuenta no está bloqueada
-        motivo: "El usuario ha cambiado su contraseña con éxito",
-        fecha: new Date(), // La fecha actual
+      await prisma.incidencia.create({
+        data: {
+          usuario: userFound.username,
+          tipo: "Cambio de contraseña",
+          estado: false,
+          motivo: "El usuario ha cambiado su contraseña con éxito",
+          fecha: new Date()
+        }
       });
       } catch (error) {
         logger.error("Error al guardar incidencia local", { error: error.message });
@@ -100,8 +104,14 @@ export const updatePassword = async (req, res) => {
 // Obtener lista de usuarios
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.findAll({
-            attributes: ["id", "nombre","tipoUsuarioId", "email", "isBlocked"] // Ajusta los atributos
+    const users = await prisma.users.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        tipoUsuarioId: true,
+        email: true,
+        isBlocked: true,
+      },
     });
     
     return res.status(200).json(users);
@@ -121,16 +131,21 @@ export const agregarPreguntaSecreta = async (req, res) => {
       return res.status(400).json({ message: "La pregunta y respuesta son obligatorias" });
     }
 
-    const usuario = await User.findByPk(id);
+    const usuario = await prisma.users.findUnique({
+      where: { id },
+    });
 
     if (!usuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    usuario.preguntaSecretaId = preguntaSecretaId;
-    usuario.respuestaSecreta = respuestaSecreta;
-
-    await usuario.save();
+     await prisma.users.update({
+      where: { id },
+      data: {
+        preguntaSecretaId: parseInt(preguntaSecretaId),
+        respuestaSecreta,
+      },
+    });
     logger.info("Pregunta secreta asignada", { usuario: usuario.username });
 
     await logSecurityEvent(

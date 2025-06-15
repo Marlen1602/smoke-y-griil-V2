@@ -1,13 +1,13 @@
-import { sequelize } from "../db.js";
+import prisma from "../db.js";
 import { cloudinary } from "../libs/cloudinary.js";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
 // Obtener todos los productos
 export const getProductos = async (req, res) => {
   try {
-    const [productos] = await sequelize.query(
-      "SELECT * FROM productos ORDER BY ID_Producto DESC"
-    );
+    const productos = await prisma.productos.findMany({
+      orderBy: { ID_Producto: 'desc' }
+    });
     res.json(productos);
   } catch (error) {
     logger.error("Error al obtener productos", { error: error.message });
@@ -19,16 +19,16 @@ export const getProductos = async (req, res) => {
 export const getProductoById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [producto] = await sequelize.query(
-      "SELECT * FROM productos WHERE ID_Producto = ?",
-      { replacements: [id] }
-    );
-    if (producto.length === 0) {
+    const producto = await prisma.productos.findUnique({
+      where: { ID_Producto: parseInt(id) }
+    });
+
+    if (!producto) {
       logger.warn("Producto no encontrado", { id });
       return res.status(404).json({ message: "Producto no encontrado" });
     }
     logger.info("Producto consultado por ID", { id });
-    res.json(producto[0]);
+    res.json(producto);
   } catch (error) {
     logger.error("Error al obtener producto por ID", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -54,22 +54,29 @@ export const createProducto = async (req, res) => {
      
 
     // 🔹 Insertar producto en la base de datos con la URL de la imagen
-    const [result] = await sequelize.query(
-      "INSERT INTO productos (Nombre, Descripcion, ID_Categoria, TieneTamanos, Precio, Disponible, Imagen) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      { replacements: [Nombre, Descripcion, ID_Categoria, tieneTamanosValue, Precio || null, disponibleValue, imageUrl] }
-    );
+    const nuevoProducto = await prisma.productos.create({
+      data: {
+        Nombre,
+        Descripcion,
+        ID_Categoria: parseInt(ID_Categoria),
+        TieneTamanos: tieneTamanosValue,
+        Precio: Precio !== undefined && Precio !== "" ? parseFloat(Precio) : null,
+        Disponible: disponibleValue,
+        Imagen: imageUrl,
+      },
+    });
     logger.info("Producto creado correctamente", {
       usuario,
-      productoId: result.insertId,
+      productoId: nuevoProducto.ID_Producto,
     });
     await logSecurityEvent(
       usuario,
       "Creación de producto",
       false,
-      `Producto "${Nombre}" creado con ID ${result.insertId}`
+      `Producto "${Nombre}" creado con ID ${nuevoProducto.ID_Producto}`
     );
 
-    res.json({ message: "Producto creado correctamente", ID_Producto: result.insertId, Imagen: imageUrl });
+    res.json({ message: "Producto creado correctamente", ID_Producto: nuevoProducto.ID_Producto, Imagen: imageUrl });
   } catch (error) {
     logger.error("Error al crear producto", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -90,8 +97,10 @@ export const uploadImagen = async (req, res) => {
     const result = await cloudinary.uploader.upload(req.file.path);
 
     // 🔹 Guardar la URL en la base de datos
-    await sequelize.query("UPDATE productos SET Imagen = ? WHERE ID_Producto = ?", {
-      replacements: [result.secure_url, id],
+     // 🔹 Actualizar campo Imagen del producto
+    const productoActualizado = await prisma.productos.update({
+      where: { ID_Producto: parseInt(id) },
+      data: { Imagen: result.secure_url },
     });
     logger.info("Imagen de producto actualizada", { usuario, productoId: id });
 
@@ -109,16 +118,23 @@ export const updateProducto = async (req, res) => {
 
   const usuario = req.user?.username || "Anónimo";
 
-  if (!Nombre || !Descripcion || !ID_Categoria || !Disponible) {
+  if (Nombre == null || Descripcion == null || ID_Categoria == null) {
     logger.warn("Actualización fallida: faltan datos", { usuario });
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
   try {
-    await sequelize.query(
-      "UPDATE productos SET Nombre = ?, Descripcion = ?, ID_Categoria = ?, TieneTamanos = ?, Precio = ?, Disponible = ? WHERE ID_Producto = ?",
-      { replacements: [Nombre, Descripcion, ID_Categoria, TieneTamanos ? 1 : 0, Precio || null, Disponible ? 1 : 0, id] }
-    );
+    await prisma.productos.update({
+      where: { ID_Producto: parseInt(id) },
+      data: {
+        Nombre,
+        Descripcion,
+        ID_Categoria: parseInt(ID_Categoria),
+        TieneTamanos: TieneTamanos === true || TieneTamanos === "true" ? 1 : 0,
+        Precio: Precio ? parseFloat(Precio) : null,
+        Disponible: Disponible === true || Disponible === "true" ? 1 : 0,
+      },
+    });
     logger.info("Producto actualizado correctamente", { usuario, productoId: id });
 
     await logSecurityEvent(
@@ -141,8 +157,8 @@ export const deleteProducto = async (req, res) => {
   const { id } = req.params;
   const usuario = req.user?.username || "Anónimo";
   try {
-    await sequelize.query("DELETE FROM productos WHERE ID_Producto = ?", {
-      replacements: [id],
+    await prisma.productos.delete({
+      where: { ID_Producto: parseInt(id) },
     });
     logger.info("Producto eliminado", { usuario, productoId: id });
 

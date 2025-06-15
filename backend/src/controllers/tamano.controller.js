@@ -1,11 +1,15 @@
-import { sequelize } from "../db.js";
+import prisma from "../db.js";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
 // Obtener todos los tamaños
 export const getTamanos = async (req, res) => {
   try {
-    const [tamanos] = await sequelize.query("SELECT * FROM tamanosproductos ORDER BY ID_Tamaño DESC");
-        res.json(tamanos);
+    const tamanos = await prisma.tamanosproductos.findMany({
+      orderBy: {
+        ID_Tama_o: 'desc'
+      }
+    });
+    res.json(tamanos);
   } catch (error) {
     logger.error("Error al obtener tamaños", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -16,15 +20,15 @@ export const getTamanos = async (req, res) => {
 export const getTamanoById = async (req, res) => {
   const { id } = req.params;
   try {
-    const [tamano] = await sequelize.query("SELECT * FROM tamanosproductos WHERE ID_Tamaño = ?", {
-      replacements: [id],
+    const tamano = await prisma.tamanosproductos.findUnique({
+      where: { ID_Tama_o: parseInt(id) }
     });
-    if (tamano.length === 0) {
+    if (!tamano) {
       logger.warn("Tamaño no encontrado por ID", { id });
       return res.status(404).json({ message: "Tamaño no encontrado" });
     }
     logger.info("Tamaño consultado por ID", { id });
-    res.json(tamano[0]);
+    res.json(tamano);
   } catch (error) {
     logger.error("Error al obtener tamaño por ID", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -36,13 +40,16 @@ export const createTamano = async (req, res) => {
   const { ID_Producto, Nombre, Precio } = req.body;
   const usuario = req.user?.username || "Anónimo";
   try {
-    const [result] = await sequelize.query(
-      "INSERT INTO tamanosproductos (ID_Producto, Nombre, Precio) VALUES (?, ?, ?)",
-      { replacements: [ID_Producto, Nombre, Precio] }
-    );
+     const nuevoTamano = await prisma.tamanosproductos.create({
+      data: {
+        ID_Producto: parseInt(ID_Producto),
+        Tama_o: Nombre, // Mapeado desde `Tamaño`
+        Precio: parseFloat(Precio),
+      },
+    });
     logger.info("Tamaño creado correctamente", {
       usuario,
-      tamanoId: result.insertId,
+      tamanoId: nuevoTamano.ID_Tama_o,
       productoId: ID_Producto,
     });
 
@@ -52,7 +59,7 @@ export const createTamano = async (req, res) => {
       false,
       `Tamaño "${Nombre}" (Precio: ${Precio}) agregado al producto ID ${ID_Producto}`
     );
-    res.json({ message: "Tamaño creado correctamente", ID_Tamaño: result.insertId });
+    res.json({ message: "Tamaño creado correctamente", ID_Tamaño: nuevoTamano.ID_Tama_o });
   } catch (error) {
     logger.error("Error al crear tamaño", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -65,8 +72,12 @@ export const updateTamano = async (req, res) => {
   const { Nombre, Precio } = req.body;
   const usuario = req.user?.username || "Anónimo";
   try {
-    await sequelize.query("UPDATE tamanosproductos SET Nombre = ?, Precio = ? WHERE ID_Tamaño = ?", {
-      replacements: [Nombre, Precio, id],
+   const tamanoActualizado = await prisma.tamanosproductos.update({
+      where: { ID_Tama_o: parseInt(id) },
+      data: {
+        Tama_o: Nombre, // Campo mapeado de "Tamaño"
+        Precio: parseFloat(Precio),
+      },
     });
     logger.info("Tamaño actualizado", { usuario, tamanoId: id });
 
@@ -76,7 +87,7 @@ export const updateTamano = async (req, res) => {
       false,
       `Tamaño ID ${id} actualizado a "${Nombre}" con precio ${Precio}`
     );
-    res.json({ message: "Tamaño actualizado correctamente" });
+    res.json({ message: "Tamaño actualizado correctamente",data: tamanoActualizado });
   } catch (error) {
     logger.error("Error al actualizar tamaño", { error: error.message });
     res.status(500).json({ message: "Error en el servidor" });
@@ -88,9 +99,19 @@ export const deleteTamano = async (req, res) => {
   const { id } = req.params;
   const usuario = req.user?.username || "Anónimo";
   try {
-    await sequelize.query("DELETE FROM tamanosproductos WHERE ID_Tamaño = ?", {
-      replacements: [id],
+    // Verificar si existe antes de eliminar
+    const tamano = await prisma.tamanosproductos.findUnique({
+      where: { ID_Tama_o: parseInt(id) }
     });
+    if (!tamano) {
+      logger.warn("Intento de eliminar tamaño inexistente", { id, usuario });
+      return res.status(404).json({ message: "Tamaño no encontrado" });
+    }
+     // Eliminar tamaño
+    await prisma.tamanosproductos.delete({
+      where: { ID_Tama_o: parseInt(id) }
+    });
+    
     logger.info("Tamaño eliminado", { usuario, tamanoId: id });
 
     await logSecurityEvent(

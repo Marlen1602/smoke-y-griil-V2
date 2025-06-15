@@ -1,0 +1,84 @@
+2025-06-14 00:10:50 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:10:50 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:13:10 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:13:10 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:14:18 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:14:18 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:14:41 [INFO]: Inicio de sesión exitoso usuario: Marlen16 
+2025-06-14 00:15:14 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:15:14 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:15:24 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:15:24 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:15:47 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
+2025-06-14 00:16:34 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 00:17:44 [INFO]: Sesión cerrada correctamente - Usuario: Marlen12 
+2025-06-14 00:21:54 [INFO]: Inicio de sesión exitoso usuario: Marlen16 
+2025-06-14 00:22:36 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:22:36 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:22:43 [ERROR]: Error al actualizar producto {"error":"\nInvalid `prisma.productos.update()` invocation:\n\n{\n  where: {\n    ID_Producto: 21\n  },\n  data: {\n    Nombre: \"Bagguette de bistec\",\n    Descripcion: \"Bagguete con bistec, queso derretido y pimientos \",\n    ID_Categoria: 6,\n    TieneTamanos: 0,\n                  ~\n    Precio: 95,\n    Disponible: 0\n  }\n}\n\nArgument `TieneTamanos`: Invalid value provided. Expected Boolean or BoolFieldUpdateOperationsInput, provided Int."}
+2025-06-14 00:22:52 [ERROR]: Error al actualizar producto {"error":"\nInvalid `prisma.productos.update()` invocation:\n\n{\n  where: {\n    ID_Producto: 29\n  },\n  data: {\n    Nombre: \"Hamburguesa Mexa\",\n    Descripcion: \"Inspirada en los sabores de México: carne de res, queso, jalapeños, guacamole, lechuga y jitomate. ¡Picante y sabrosa!\",\n    ID_Categoria: 12,\n    TieneTamanos: 0,\n                  ~\n    Precio: 85,\n    Disponible: 0\n  }\n}\n\nArgument `TieneTamanos`: Invalid value provided. Expected Boolean or BoolFieldUpdateOperationsInput, provided Int."}
+2025-06-14 00:23:20 [ERROR]: Error al actualizar producto {"error":"\nInvalid `prisma.productos.update()` invocation:\n\n{\n  where: {\n    ID_Producto: 27\n  },\n  data: {\n    Nombre: \"Hot Dog Embarasado\",\n    Descripcion: \"¡Una bomba de sabor! Salchicha grande envuelta en tocino, acompañada de papas a la francesa, queso fundido, jalapeños y aderezos sobre pan artesanal.\",\n    ID_Categoria: 13,\n    TieneTamanos: 0,\n                  ~\n    Precio: 82,\n    Disponible: 0\n  }\n}\n\nArgument `TieneTamanos`: Invalid value provided. Expected Boolean or BoolFieldUpdateOperationsInput, provided Int."}
+2025-06-14 00:23:31 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
+2025-06-14 00:23:38 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 00:23:38 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 10:37:24 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 10:37:24 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-14 10:48:25 [INFO]: Inicio de sesión exitoso usuario: Marlen16 
+2025-06-14 10:49:15 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
+2025-06-14 10:49:24 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 12:43:32 [INFO]: Sesión cerrada correctamente - Usuario: Marlen12 
+2025-06-14 12:44:33 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 12:46:11 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 12:50:24 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221125@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 12:50:32 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221125@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 12:50:42 [INFO]: Código para restablecer contraseña enviado {"usuario":"Adriana12","email":"20221125@uthh.edu.mx"}
+2025-06-14 12:51:12 [INFO]: Código de verificación para restablecimiento correcto {"usuario":"Adriana12"}
+2025-06-14 12:51:25 [WARN]: Nueva contraseña igual a la actual {"usuario":"Adriana12"}
+2025-06-14 12:51:51 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 13:35:52 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 13:39:47 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 13:49:32 [INFO]: Sesión cerrada correctamente - Usuario: Marlen12 
+2025-06-14 13:49:40 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 13:49:52 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 15:59:08 [WARN]: Intento fallido de inicio de sesión usuario: Adriana12 
+2025-06-14 15:59:13 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 16:00:56 [WARN]: Cuenta bloqueada automáticamente por intentos fallidos usuario: Adela12 
+2025-06-14 16:01:03 [ERROR]: Intento login en cuenta bloqueada usuario: Adela12 
+2025-06-14 16:01:07 [ERROR]: Intento login en cuenta bloqueada usuario: Adela12 
+2025-06-14 16:01:08 [ERROR]: Intento login en cuenta bloqueada usuario: Adela12 
+2025-06-14 16:01:09 [ERROR]: Intento login en cuenta bloqueada usuario: Adela12 
+2025-06-14 16:01:38 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 16:01:47 [INFO]: Sesión cerrada correctamente - Usuario: Adriana12 
+2025-06-14 16:01:59 [INFO]: Inicio de sesión exitoso usuario: Adriana12 
+2025-06-14 16:03:13 [INFO]: Sesión cerrada correctamente - Usuario: Adriana12 
+2025-06-14 16:03:45 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 16:12:47 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221117@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 16:39:34 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221117@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 16:39:39 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221117@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 16:40:49 [ERROR]: Error al obtener pregunta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"marlenh652@gmail.com\"\n  },\n  include: {\n    pregunta: {\n    ~~~~~~~~\n      select: {\n        id: true,\n        pregunta: true\n      }\n    },\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 16:43:33 [INFO]: Pregunta secreta consultada {"usuario":"Marlen16"}
+2025-06-14 16:43:33 [ERROR]: Error al obtener pregunta secreta {"error":"Cannot read properties of undefined (reading 'pregunta')"}
+2025-06-14 16:43:55 [WARN]: Correo no encontrado para pregunta secreta {"email":"202211117@uthh.edu.mex"}
+2025-06-14 16:43:59 [WARN]: Correo no encontrado para pregunta secreta {"email":"202211117@uthh.edu.mx"}
+2025-06-14 16:44:14 [INFO]: Pregunta secreta consultada {"usuario":"Adela12"}
+2025-06-14 16:44:14 [ERROR]: Error al obtener pregunta secreta {"error":"Cannot read properties of undefined (reading 'pregunta')"}
+2025-06-14 16:45:01 [INFO]: Pregunta secreta consultada {"usuario":"Adela12"}
+2025-06-14 16:45:07 [ERROR]: Error al verificar respuesta secreta {"error":"\nInvalid `prisma.users.findUnique()` invocation:\n\n{\n  where: {\n    email: \"20221117@uthh.edu.mx\"\n  },\n  include: {\n    pregunta: true,\n    ~~~~~~~~\n?   preguntas_secretas?: true,\n?   tipousuarios?: true,\n?   pedidos?: true\n  }\n}\n\nUnknown field `pregunta` for include statement on model `users`. Available options are marked with ?."}
+2025-06-14 16:47:16 [INFO]: Código de recuperación enviado por pregunta secreta {"usuario":"Adela12"}
+2025-06-14 16:48:39 [INFO]: Token válido para restablecer contraseña {"usuario":"Adela12"}
+2025-06-14 16:48:51 [WARN]: Usuario bloqueado intentó cambiar contraseña {"usuario":"Adela12"}
+2025-06-14 16:51:00 [WARN]: Usuario bloqueado intentó cambiar contraseña {"usuario":"Adela12"}
+2025-06-14 16:51:02 [WARN]: Usuario bloqueado intentó cambiar contraseña {"usuario":"Adela12"}
+2025-06-14 16:52:05 [INFO]: Contraseña restablecida exitosamente {"usuario":"Adela12"}
+2025-06-14 16:52:24 [WARN]: Cuenta bloqueada automáticamente por intentos fallidos usuario: Adela12 
+2025-06-14 16:52:31 [ERROR]: Intento login en cuenta bloqueada usuario: Adela12 
+2025-06-14 16:52:49 [INFO]: Inicio de sesión exitoso usuario: Adela12 
+2025-06-14 17:34:48 [INFO]: Sesión cerrada correctamente - Usuario: Adela12 
+2025-06-14 17:34:58 [INFO]: Inicio de sesión exitoso usuario: Marlen12 
+2025-06-14 17:37:01 [INFO]: Sesión cerrada correctamente - Usuario: Marlen12 
+2025-06-14 17:37:13 [INFO]: Inicio de sesión exitoso usuario: Adela12 
+2025-06-14 17:37:29 [INFO]: Sesión cerrada correctamente - Usuario: Adela12 
+2025-06-14 17:37:46 [INFO]: Inicio de sesión exitoso usuario: Marlen16 
+2025-06-14 17:38:06 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
+2025-06-14 17:38:19 [INFO]: Inicio de sesión exitoso usuario: Adela12 
+2025-06-14 17:39:02 [INFO]: Inicio de sesión exitoso usuario: Adriana12 

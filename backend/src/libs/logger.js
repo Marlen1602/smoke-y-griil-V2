@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import Incidencia from "../models/incidencia.model.js"; 
+import prisma from "../db.js";
 
 // Formato para archivo
 const fileLogFormat = format.combine(
@@ -42,13 +42,15 @@ const fileLogFormat = format.combine(
 //Función para registrar eventos en la base de datos
 export const logSecurityEvent = async (usuario, tipo, estado, motivo) => {
     try {
-        await Incidencia.create({
-            usuario,
-            tipo,
-            estado,
-            motivo,
-            fecha: new Date(),
-        });
+      await prisma.incidencia.create({
+      data: {
+        usuario,
+        tipo,
+        estado,
+        motivo,
+        fecha: new Date(),
+      },
+    });
     } catch (error) {
         console.error("Error al registrar incidencia en la BD:", error);
     }

@@ -1,9 +1,9 @@
-import RedesSociales from "../models/redes.Model.js";
+import prisma from "../db.js";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 // Obtener todas las redes sociales
 export const getRedesSociales = async (req, res) => {
   try {
-    const redes = await RedesSociales.findAll();
+    const redes = await prisma.redes_sociales.findMany();
       res.json(redes);
   } catch (error) {
     logger.error("Error al obtener redes sociales", { error: error.message });
@@ -22,10 +22,12 @@ export const createRedSocial = async (req, res) => {
       return res.status(400).json({ message: "El nombre y el link son obligatorios" });
     }
 
-    const nuevaRed = await RedesSociales.create({
+    const nuevaRed = await prisma.redes_sociales.create({
+      data:{
       nombre,
       link,
       ID_empresa: ID_empresa || 1, // Si no se envía ID_empresa, asignamos 1
+      }
     });
     logger.info("Red social creada", { usuario, redId: nuevaRed.id });
 
@@ -48,13 +50,19 @@ export const updateRedSocial = async (req, res) => {
     const { id } = req.params;
     const { nombre, link } = req.body;
     const usuario = req.user?.username || "Anónimo";
-    const red = await RedesSociales.findByPk(id);
+    const red= await prisma.redes_sociales.findUnique({
+      where: { id: parseInt(id) }
+    });
     if (!red) {
       logger.warn("Intento de actualizar red social inexistente", { id, usuario });
       return res.status(404).json({ message: "Red social no encontrada" });
     }
 
-    await red.update({ nombre, link });
+     // Actualizar
+    const redActualizada = await prisma.redes_sociales.update({
+      where: { id: parseInt(id) },
+      data: { nombre, link }
+    });
     logger.info("Red social actualizada", { usuario, redId: id });
 
     await logSecurityEvent(
@@ -64,7 +72,7 @@ export const updateRedSocial = async (req, res) => {
       `Red social ID ${id} actualizada a "${nombre}" (${link})`
     );
 
-    res.json({ message: "Red social actualizada correctamente", data: red });
+    res.json({ message: "Red social actualizada correctamente", data: redActualizada });
   } catch (error) {
     logger.error("Error al actualizar red social", { error: error.message });
     res.status(500).json({ message: "Error al actualizar la red social", error: error.message });
@@ -76,13 +84,19 @@ export const deleteRedSocial = async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = req.user?.username || "Anónimo";
-    const red = await RedesSociales.findByPk(id);
+    const red = await prisma.redes_sociales.findUnique({
+      where: { id: parseInt(id) }
+    });
     if (!red) {
       logger.warn("Intento de eliminar red social inexistente", { id, usuario });
       return res.status(404).json({ message: "Red social no encontrada" });
     }
 
-    await red.destroy();
+     // Eliminar
+    await prisma.redes_sociales.delete({
+      where: { id: parseInt(id) }
+    });
+
     logger.info("Red social eliminada", { usuario, redId: id });
 
     await logSecurityEvent(

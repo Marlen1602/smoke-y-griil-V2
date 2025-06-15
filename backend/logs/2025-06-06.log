@@ -1,0 +1,4 @@
+2025-06-06 15:23:18 [INFO]: Inicio de sesión exitoso usuario: Marlen16 
+2025-06-06 15:23:42 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-06 15:23:42 [ERROR]: Error al obtener las categorías {"modulo":"categorias.controller.js","error":"\nInvalid `prisma.categorias.findMany()` invocation:\n\n{\n  orderBy: {\n    ID_Categoria: \"ASC\"\n                  ~~~~~\n  }\n}\n\nInvalid value for argument `ID_Categoria`. Expected SortOrder."}
+2025-06-06 15:23:49 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 

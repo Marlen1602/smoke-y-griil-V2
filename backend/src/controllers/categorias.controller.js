@@ -1,10 +1,10 @@
-import Categorias from "../models/categorias.model.js"; // Asegúrate de que la ruta sea correcta
+import prisma from "../db.js"; // Asegúrate de que la ruta sea correcta
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
 // 🔹 Obtener todas las categorías
 export const getCategorias = async (req, res) => {
   try {
-    const categorias = await Categorias.findAll({ order: [["ID_Categoria", "ASC"]] });
+    const categorias = await prisma.categorias.findMany({ orderBy: {ID_Categoria:"asc"},});
     res.json(categorias);
   } catch (error) {
     logger.error("Error al obtener las categorías", { modulo: "categorias.controller.js", error: error.message });
@@ -15,7 +15,9 @@ export const getCategorias = async (req, res) => {
 export const getCategoriaById = async (req, res) => {
     const { id } = req.params;
     try {
-      const categoria = await Categorias.findByPk(id);
+      const categoria = await prisma.categorias.findUnique({
+        where:{ID_Categoria:parseInt(id),}
+      });
       if (!categoria) {
         logger.warn(`Categoría con ID ${id} no encontrada`, { modulo: "categorias.controller.js" });
         return res.status(404).json({ message: "Categoría no encontrada" });
@@ -43,15 +45,15 @@ export const getCategoriaById = async (req, res) => {
         );
         return res.status(400).json({ message: "El nombre es obligatorio" });
       }
-  
-      const nuevaCategoria = await Categorias.create({ nombre });
-      logger.info("Categoría creada exitosamente", { modulo: "categorias.controller.js", usuario, categoriaId: nuevaCategoria.id });
+      const nuevaCategoria = await prisma.categorias.create({ 
+        data:{Nombre: nombre },});
+      logger.info("Categoría creada exitosamente", { modulo: "categorias.controller.js", usuario, categoriaId: nuevaCategoria.ID_Categoria, });
 
       await logSecurityEvent(
         usuario,
         "Creación de categoría",
         false,
-        `Categoría "${nombre}" creada con ID: ${nuevaCategoria.id}`
+        `Categoría "${nombre}" creada con ID: ${nuevaCategoria.ID_Categoria}`
       );
 
       res.status(201).json(nuevaCategoria);
@@ -68,7 +70,9 @@ export const getCategoriaById = async (req, res) => {
     const { nombre } = req.body;
     const usuario = req.user?.username || "Anónimo";
     try {
-      const categoria = await Categorias.findByPk(id);
+      const categoria = await prisma.categorias.findUnique({
+        where:{ID_Categoria:parseInt(id)},
+      });
       if (!categoria) {
         logger.warn(`Intento de actualizar categoría inexistente (ID: ${id})`, { modulo: "categorias.controller.js", usuario });
 
@@ -81,9 +85,10 @@ export const getCategoriaById = async (req, res) => {
         return res.status(404).json({ message: "Categoría no encontrada" });
       }
 
-      const nombreAnterior = categoria.nombre;
-      categoria.nombre = nombre || categoria.nombre;
-      await categoria.save();
+      const categoriaActualizada = await prisma.categorias.update({
+      where: { ID_Categoria: parseInt(id) },
+      data: { Nombre: nombre },
+    });
 
       logger.info("Categoría actualizada exitosamente", { modulo: "categorias.controller.js", usuario, categoriaId: id });
 
@@ -91,10 +96,10 @@ export const getCategoriaById = async (req, res) => {
         usuario,
         "Actualización de categoría",
         false,
-        `Categoría ID ${id} actualizada de "${nombreAnterior}" a "${categoria.nombre}"`
+        `Categoría ID ${id} actualizada de "${categoria.Nombre}" a "${nombre}"`
       );
   
-      res.json({ message: "Categoría actualizada correctamente", categoria });
+      res.json({ message: "Categoría actualizada correctamente", categoriaActualizada });
     } catch (error) {
       logger.error("Error al actualizar categoría", { modulo: "categorias.controller.js", error: error.message });
       res.status(500).json({ message: "Error en el servidor" });
@@ -106,7 +111,9 @@ export const getCategoriaById = async (req, res) => {
     const { id } = req.params;
     const usuario = req.user?.username || "Anónimo";
     try {
-      const categoria = await Categorias.findByPk(id);
+      const categoria = await prisma.categorias.findUnique({
+        where:{ID_Categoria:parseInt(id)},
+      });
       if (!categoria) {
         logger.warn(`Intento de eliminar categoría inexistente (ID: ${id})`, { modulo: "categorias.controller.js", usuario });
 
@@ -119,7 +126,9 @@ export const getCategoriaById = async (req, res) => {
         return res.status(404).json({ message: "Categoría no encontrada" });
       }
   
-      await categoria.destroy();
+      await prisma.categorias.delete({
+        where:{ID_Categoria:parseInt(id)},
+        });
       res.json({ message: "Categoría eliminada correctamente" });
     } catch (error) {
       logger.error("Error al eliminar categoría", { modulo: "categorias.controller.js", error: error.message });

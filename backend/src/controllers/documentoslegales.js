@@ -1,10 +1,10 @@
-import DocumentoLegal from "../models/documentoslegales.js";
+import prisma from "../db.js";
 import logger, { logSecurityEvent } from "../libs/logger.js";
 
 // 📌 Obtener todos los documentos legales
 export const obtenerDocumentos = async (req, res) => {
     try {
-        const documentos = await DocumentoLegal.findAll();
+        const documentos = await prisma.documentos_legales.findMany();
         res.json(documentos);
     } catch (error) {
         logger.error("Error al obtener los documentos legales", {
@@ -18,7 +18,10 @@ export const obtenerDocumentos = async (req, res) => {
 // 📌 Obtener un documento por ID
 export const obtenerDocumentoPorId = async (req, res) => {
     try {
-        const documento = await DocumentoLegal.findByPk(req.params.id);
+        const documento = await prisma.documentos_legales.findUnique({
+            where:{id:parseInt(req.params.id)},
+        });
+
         if (!documento) {
         logger.warn("Documento no encontrado por ID", {
             id: req.params.id,
@@ -47,10 +50,12 @@ export const crearDocumento = async (req, res) => {
             return res.status(400).json({ error: "El nombre y contenido son obligatorios" });
         }
 
-        const nuevoDocumento = await DocumentoLegal.create({ 
+        const nuevoDocumento = await prisma.documentos_legales.create({ 
+            data:{
             nombre, 
             contenido, 
-            fecha_actualizacion: new Date()
+            fecha_actualizacion: new Date(),
+            }
         });
         logger.info("Documento legal creado correctamente", { usuario, documentoId: nuevoDocumento.id });
 
@@ -76,27 +81,31 @@ export const actualizarDocumento = async (req, res) => {
     try {
         const { nombre, contenido } = req.body;
         const usuario = req.user?.username || "Anónimo";
-        const documento = await DocumentoLegal.findByPk(req.params.id);
-
+        const documento = await prisma.documentos_legales.findUnique({
+      where: { id: parseInt(req.params.id) },
+    });
         if (!documento){ 
             logger.warn("Intento de actualizar documento inexistente", { id: req.params.id, usuario });
             return res.status(404).json({ error: "Documento no encontrado" });
         }
-        await documento.update({ 
+        
+    const documentoActualizado = await prisma.documentos_legales.update({
+      where: { id: parseInt(req.params.id) },
+      data:{
             nombre, 
             contenido,
-            fecha_actualizacion: new Date()
+            fecha_actualizacion: new Date(),}
         });
 
-        logger.info("Documento legal actualizado correctamente", { id: documento.id, usuario });
+        logger.info("Documento legal actualizado correctamente", { id: documentoActualizado.id, usuario });
 
     await logSecurityEvent(
       usuario,
       "Actualización de documento legal",
       false,
-      `Documento ID ${documento.id} actualizado`
+      `Documento ID ${documentoActualizado.id} actualizado`
     );
-        res.json(documento);
+        res.json(documentoActualizado);
     } catch (error) {
         logger.error("Error al actualizar el documento legal", {
             error: error.message,
@@ -109,14 +118,22 @@ export const actualizarDocumento = async (req, res) => {
 // 📌 Eliminar un documento legal
 export const eliminarDocumento = async (req, res) => {
     try {
-        const documento = await DocumentoLegal.findByPk(req.params.id);
+        const documentoId = parseInt(req.params.id);
         const usuario = req.user?.username || "Anónimo";
+         // Verificar si el documento existe 
+        const documento = await prisma.documentos_legales.findUnique({
+      where: { id: documentoId },
+    });
         if (!documento) {
             logger.warn("Intento de eliminar documento inexistente", { id: req.params.id, usuario });
             return res.status(404).json({ error: "Documento no encontrado" });
         }
-        await documento.destroy();
-        logger.info("Documento legal eliminado correctamente", { id: req.params.id, usuario });
+
+        // Eliminar el documento
+    await prisma.documentos_legales.delete({
+      where: { id: documentoId },
+    });
+        logger.info("Documento legal eliminado correctamente", { id: documentoId, usuario });
 
     await logSecurityEvent(
       usuario,

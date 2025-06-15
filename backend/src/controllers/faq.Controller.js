@@ -1,10 +1,14 @@
-import Preguntas from "../models/faq.js";
+import prisma from "../db.js";
 import logger from "../libs/logger.js";
 
 // 🔹 Obtener todas las preguntas frecuentes
 export const getPreguntas = async (req, res) => {
   try {
-    const preguntas = await Preguntas.findAll({ order: [["fecha", "DESC"]] });
+    const preguntas = await prisma.preguntas.findMany({ 
+      orderBy: {
+      fecha: 'desc',
+      },
+    });
     res.status(200).json(preguntas);
   } catch (error) {
     logger.error("Error al obtener preguntas frecuentes", {
@@ -25,7 +29,13 @@ export const addPregunta = async (req, res) => {
       return res.status(400).json({ error: "Se requieren pregunta y respuesta" });
     }
 
-    const nuevaPregunta = await Preguntas.create({ pregunta, respuesta });
+    const nuevaPregunta = await prisma.preguntas.create({ 
+      data: {
+        pregunta,
+        respuesta,
+        fecha: new Date(),
+      },
+    });
     logger.info("Pregunta frecuente agregada correctamente", {
       usuario,
       preguntaId: nuevaPregunta.id,
@@ -45,14 +55,18 @@ export const deletePregunta = async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = req.user?.username || "Anónimo";
-    const pregunta = await Preguntas.findByPk(id);
+    const pregunta = await prisma.preguntas.findUnique({
+      where: { id: parseInt(id) },
+    });
 
     if (!pregunta) {
       logger.warn("Intento de eliminar pregunta inexistente", { id, usuario });
       return res.status(404).json({ error: "Pregunta no encontrada" });
     }
 
-    await pregunta.destroy();
+     await prisma.preguntas.delete({
+      where: { id: parseInt(id) },
+    });
     logger.info("Pregunta frecuente eliminada correctamente", {
       preguntaId: id,
       usuario,

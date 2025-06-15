@@ -36,6 +36,8 @@ import PrediccionesPage from "./pages/predicconesPage"
 import Perfil from "./pages/PerfilPage"
 import MetodoRecuperar from "./pages/MetodoRecupe"
 import PreguntaSecreta from "./pages/PreguntaSecreta";
+import PageEmpleado from "./pages/PageEmpleado";
+import Pedidos from "./pages/Pedidos";
 
 function App() {
   return (
@@ -68,6 +70,8 @@ function App() {
                 <Route path="/MenuPrincipal" element={<MenuPage />} />
                 <Route path="/inicioCliente" element={<ClientPage />} />
                 <Route path="/perfil" element={<Perfil />} />
+                <Route path="/paginaEmpleado" element={<PageEmpleado />} />
+                <Route path="/pedidos" element={<Pedidos />} />
 
                </Route>
 

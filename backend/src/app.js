@@ -17,6 +17,7 @@ import documentos from "./routes/documentoslegales.js";
 import ventas from "./routes/ventas.routes.js";
 import preguntas from "./routes/preguntasecreta.js";
 import logRoutes from "./routes/log.routes.js";
+import pedidos from "./routes/pedido.routes.js";
 
 const app=express();
 
@@ -77,6 +78,7 @@ app.use("/api",documentos);
 app.use("/api",ventas);
 app.use("/api",preguntas);
 app.use("/api", logRoutes);
+app.use("/api",pedidos)
 
 // Manejo centralizado de errores
 app.use((err, req, res, next) => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../contex/AuthContext"
 import { Link } from "react-router-dom"
 import { getEmpresaProfile } from "../api/auth.js"
-import Footer from "../pages/Footer.jsx"
+import Footer from "../pages/footer.jsx"
 import { useTheme } from "../contex/ThemeContext.jsx"
 
 const AdminLayout = ({ children }) => {
