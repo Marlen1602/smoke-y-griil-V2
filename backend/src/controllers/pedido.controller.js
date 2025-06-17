@@ -204,3 +204,31 @@ export const obtenerTodosLosProductos = async (req, res) => {
     res.status(500).json({ message: "Error al obtener productos" })
   }
 }
+ //Función para buscar pedido por id 
+ // Obtener un pedido por su ID
+export const obtenerPedidoPorId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pedido = await prisma.pedidos.findUnique({
+      where: { id: Number(id) },
+      include: {
+        usuario: true,
+        detallePedido: {
+          include: {
+            producto: true,
+          },
+        },
+      },
+    });
+
+    if (!pedido) {
+      return res.status(404).json({ message: "Pedido no encontrado" });
+    }
+
+    res.json(pedido);
+  } catch (error) {
+    console.error("Error al obtener pedido por ID:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};

@@ -4,7 +4,8 @@ import {
   obtenerPedidos, 
   actualizarEstadoPedido,
   obtenerTodosLosProductos,
-  obtenerPedidosUsuario
+  obtenerPedidosUsuario,
+  obtenerPedidoPorId
 } from '../controllers/pedido.controller.js';
 
 const router = express.Router();
@@ -17,4 +18,5 @@ router.put('/pedidos/:id/estado', actualizarEstadoPedido);
 // Rutas nuevas para debugging
 router.get('/productos-debug', obtenerTodosLosProductos);
 router.get('/pedidos/usuario/:usuarioId',obtenerPedidosUsuario);
+router.get("/pedido/:id", obtenerPedidoPorId);
 export default router;
