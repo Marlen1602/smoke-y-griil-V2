@@ -164,7 +164,6 @@ export const obtenerPedidosUsuario = async (req, res) => {
   }
 }
 
-
 export const actualizarEstadoPedido = async (req, res) => {
   const { id } = req.params
   const { nuevoEstado } = req.body
@@ -204,31 +203,103 @@ export const obtenerTodosLosProductos = async (req, res) => {
     res.status(500).json({ message: "Error al obtener productos" })
   }
 }
- //Función para buscar pedido por id 
- // Obtener un pedido por su ID
-export const obtenerPedidoPorId = async (req, res) => {
-  const { id } = req.params;
 
+// Obtener pedidos de un usuario por su username
+export const obtenerPedidosPorUsername = async (req, res) => {
   try {
-    const pedido = await prisma.pedidos.findUnique({
-      where: { id: Number(id) },
+    const { username } = req.params
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username es requerido",
+      })
+    }
+
+    // Buscar el usuario por username
+    const usuario = await prisma.users.findUnique({
+      where: { username: username },
+    })
+
+    if (!usuario) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado",
+      })
+    }
+
+    // Obtener los pedidos de este usuario
+    const pedidos = await prisma.pedidos.findMany({
+      where: { usuarioId: usuario.id },
       include: {
-        usuario: true,
+        usuario: {
+          select: {
+            id: true,
+            username: true,
+            nombre: true,
+            apellidos: true,
+            email: true,
+          },
+        },
         detallePedido: {
           include: {
-            producto: true,
+            producto: {
+              include: {
+                categorias: true, // Incluir categoría del producto
+              },
+            },
           },
         },
       },
-    });
+      orderBy: {
+        fecha: "desc",
+      },
+    })
 
-    if (!pedido) {
-      return res.status(404).json({ message: "Pedido no encontrado" });
-    }
+    // Formatear la respuesta
+    const pedidosFormateados = pedidos.map((pedido) => ({
+      id: pedido.id,
+      estado: pedido.estado,
+      total: pedido.total,
+      direccionEnvio: pedido.direccionEnvio,
+      clienteNombre: pedido.clienteNombre,
+      clienteEmail: pedido.clienteEmail,
+      clienteTelefono: pedido.clienteTelefono,
+      fecha: pedido.fecha,
+      productos: pedido.detallePedido.map((detalle) => ({
+        id: detalle.producto.ID_Producto,
+        nombre: detalle.producto.Nombre,
+        descripcion: detalle.producto.Descripcion,
+        precio: detalle.producto.Precio,
+        cantidad: detalle.cantidad,
+        categoria: detalle.producto.categorias?.Nombre || "Sin categoría",
+        imagen: detalle.producto.Imagen,
+        subtotal: Number(detalle.producto.Precio) * detalle.cantidad,
+      })),
+    }))
 
-    res.json(pedido);
+    res.json({
+      success: true,
+      usuario: {
+        id: usuario.id,
+        username: usuario.username,
+        nombre: usuario.nombre,
+        apellidos: usuario.apellidos,
+        email: usuario.email,
+      },
+      totalPedidos: pedidos.length,
+      pedidos: pedidosFormateados,
+    })
   } catch (error) {
-    console.error("Error al obtener pedido por ID:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error("Error al obtener los pedidos por username:", error)
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener los pedidos",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    })
   }
-};
+}
+
+
+
+
