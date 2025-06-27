@@ -12,6 +12,16 @@ export const verifyAuthRequest = () => axios.get(`${API}/profile`, { withCredent
 
 export const logoutRequest = () => axios.post(`${API}/logout`, {}, { withCredentials: true });
 
+// Función para hacer la solicitud POST para agregar un nuevo usuario
+export const addUserRequest = (user) => {
+  return axios.post(`${API}/add-user`, user, { withCredentials: true });
+};
+//Funcion para actualizar el tipo de usuario
+export const updateUserTypeRequest = (id, tipoUsuarioId) => {
+  return axios.put(`${API}/update-user-type`, { id, tipoUsuarioId }, { withCredentials: true });
+};
+
+
 //funciones CRUD para Perfil de la empresa
 export const getEmpresaProfile = async () =>
   axios.get(`${API}/empresa`);

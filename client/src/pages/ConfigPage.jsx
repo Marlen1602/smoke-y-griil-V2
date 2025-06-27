@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { getUsuarios, unlock, blockUser } from "../api/auth.js"
+import { getUsuarios, unlock, blockUser, addUserRequest, updateUserTypeRequest } from "../api/auth.js"
 import AdminLayout from "../layouts/AdminLayout.jsx"
 
 const UsuariosPage = () => {
@@ -7,23 +9,94 @@ const UsuariosPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
   const [actionType, setActionType] = useState("")
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [selectedUserName, setSelectedUserName] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
+  const [updatingUserId, setUpdatingUserId] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
+  // Agregar estado para el usuario actual al inicio del componente, después de los otros estados
+  const [currentUser, setCurrentUser] = useState(null)
+
+  // Estado para el formulario de nuevo usuario
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    username: "",
+    nombre: "",
+    apellidos: "",
+    tipoUsuarioId: 2, // Cliente por defecto
+  })
+  const [addingUser, setAddingUser] = useState(false)
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    number: false,
+    uppercase: false,
+    special: false,
+    isValid: false,
+  })
+  const [showPassword, setShowPassword] = useState(false)
+
+  const tiposUsuario = [
+    { id: 1, name: "Administrador" },
+    { id: 2, name: "Cliente" },
+    { id: 3, name: "Empleado" },
+  ]
+
+  // Agregar función para obtener el usuario actual después de los tiposUsuario
+  const getCurrentUser = () => {
+    // Intentar obtener el usuario actual desde localStorage o contexto
+    try {
+      const userData =
+        localStorage.getItem("user") || localStorage.getItem("userData") || localStorage.getItem("currentUser")
+      if (userData) {
+        return JSON.parse(userData)
+      }
+
+      // Si no está en localStorage, intentar desde sessionStorage
+      const sessionData =
+        sessionStorage.getItem("user") || sessionStorage.getItem("userData") || sessionStorage.getItem("currentUser")
+      if (sessionData) {
+        return JSON.parse(sessionData)
+      }
+    } catch (error) {
+      console.error("Error al obtener usuario actual:", error)
+    }
+    return null
+  }
+
+  const validatePassword = (password) => {
+    const validation = {
+      length: password.length >= 8,
+      number: /\d/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
+    }
+    validation.isValid = validation.length && validation.number && validation.uppercase && validation.special
+    return validation
+  }
+
+  // Modificar el useEffect existente para incluir la obtención del usuario actual
   useEffect(() => {
     fetchUsuarios()
+    setCurrentUser(getCurrentUser())
   }, [])
 
   const fetchUsuarios = async () => {
     setLoading(true)
     try {
+      console.log("Intentando cargar usuarios...")
       const response = await getUsuarios()
+      console.log("Usuarios cargados exitosamente:", response.data)
       setUsuarios(response.data)
       setError(null)
     } catch (error) {
-      console.error("Error al obtener usuarios:", error)
+      console.error("Error detallado al obtener usuarios:", error)
+      console.error("Response:", error.response)
+      console.error("Status:", error.response?.status)
+      console.error("Data:", error.response?.data)
       setError("No se pudieron cargar los usuarios. Por favor, intente nuevamente.")
     } finally {
       setLoading(false)
@@ -37,11 +110,96 @@ const UsuariosPage = () => {
       } else if (actionType === "unlock") {
         await unlock(selectedUserId)
       }
-      fetchUsuarios()
+
+      setSuccessMessage(`Usuario ${actionType === "block" ? "bloqueado" : "desbloqueado"} exitosamente`)
+      setTimeout(() => setSuccessMessage(null), 3000)
+      setError(null)
       setShowModal(false)
+
+      // Intentar recargar usuarios
+      try {
+        const response = await getUsuarios()
+        setUsuarios(response.data)
+      } catch (fetchError) {
+        console.error("Error al recargar usuarios:", fetchError)
+        // Actualizar solo el estado del usuario específico
+        setUsuarios((prevUsuarios) =>
+          prevUsuarios.map((user) =>
+            (user.id || user._id) === selectedUserId ? { ...user, isBlocked: actionType === "block" } : user,
+          ),
+        )
+      }
     } catch (error) {
       console.error("Error al realizar la acción:", error)
       setError(`Error al ${actionType === "block" ? "bloquear" : "desbloquear"} al usuario.`)
+    }
+  }
+
+  const handleAddUser = async (e) => {
+    e.preventDefault()
+    setAddingUser(true)
+    try {
+      const response = await addUserRequest(newUser)
+      setShowAddUserModal(false)
+      setNewUser({
+        email: "",
+        password: "",
+        username: "",
+        nombre: "",
+        apellidos: "",
+        tipoUsuarioId: 2,
+      })
+
+      setSuccessMessage("Usuario agregado exitosamente")
+      setTimeout(() => setSuccessMessage(null), 3000)
+      setError(null)
+
+      // Intentar recargar usuarios
+      try {
+        const response = await getUsuarios()
+        setUsuarios(response.data)
+      } catch (fetchError) {
+        console.error("Error al recargar usuarios:", fetchError)
+        // Agregar el nuevo usuario al estado local si tenemos la respuesta
+        if (response?.data) {
+          setUsuarios((prevUsuarios) => [...prevUsuarios, response.data])
+        }
+      }
+    } catch (error) {
+      console.error("Error al agregar usuario:", error)
+      setError(error.response?.data?.message || "Error al agregar el usuario.")
+    } finally {
+      setAddingUser(false)
+    }
+  }
+
+  const handleUserTypeChange = async (userId, newTipoUsuarioId) => {
+    setUpdatingUserId(userId)
+    try {
+      await updateUserTypeRequest(userId, newTipoUsuarioId)
+      setSuccessMessage("Tipo de usuario actualizado exitosamente")
+      setTimeout(() => setSuccessMessage(null), 3000)
+      setError(null) // Limpiar errores previos
+
+      // Intentar recargar usuarios, pero no mostrar error si falla
+      try {
+        const response = await getUsuarios()
+        setUsuarios(response.data)
+      } catch (fetchError) {
+        console.error("Error al recargar usuarios después de actualización:", fetchError)
+        // No mostrar error al usuario ya que la operación principal fue exitosa
+        // Solo actualizar el usuario específico en el estado local
+        setUsuarios((prevUsuarios) =>
+          prevUsuarios.map((user) =>
+            (user.id || user._id) === userId ? { ...user, tipoUsuarioId: newTipoUsuarioId } : user,
+          ),
+        )
+      }
+    } catch (error) {
+      console.error("Error al actualizar tipo de usuario:", error)
+      setError("Error al actualizar el tipo de usuario.")
+    } finally {
+      setUpdatingUserId(null)
     }
   }
 
@@ -62,6 +220,25 @@ const UsuariosPage = () => {
     setActionType("")
     setSelectedUserId(null)
     setSelectedUserName("")
+  }
+
+  const closeAddUserModal = () => {
+    setShowAddUserModal(false)
+    setNewUser({
+      email: "",
+      password: "",
+      username: "",
+      nombre: "",
+      apellidos: "",
+      tipoUsuarioId: 2,
+    })
+    setPasswordValidation({
+      length: false,
+      number: false,
+      uppercase: false,
+      special: false,
+      isValid: false,
+    })
   }
 
   const getRoleName = (tipoUsuarioId) => {
@@ -148,7 +325,7 @@ const UsuariosPage = () => {
               </p>
             </div>
 
-            <div className="w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
               <div className="relative">
                 <input
                   type="text"
@@ -164,6 +341,16 @@ const UsuariosPage = () => {
                   ✕
                 </button>
               </div>
+
+              <button
+                onClick={() => setShowAddUserModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Agregar Usuario
+              </button>
             </div>
           </div>
 
@@ -179,7 +366,26 @@ const UsuariosPage = () => {
               <div className="flex-1">{error}</div>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red hover:text-red dark:text-red dark:hover:text-red"
+                className="ml-auto text-red-200 hover:text-white dark:text-red-200 dark:hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mx-6 mt-4 p-4 bg-green-500 dark:bg-green-600 border border-green-500 dark:border-green-600 rounded-lg text-white dark:text-white flex items-start">
+              <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div className="flex-1">{successMessage}</div>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="ml-auto text-green-200 hover:text-white dark:text-green-200 dark:hover:text-white"
               >
                 ✕
               </button>
@@ -264,9 +470,39 @@ const UsuariosPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             {getRoleIcon(usuario.tipoUsuarioId)}
-                            <span className="ml-2 text-sm text-gray-900 dark:text-white">
-                              {getRoleName(usuario.tipoUsuarioId)}
-                            </span>
+                            <select
+                              value={usuario.tipoUsuarioId}
+                              onChange={(e) =>
+                                handleUserTypeChange(usuario.id || usuario._id, Number.parseInt(e.target.value))
+                              }
+                              disabled={
+                                updatingUserId === (usuario.id || usuario._id) ||
+                                (currentUser &&
+                                  (currentUser.id === (usuario.id || usuario._id) ||
+                                    currentUser._id === (usuario.id || usuario._id)))
+                              }
+                              className="ml-2 text-sm bg-transparent border-none text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {tiposUsuario.map((tipo) => (
+                                <option
+                                  key={tipo.id}
+                                  value={tipo.id}
+                                  className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                                >
+                                  {tipo.name}
+                                </option>
+                              ))}
+                            </select>
+                            {currentUser &&
+                              (currentUser.id === (usuario.id || usuario._id) ||
+                                currentUser._id === (usuario.id || usuario._id)) && (
+                                <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                  (Tu cuenta)
+                                </span>
+                              )}
+                            {updatingUserId === (usuario.id || usuario._id) && (
+                              <div className="ml-2 animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500"></div>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -326,7 +562,7 @@ const UsuariosPage = () => {
                             <span className="text-gray-400 dark:text-gray-500 italic">Administrador protegido</span>
                           ) : (
                             <button
-                              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red transition-colors"
+                              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red transition-colors"
                               onClick={() =>
                                 openModal("block", usuario.id || usuario._id, usuario.nombre, usuario.tipoUsuarioId)
                               }
@@ -353,7 +589,7 @@ const UsuariosPage = () => {
         </div>
       </div>
 
-      {/* Modal de confirmación */}
+      {/* Modal de confirmación para bloquear/desbloquear */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto"
@@ -371,16 +607,11 @@ const UsuariosPage = () => {
                 <div className="sm:flex sm:items-start">
                   <div
                     className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10 ${
-                      actionType === "block" ? "bg-red dark:bg-red" : "bg-green-100 dark:bg-green-900/30"
+                      actionType === "block" ? "bg-red-100 dark:bg-red-900/30" : "bg-green-100 dark:bg-green-900/30"
                     }`}
                   >
                     {actionType === "block" ? (
-                      <svg
-                        className="h-6 w-6 text-red dark:text-red"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                      <svg className="h-6 w-6 text-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -442,10 +673,304 @@ const UsuariosPage = () => {
           </div>
         </div>
       )}
-      </AdminLayout>
 
+      {/* Modal para agregar nuevo usuario */}
+      {showAddUserModal && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto"
+          aria-labelledby="add-user-modal-title"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+              &#8203;
+            </span>
+            <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleAddUser}>
+                <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div className="sm:flex sm:items-start">
+                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                      <svg
+                        className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </div>
+                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                      <h3
+                        className="text-lg leading-6 font-medium text-gray-900 dark:text-white"
+                        id="add-user-modal-title"
+                      >
+                        Agregar Nuevo Usuario
+                      </h3>
+                      <div className="mt-4 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label
+                              htmlFor="nombre"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                              Nombre
+                            </label>
+                            <input
+                              type="text"
+                              id="nombre"
+                              required
+                              value={newUser.nombre}
+                              onChange={(e) => setNewUser({ ...newUser, nombre: e.target.value })}
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+                          <div>
+                            <label
+                              htmlFor="apellidos"
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                              Apellidos
+                            </label>
+                            <input
+                              type="text"
+                              id="apellidos"
+                              required
+                              value={newUser.apellidos}
+                              onChange={(e) => setNewUser({ ...newUser, apellidos: e.target.value })}
+                              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="username"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                          >
+                            Nombre de Usuario
+                          </label>
+                          <input
+                            type="text"
+                            id="username"
+                            required
+                            value={newUser.username}
+                            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            required
+                            value={newUser.email}
+                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="password"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                          >
+                            Contraseña
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              id="password"
+                              required
+                              value={newUser.password}
+                              onChange={(e) => {
+                                setNewUser({ ...newUser, password: e.target.value })
+                                setPasswordValidation(validatePassword(e.target.value))
+                              }}
+                              className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                              {showPassword ? (
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464M9.878 9.878a3 3 0 00-.007 4.243m4.242-4.242L15.536 15.536M14.122 14.122a3 3 0 01-4.243 0M14.122 14.122l1.414 1.414M14.122 14.122a3 3 0 00.007-4.243"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                          {newUser.password && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-xs text-gray-600 dark:text-gray-400">La contraseña debe cumplir:</p>
+                              <div className="space-y-1">
+                                <div
+                                  className={`flex items-center text-xs ${passwordValidation.length ? "text-green-600 dark:text-green-400" : "text-red dark:text-red"}`}
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    {passwordValidation.length ? (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
+                                    ) : (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                      />
+                                    )}
+                                  </svg>
+                                  Al menos 8 caracteres
+                                </div>
+                                <div
+                                  className={`flex items-center text-xs ${passwordValidation.number ? "text-green-600 dark:text-green-400" : "text-red dark:text-red"}`}
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    {passwordValidation.number ? (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
+                                    ) : (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                      />
+                                    )}
+                                  </svg>
+                                  Al menos un número
+                                </div>
+                                <div
+                                  className={`flex items-center text-xs ${passwordValidation.uppercase ? "text-green-600 dark:text-green-400" : "text-red dark:text-red"}`}
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    {passwordValidation.uppercase ? (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
+                                    ) : (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                      />
+                                    )}
+                                  </svg>
+                                  Al menos una letra mayúscula
+                                </div>
+                                <div
+                                  className={`flex items-center text-xs ${passwordValidation.special ? "text-green-600 dark:text-green-400" : "text-red dark:text-red"}`}
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    {passwordValidation.special ? (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
+                                    ) : (
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clipRule="evenodd"
+                                      />
+                                    )}
+                                  </svg>
+                                  Al menos un carácter especial (!@#$%^&*)
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="tipoUsuario"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                          >
+                            Tipo de Usuario
+                          </label>
+                          <select
+                            id="tipoUsuario"
+                            value={newUser.tipoUsuarioId}
+                            onChange={(e) => setNewUser({ ...newUser, tipoUsuarioId: Number.parseInt(e.target.value) })}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            {tiposUsuario.map((tipo) => (
+                              <option key={tipo.id} value={tipo.id}>
+                                {tipo.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="submit"
+                    disabled={addingUser || !passwordValidation.isValid}
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {addingUser ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                        Agregando...
+                      </>
+                    ) : (
+                      "Agregar Usuario"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeAddUserModal}
+                    disabled={addingUser}
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </AdminLayout>
   )
 }
 
 export default UsuariosPage
-

@@ -6,9 +6,11 @@ import {
     logout,
     profile,
     unlockUser,
-    blockUser
+    blockUser,
+    updateUserType,
+    addUser
 } from "../controllers/auth.controller.js";
-import { getUsers, updatePassword,agregarPreguntaSecreta } from "../controllers/users.controller.js";
+import { getUsers, updatePassword,agregarPreguntaSecreta, } from "../controllers/users.controller.js";
 import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
@@ -48,5 +50,8 @@ router.put("/pregunta-secreta/",authRequired,agregarPreguntaSecreta);
 router.get("/usuarios", authRequired, adminRequired, getUsers);
 router.put("/unlock/:id", authRequired, adminRequired, unlockUser);
 router.put("/block/:id", authRequired, adminRequired, blockUser);
+router.put('/update-user-type', updateUserType); // Cambiar tipo de usuario
+router.post('/add-user', addUser);
+
 
 export default router;

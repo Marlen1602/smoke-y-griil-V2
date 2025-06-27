@@ -12,7 +12,7 @@ const MisPedidos = () => {
   const [selectedPedido, setSelectedPedido] = useState(null)
 
   // URL de la API
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api"
+  const API_URL = import.meta.env.VITE_API_URL 
 
   // Función para obtener los pedidos del usuario
   const fetchMisPedidos = async () => {

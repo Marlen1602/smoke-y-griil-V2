@@ -182,7 +182,7 @@ enum promociones_Dia_Semana {
 }
 model pedidos {
   id             Int              @id @default(autoincrement())
-  usuarioId      Int
+  usuarioId      Int              
   estado         String           @default("En preparación")
   total          Float
   direccionEnvio String?          // ← nuevo campo

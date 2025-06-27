@@ -67,7 +67,58 @@ const ClientPage = () => {
           </button>
         </div>
 
-        <div className="md:w-1/2">
+        <div className="md:w-1/2 space-y-6">
+          {/* RECUADRO DE SINCRONIZACIÓN CON WEAR OS */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-md mx-auto border border-gray-200 dark:border-gray-700">
+            <div className="text-center">
+              <div className="flex justify-center items-center mb-4">
+                <div className="bg-orange-100 dark:bg-orange-900/30 rounded-full p-3 mr-3">
+                  <span className="text-2xl">⌚</span>
+                </div>
+                <div className="text-left">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">Wear OS</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Consulta tus pedidos</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                <h4 className="font-semibold mb-2 text-gray-800 dark:text-white">👤 Tu usuario para el reloj</h4>
+                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-md p-3 border border-orange-200 dark:border-orange-800">
+                  <p className="text-lg font-mono font-bold text-orange-700 dark:text-orange-300">
+                    {user?.username || "Usuario"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span className="text-gray-700 dark:text-gray-300">Sincronizado</span>
+                </div>
+
+                <div className="text-xs space-y-2 text-left">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-600 dark:text-orange-400 font-bold">1.</span>
+                    <span>Abre la app en tu reloj inteligente</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-600 dark:text-orange-400 font-bold">2.</span>
+                    <span>Ingresa tu nombre de usuario</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-orange-600 dark:text-orange-400 font-bold">3.</span>
+                    <span>Consulta el estado de tus pedidos</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                <p className="text-xs text-gray-500 dark:text-gray-400">🔄 Los cambios se actualizan automáticamente</p>
+              </div>
+            </div>
+          </div>
+
+          {/* RECUADRO ORIGINAL DE UBICACIÓN */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md mx-auto border border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">SABOR EXPRESS</h2>
 

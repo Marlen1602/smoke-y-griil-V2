@@ -51,7 +51,7 @@ export default function EmployeePanel() {
       }
 
       // Intentar conectar con la API real
-      const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api"
+      const baseURL = import.meta.env.VITE_API_URL 
       const response = await fetch(`${baseURL}/pedidos`, {
         method: "GET",
         headers: {
@@ -97,7 +97,7 @@ export default function EmployeePanel() {
 
   const cambiarEstadoPedido = async (pedidoId, nuevoEstado) => {
     try {
-      const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api"
+      const baseURL = import.meta.env.VITE_API_URL 
       const response = await fetch(`${baseURL}/pedidos/${pedidoId}/estado`, {
         method: "PUT",
         headers: {

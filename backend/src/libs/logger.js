@@ -42,7 +42,7 @@ const fileLogFormat = format.combine(
 //Función para registrar eventos en la base de datos
 export const logSecurityEvent = async (usuario, tipo, estado, motivo) => {
     try {
-      await prisma.incidencia.create({
+      await prisma.incidencias.create({
       data: {
         usuario,
         tipo,
