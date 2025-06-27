@@ -406,3 +406,78 @@ export const profile = async (req, res) => {
       return res.status(500).json({ message: "Error interno del servidor" });
   }
 };
+
+// Función para agregar un nuevo usuario
+export const addUser = async (req, res) => {
+  const { email, password, username, nombre, apellidos, tipoUsuarioId } = req.body;
+
+  try {
+    // Validar si el email o username ya existen
+    const emailExists = await prisma.users.findFirst({ where: { email } });
+    const usernameExists = await prisma.users.findFirst({ where: { username } });
+
+    if (emailExists) {
+          return res.status(400).json({ message: "El correo electrónico ya está registrado" });
+    }
+
+    if (usernameExists) {
+      return res.status(400).json({ message: "El nombre de usuario ya está en uso" });
+    }
+
+    // Crear el hash de la contraseña
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Crear el nuevo usuario
+    const newUser = await prisma.users.create({
+      data: {
+        email,
+        password: passwordHash,
+        username,
+        nombre,
+        apellidos,
+        tipoUsuarioId,  // Asignar el tipo de usuario al nuevo usuario
+        isVerified: false,  // El usuario no está verificado aún
+      },
+    });
+    logger.info(`Nuevo usuario creado: ${newUser.username}`);
+
+    // Responder con los datos del usuario creado
+    res.status(201).json({
+      id: newUser.id,
+      username: newUser.username,
+      nombre: newUser.nombre,
+      apellidos: newUser.apellidos,
+      email: newUser.email,
+      tipoUsuarioId: newUser.tipoUsuarioId,
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
+    });
+  } catch (error) {
+    logger.error(`Error al agregar usuario: ${error.message}`);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+//Funcion para cambiar el tipo de usuario
+export const updateUserType = async (req, res) => {
+  const { id, tipoUsuarioId } = req.body; // Asumimos que tipoUsuarioId es enviado en el cuerpo de la solicitud
+
+  try {
+    const userFound = await prisma.users.findUnique({ where: { id: Number(id) } });
+
+    if (!userFound) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { id: userFound.id },
+      data: { tipoUsuarioId },
+    });
+     // Registrar evento de seguridad en los logs
+    logger.info(`Tipo de usuario actualizado para ${userFound.username}: Nuevo tipo ${tipoUsuarioId}`);
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    logger.error(`Error al actualizar tipo de usuario: ${error.message}`);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
