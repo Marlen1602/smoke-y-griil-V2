@@ -366,7 +366,7 @@ const UsuariosPage = () => {
               <div className="flex-1">{error}</div>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-200 hover:text-white dark:text-red-200 dark:hover:text-white"
+                className="ml-auto text-red hover:text-white dark:text-red dark:hover:text-white"
               >
                 ✕
               </button>
@@ -562,7 +562,7 @@ const UsuariosPage = () => {
                             <span className="text-gray-400 dark:text-gray-500 italic">Administrador protegido</span>
                           ) : (
                             <button
-                              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red transition-colors"
+                              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red hover:bg-red focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red transition-colors"
                               onClick={() =>
                                 openModal("block", usuario.id || usuario._id, usuario.nombre, usuario.tipoUsuarioId)
                               }
@@ -607,7 +607,7 @@ const UsuariosPage = () => {
                 <div className="sm:flex sm:items-start">
                   <div
                     className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10 ${
-                      actionType === "block" ? "bg-red-100 dark:bg-red-900/30" : "bg-green-100 dark:bg-green-900/30"
+                      actionType === "block" ? "bg-red dark:bg-red" : "bg-green-100 dark:bg-green-900/30"
                     }`}
                   >
                     {actionType === "block" ? (
