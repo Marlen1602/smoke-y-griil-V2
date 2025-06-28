@@ -28,3 +28,5 @@ Foreign key constraint violated on the fields: (`usuarioId`)
 2025-06-26 23:02:38 [INFO]: Tipo de usuario actualizado para Adela12: Nuevo tipo 2 
 2025-06-26 23:07:40 [INFO]: Tipo de usuario actualizado para Adela12: Nuevo tipo 1 
 2025-06-26 23:12:26 [INFO]: Nuevo usuario creado: Marlen 
+2025-06-26 23:36:01 [INFO]: Perfil de empresa actualizado {"usuario":"Marlen16","empresaId":"1"}
+2025-06-26 23:37:46 [INFO]: Sesión cerrada correctamente - Usuario: Marlen16 
