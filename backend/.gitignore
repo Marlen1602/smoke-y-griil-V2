@@ -3,3 +3,4 @@
 .env
 /Audit
 /src/generated/prisma
+/logs
