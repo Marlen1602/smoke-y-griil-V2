@@ -5,6 +5,7 @@ import logo from "../assets/logo.png"
 import AuthModal from "./AuthModal"
 import Breadcrumbs from "../pages/Breadcrumbs"
 import { getProductosRequest, getCategorias, getTamanosRequest } from "../api/auth.js"
+import Footer from "../pages/footer";
 
 // Función para generar un color basado en el texto
 const stringToColor = (str) => {
@@ -569,7 +570,7 @@ const MenuPage = () => {
 
       {/* MODAL DE AUTENTICACIÓN */}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
-
+      <Footer />
       </div>
   )
 }
