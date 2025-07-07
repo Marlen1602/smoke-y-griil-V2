@@ -6,6 +6,8 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid"; // Iconos par
 import { useTheme } from "../contex/ThemeContext";
 import Breadcrumbs from "../pages/Breadcrumbs";
 import PublicLayaut from "../layouts/PublicLayaut"
+import { useLocation } from "react-router-dom";
+
 
 const LoginPage = () => {
   const { login, errors } = useAuth();
@@ -13,12 +15,21 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Estado para mostrar u ocultar contraseña
   const { isDarkMode } = useTheme();
+  const location = useLocation();
+  const redirectTo = location.state?.redirectTo || "/paginaCliente"; // Redirección por defecto
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    await login(data);
-    setLoading(false);
-  };
+    const onSubmit = async (data) => {
+  setLoading(true);
+  const result = await login(data); // ✅ ahora sí usas result
+  setLoading(false);
+
+  if (result) {
+    navigate(redirectTo); // ✅ Redirige a /checkout si vino del modal
+  }
+};
+
+
+  
 
   return (
     <PublicLayaut>

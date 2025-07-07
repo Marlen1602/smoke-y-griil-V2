@@ -1,17 +1,36 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from "../contex/ThemeContext"; // Importar el contexto de modo oscuro
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from "../contex/ThemeContext";
+import { useAuth } from "../contex/AuthContext"; // Importar contexto de autenticación
 
-const AuthModal = ({ onClose }) => {
-  const navigate = useNavigate(); // Hook de React Router para navegar
-  const { isDarkMode } = useTheme(); // Usamos el estado del tema oscuro
+const AuthModal = ({ onClose, redirectTo = "/" }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isDarkMode } = useTheme();
+  const { user } = useAuth(); // Acceder al estado de autenticación
+  const [redirectPath, setRedirectPath] = useState(redirectTo);
+
+  // Efecto para manejar redirecciones desde el state de location
+  useEffect(() => {
+    if (location.state?.redirectTo) {
+      setRedirectPath(location.state.redirectTo);
+    }
+  }, [location.state]);
+
+  // Cerrar automáticamente si el usuario se autentica
+  useEffect(() => {
+    if (user) {
+      onClose();
+      navigate(redirectPath);
+    }
+  }, [user, onClose, navigate, redirectPath]);
 
   const handleRegisterClick = () => {
-    navigate('/registrar'); // Navegar a la página de registro
+    navigate('/registrar', { state: { redirectTo: redirectPath } });
   };
 
   const handleLoginClick = () => {
-    navigate('/login'); // Navegar a la página de login
+    navigate('/login', { state: { redirectTo: redirectPath } });
   };
 
   return (
@@ -21,12 +40,10 @@ const AuthModal = ({ onClose }) => {
           isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
         }`}
       >
-        {/* Título del Modal */}
         <h2 className="text-xl md:text-2xl font-bold text-center mb-6">
           Regístrate o inicia sesión para continuar
         </h2>
 
-        {/* Botón Registrarme */}
         <button
           onClick={handleRegisterClick}
           className="bg-orange-600 text-white w-full md:w-80 h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-orange-700 transition"
@@ -34,21 +51,18 @@ const AuthModal = ({ onClose }) => {
           Registrarme
         </button>
 
-        {/* Botón Continuar con Google */}
         <button
           className="bg-blue-600 text-white w-full md:w-80 h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-blue-700 transition"
         >
           <i className="fab fa-google mr-2"></i> Continuar con Google
         </button>
 
-        {/* Botón Continuar con Facebook */}
         <button
-          className="bg-blue-900 text-white w-full md:w-80h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-blue-800 transition"
+          className="bg-blue-900 text-white w-full md:w-80 h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-blue-800 transition"
         >
           <i className="fab fa-facebook-f mr-2"></i> Continuar con Facebook
         </button>
 
-        {/* Botón INICIAR SESION */}
         <button
           onClick={handleLoginClick}
           className={`w-full md:w-80 h-12 py-3 border rounded-full font-bold transition ${
@@ -60,7 +74,6 @@ const AuthModal = ({ onClose }) => {
           Iniciar sesión
         </button>
 
-        {/* Botón para cerrar el modal */}
         <button
           onClick={onClose}
           className={`mt-4 w-full md:w-80 h-12 text-center hover:underline ${
@@ -75,4 +88,3 @@ const AuthModal = ({ onClose }) => {
 };
 
 export default AuthModal;
-

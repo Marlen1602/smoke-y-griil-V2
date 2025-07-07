@@ -5,14 +5,36 @@ import logo from "../assets/logo.png"
 import AuthModal from "../pages/AuthModal.jsx";
 import { useSearch } from "../contex/SearchContext" // Importar el contexto
 import Footer from "../pages/Footer.jsx" // Importamos el Footer
+import CartPreview from "../pages/CartPreview"; // Importa el nuevo componente
+import { useCart } from "../contex/CartContext"; // Importa el contexto del carrito
+
 
 // Renombramos de Header a PrincipalLayout y añadimos children como prop
 const PrincipalLayout = ({ children, onSearch }) => {
   const [showModal, setShowModal] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+   const [showCart, setShowCart] = useState(false);
   const { searchQuery, setSearchQuery } = useSearch()
   const { isDarkMode, toggleTheme } = useTheme()
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState("/checkout");
+  const { cartCount } = useCart();
+  
+
   const navigate = useNavigate()
+
+  useEffect(() => {
+  const handler = (e) => {
+    if (e.detail?.redirect) {
+      setRedirectAfterLogin(e.detail.redirect);
+    }
+    setShowModal(true); // Muestra el modal
+  };
+
+  window.addEventListener("open-auth-modal", handler);
+  return () => window.removeEventListener("open-auth-modal", handler);
+}, []);
+
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
@@ -109,7 +131,7 @@ const PrincipalLayout = ({ children, onSearch }) => {
             </form>
           </div>
 
-          {/* Iconos de ingreso, carrito y modo oscuro */}
+           {/* Iconos de ingreso, carrito y modo oscuro */}
           <div className="flex items-center space-x-6 text-white">
             <button
               onClick={toggleTheme}
@@ -121,13 +143,30 @@ const PrincipalLayout = ({ children, onSearch }) => {
               <i className="fas fa-user text-xl"></i>
               <span className="ml-2">Ingreso</span>
             </div>
-            <i className="fas fa-shopping-cart text-xl cursor-pointer" onClick={() => navigate("/carrito")}></i>
+            <div className="relative">
+              <i 
+                className="fas fa-shopping-cart text-xl cursor-pointer" 
+                onClick={() => setShowCart(true)}
+              ></i>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Modal de autenticación */}
-      {showModal && <AuthModal onClose={handleCloseModal} />}
+      {showModal && (
+  <AuthModal
+    onClose={handleCloseModal}
+    redirectTo={redirectAfterLogin}
+  />
+)}
+    {/* Vista previa del carrito */}
+      <CartPreview isOpen={showCart} onClose={() => setShowCart(false)} />
 
       {/* Menú lateral */}
       {showMenu && (

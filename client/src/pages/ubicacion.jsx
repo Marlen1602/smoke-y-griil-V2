@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getEmpresaProfile } from "../api/auth";
 import Header from "./PrincipalNavBar";
 import Breadcrumbs from "../pages/Breadcrumbs.jsx";
-import Footer from "../pages/Footer";
+import Footer from "../pages/footer";
 
 const UbicacionPage = () => {
   const [empresa, setEmpresa] = useState({ Direccion: "", Horario: "", Nombre: "" });

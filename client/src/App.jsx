@@ -38,7 +38,8 @@ import MetodoRecuperar from "./pages/MetodoRecupe"
 import PreguntaSecreta from "./pages/PreguntaSecreta";
 import PageEmpleado from "./pages/PageEmpleado";
 import Pedidos from "./pages/Pedidos";
-
+import Reservacion from "./pages/Reservaciones"
+import PrincipalLayout from "./layouts/PublicLayaut";
 function App() {
   return (
     <ThemeProvider>
@@ -46,7 +47,7 @@ function App() {
         <BrowserRouter>
           <AuthProvider>
           <CartProvider>
-            <Routes>
+              <Routes>
               {/* 🔹 Rutas públicas */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<LoginPage />} />
@@ -61,6 +62,7 @@ function App() {
               <Route path="/authModal" element={<AuthModal />} />
               <Route path="/terminos" element={<TerminosPage />} />
               <Route path="/privacidad" element={<PrivacidadPage />} />
+               <Route path="/reservaciones" element={<Reservacion />} />
 
               {/* 🔹 Rutas protegidas para usuarios autenticados */}
               <Route element={<ProtectedRoute />}>

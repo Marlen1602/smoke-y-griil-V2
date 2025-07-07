@@ -4,11 +4,17 @@ import logo from "../assets/logo.png"
 import { useAuth } from "../contex/AuthContext"
 import { useTheme } from "../contex/ThemeContext"
 import Footer from "../pages/Footer.jsx"
+import { useCart } from "../contex/CartContext";
+
+
 
 const ClientLayout = ({ children }) => {
   const { logout } = useAuth()
   const { isDarkMode, toggleTheme } = useTheme()
+  const { cartCount } = useCart();
+
   const navigate = useNavigate()
+  
 
   const handleSignup = async () => {
     console.log("Cerrando sesión...")
@@ -87,7 +93,15 @@ const ClientLayout = ({ children }) => {
             >
               {isDarkMode ? "☀️" : "🌙"}
             </button>
-            <i className="fas fa-shopping-cart text-xl cursor-pointer" onClick={() => navigate("/carrito")}></i>
+            <div className="relative cursor-pointer" onClick={() => navigate("/carrito")}>
+  <i className="fas fa-shopping-cart text-xl"></i>
+  {cartCount > 0 && (
+    <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+      {cartCount}
+    </span>
+  )}
+</div>
+
             <button className="hover:text-gray-400 cursor-pointer" onClick={handleSignup}>
               Cerrar Sesión
             </button>

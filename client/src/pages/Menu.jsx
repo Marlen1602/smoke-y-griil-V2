@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect ,useContext} from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext"
 import logo from "../assets/logo.png"
 import AuthModal from "./AuthModal"
 import Breadcrumbs from "../pages/Breadcrumbs"
 import { getProductosRequest, getCategorias, getTamanosRequest } from "../api/auth.js"
-import Footer from "../pages/footer";
+import Footer from "../pages/Footer";
+import { AuthContext } from "../contex/AuthContext";
+import CartPreview from "../pages/CartPreview"; // Importa el nuevo componente
+import { useCart } from "../contex/CartContext"; // Importa el contexto del carrito
 
 // Función para generar un color basado en el texto
 const stringToColor = (str) => {
@@ -25,6 +28,7 @@ const stringToColor = (str) => {
 const ProductImage = ({ src, alt, className, productName }) => {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
+  
 
   // Función para manejar errores de carga
   const handleError = () => {
@@ -92,6 +96,7 @@ const MenuPage = () => {
   const [error, setError] = useState(null)
   const [query, setQuery] = useState("")
   const [showFilters, setShowFilters] = useState(false)
+   const [showCart, setShowCart] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
   const [selectedSize, setSelectedSize] = useState(null) // Estado para el tamaño seleccionado
   const [selectedComplements, setSelectedComplements] = useState([])
@@ -100,8 +105,15 @@ const MenuPage = () => {
   const [minPrice, setMinPrice] = useState("")
   const [maxPrice, setMaxPrice] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
+  const { cartCount } = useCart();
   const { isDarkMode, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const { user } = useContext(AuthContext);
+  const { addToCart } = useCart();
+ 
+   
+
+
 
   // Cargar productos, categorías y tamaños desde la base de datos
   useEffect(() => {
@@ -346,7 +358,17 @@ const MenuPage = () => {
               <i className="fas fa-user text-xl"></i>
               <span className="ml-2">Ingreso</span>
             </div>
-            <i className="fas fa-shopping-cart text-xl"></i>
+            <div className="relative">
+              <i 
+                className="fas fa-shopping-cart text-xl cursor-pointer" 
+                onClick={() => setShowCart(true)}
+              ></i>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -465,6 +487,8 @@ const MenuPage = () => {
             </div>
           ))}
       </div>
+           {/* Vista previa del carrito */}
+      <CartPreview isOpen={showCart} onClose={() => setShowCart(false)} />
 
       {/* MODAL DE PLATILLO */}
       {selectedItem && (
@@ -534,21 +558,49 @@ const MenuPage = () => {
                     : "bg-gray-600 text-white hover:bg-gray-700 hover:shadow-lg"
                 }`}
                 disabled={selectedItem.hasSizes && !selectedSize}
+                onClick={() => {
+                  addToCart({
+                    ...selectedItem,
+                    quantity: 1,
+                    selectedSize,
+                    selectedComplements,
+                  });
+                  handleCloseModal(); // Cierra el modal tras agregar
+                }}
               >
                 <i className="fas fa-cart-plus mr-2"></i>
                 Agregar y Seguir
               </button>
-              <button
-                className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center ${
-                  selectedItem.hasSizes && !selectedSize
-                    ? "bg-orange-300 text-orange-100 cursor-not-allowed"
-                    : "bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg"
-                }`}
-                disabled={selectedItem.hasSizes && !selectedSize}
-              >
-                <i className="fas fa-shopping-cart mr-2"></i>
-                Agregar y Pagar
-              </button>
+
+          <button
+              className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center ${
+                selectedItem.hasSizes && !selectedSize
+                  ? "bg-orange-300 text-orange-100 cursor-not-allowed"
+                  : "bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg"
+              }`}
+              disabled={selectedItem.hasSizes && !selectedSize}
+              onClick={() => {
+                // Agrega al carrito
+                addToCart({
+                  ...selectedItem,
+                  quantity: 1,
+                  selectedSize,
+                  selectedComplements,
+                });
+
+                // Si no está logueado, muestra el modal de autenticación
+                if (!user) {
+                  setShowAuthModal(true);
+                  return;
+                }
+
+                // Si está logueado, redirige al checkout
+                navigate("/checkout");
+              }}
+            >
+              <i className="fas fa-shopping-cart mr-2"></i>
+              Realizar el pedido
+            </button>
             </div>
 
             {/* Mensaje si no hay tamaños disponibles */}
