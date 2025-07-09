@@ -399,47 +399,53 @@ const ProductosPage = () => {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Gestión de Productos</h1>
-            <p className="text-gray-600">Administra tu catálogo de productos y sus tamaños</p>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Gestión de Productos</h1>
+            <p className="text-gray-600 dark:text-gray-300">Administra tu catálogo de productos y sus tamaños</p>
           </div>
 
           {/* Mensajes de estado */}
           {successMessage && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center justify-between">
               <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-600 mr-2" />
-                <span className="text-green-800">{successMessage}</span>
+                <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                <span className="text-green-800 dark:text-green-200">{successMessage}</span>
               </div>
-              <button onClick={() => setSuccessMessage("")} className="text-green-600 hover:text-green-800">
+              <button
+                onClick={() => setSuccessMessage("")}
+                className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
           )}
 
           {updateError && (
-            <div className="mb-6 p-4 bg-red border border-red rounded-lg flex items-center justify-between">
+            <div className="mb-6 p-4 bg-red/10 dark:bg-red-900/20 border border-red/30 dark:border-red-800 rounded-lg flex items-center justify-between">
               <div className="flex items-center">
-                <AlertCircle className="h-5 w-5 text-white mr-2" />
-                <span className="text-white">{updateError}</span>
+                <AlertCircle className="h-5 w-5 text-red dark:text-red-400 mr-2" />
+                <span className="text-red dark:text-red-200">{updateError}</span>
               </div>
-              <button onClick={() => setUpdateError("")} className="text-white hover:text-white">
+              <button
+                onClick={() => setUpdateError("")}
+                className="text-red dark:text-red-400 hover:text-red dark:hover:text-red-200"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
           )}
 
           {/* Sección 1: Crear Producto */}
-          <div className="bg-white rounded-lg shadow-md mb-8 overflow-hidden">
-            <div className="p-6 border-b bg-blue-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-8 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
               <div className="flex items-center">
-                <Package className="h-6 w-6 text-blue-600 mr-2" />
+                <Package className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" />
                 <div>
-                  <h2 className="text-xl font-semibold text-blue-900">Crear Nuevo Producto</h2>
-                  <p className="text-blue-700 text-sm">
+                  <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100">Crear Nuevo Producto</h2>
+                  <p className="text-blue-700 dark:text-blue-300 text-sm">
                     Primero crea el producto base, luego podrás agregar tamaños si es necesario
                   </p>
                 </div>
@@ -449,33 +455,38 @@ const ProductosPage = () => {
               <form onSubmit={productForm.handleSubmit(onSubmitProduct)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="Nombre" className="block text-sm font-medium">
+                    <label htmlFor="Nombre" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Nombre del Producto *
                     </label>
                     <input
                       id="Nombre"
                       type="text"
                       {...productForm.register("Nombre", { required: "El nombre es obligatorio" })}
-                      className={`w-full px-3 py-2 border rounded-md ${
-                        productForm.formState.errors.Nombre ? "border-red" : "border-gray-300"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        productForm.formState.errors.Nombre ? "border-red" : "border-gray-300 dark:border-gray-600"
+                      } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                       placeholder="Nombre del producto"
                     />
                     {productForm.formState.errors.Nombre && (
-                      <p className="text-white text-sm">{productForm.formState.errors.Nombre.message}</p>
+                      <p className="text-red text-sm">{productForm.formState.errors.Nombre.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="ID_Categoria" className="block text-sm font-medium">
+                    <label
+                      htmlFor="ID_Categoria"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Categoría *
                     </label>
                     <select
                       id="ID_Categoria"
                       {...productForm.register("ID_Categoria", { required: "Debe seleccionar una categoría" })}
-                      className={`w-full px-3 py-2 border rounded-md ${
-                        productForm.formState.errors.ID_Categoria ? "border-red" : "border-gray-300"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        productForm.formState.errors.ID_Categoria
+                          ? "border-red"
+                          : "border-gray-300 dark:border-gray-600"
+                      } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     >
                       <option value="">Seleccionar categoría</option>
                       {categorias.map((categoria) => (
@@ -485,26 +496,26 @@ const ProductosPage = () => {
                       ))}
                     </select>
                     {productForm.formState.errors.ID_Categoria && (
-                      <p className="text-white text-sm">{productForm.formState.errors.ID_Categoria.message}</p>
+                      <p className="text-red text-sm">{productForm.formState.errors.ID_Categoria.message}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="Descripcion" className="block text-sm font-medium">
+                  <label htmlFor="Descripcion" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Descripción *
                   </label>
                   <textarea
                     id="Descripcion"
                     rows={3}
                     {...productForm.register("Descripcion", { required: "La descripción es obligatoria" })}
-                    className={`w-full px-3 py-2 border rounded-md ${
-                      productForm.formState.errors.Descripcion ? "border-red" : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      productForm.formState.errors.Descripcion ? "border-red" : "border-gray-300 dark:border-gray-600"
+                    } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                     placeholder="Descripción del producto"
                   />
                   {productForm.formState.errors.Descripcion && (
-                    <p className="text-white text-sm">{productForm.formState.errors.Descripcion.message}</p>
+                    <p className="text-red text-sm">{productForm.formState.errors.Descripcion.message}</p>
                   )}
                 </div>
 
@@ -513,7 +524,9 @@ const ProductosPage = () => {
                     <label
                       htmlFor="Precio"
                       className={`block text-sm font-medium ${
-                        productForm.watch("TieneTamanos") ? "text-gray-400" : ""
+                        productForm.watch("TieneTamanos")
+                          ? "text-gray-400 dark:text-gray-500"
+                          : "text-gray-700 dark:text-gray-300"
                       }`}
                     >
                       Precio {productForm.watch("TieneTamanos") && "(Se definirá en los tamaños)"}
@@ -533,17 +546,20 @@ const ProductosPage = () => {
                         },
                       })}
                       className={`w-full px-3 py-2 border rounded-md ${
-                        productForm.formState.errors.Precio ? "border-red" : "border-gray-300"
-                      } ${productForm.watch("TieneTamanos") ? "bg-gray-100" : ""}`}
+                        productForm.formState.errors.Precio ? "border-red" : "border-gray-300 dark:border-gray-600"
+                      } ${productForm.watch("TieneTamanos") ? "bg-gray-100 dark:bg-gray-600" : "bg-white dark:bg-gray-700"} text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                       placeholder="0.00"
                     />
                     {productForm.formState.errors.Precio && (
-                      <p className="text-white text-sm">{productForm.formState.errors.Precio.message}</p>
+                      <p className="text-red text-sm">{productForm.formState.errors.Precio.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="imagen-input" className="block text-sm font-medium">
+                    <label
+                      htmlFor="imagen-input"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Imagen del Producto *
                     </label>
                     <div className="flex items-center gap-2">
@@ -552,11 +568,15 @@ const ProductosPage = () => {
                         type="file"
                         onChange={handleImageChange}
                         accept="image/*"
-                        className="flex-1 px-3 py-2 border rounded-md"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300"
                       />
                       {imagenPreview && (
-                        <button type="button" className="p-2 border rounded-md" onClick={handleClearImage}>
-                          <X className="h-4 w-4" />
+                        <button
+                          type="button"
+                          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                          onClick={handleClearImage}
+                        >
+                          <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                         </button>
                       )}
                     </div>
@@ -564,29 +584,36 @@ const ProductosPage = () => {
                 </div>
 
                 <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                  <div className="flex items-start space-x-2 p-4 rounded-md border">
+                  <div className="flex items-start space-x-2 p-4 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
                     <input
                       type="checkbox"
                       id="TieneTamanos"
                       {...productForm.register("TieneTamanos")}
-                      className="mt-1"
+                      className="mt-1 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                     />
                     <div className="space-y-1 leading-none">
-                      <label htmlFor="TieneTamanos" className="font-medium text-sm">
+                      <label htmlFor="TieneTamanos" className="font-medium text-sm text-gray-900 dark:text-white">
                         Tendrá Tamaños
                       </label>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Marque si planea agregar tamaños después (podrá hacerlo en la sección de abajo)
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-2 p-4 rounded-md border">
-                    <input type="checkbox" id="Disponible" {...productForm.register("Disponible")} className="mt-1" />
+                  <div className="flex items-start space-x-2 p-4 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                    <input
+                      type="checkbox"
+                      id="Disponible"
+                      {...productForm.register("Disponible")}
+                      className="mt-1 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                    />
                     <div className="space-y-1 leading-none">
-                      <label htmlFor="Disponible" className="font-medium text-sm">
+                      <label htmlFor="Disponible" className="font-medium text-sm text-gray-900 dark:text-white">
                         Disponible
                       </label>
-                      <p className="text-sm text-gray-500">El producto estará disponible para la venta</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        El producto estará disponible para la venta
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -594,7 +621,7 @@ const ProductosPage = () => {
                 {/* Vista previa de imagen */}
                 {imagenPreview && (
                   <div className="mt-2 relative">
-                    <div className="border rounded-md overflow-hidden w-40 h-40 flex items-center justify-center">
+                    <div className="border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden w-40 h-40 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                       <img
                         src={imagenPreview || "/placeholder.svg"}
                         alt="Vista previa"
@@ -642,13 +669,13 @@ const ProductosPage = () => {
           </div>
 
           {/* Sección 2: Gestionar Tamaños */}
-          <div className="bg-white rounded-lg shadow-md mb-8 overflow-hidden">
-            <div className="p-6 border-b bg-green-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-8 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
               <div className="flex items-center">
-                <Ruler className="h-6 w-6 text-green-600 mr-2" />
+                <Ruler className="h-6 w-6 text-green-600 dark:text-green-400 mr-2" />
                 <div>
-                  <h2 className="text-xl font-semibold text-green-900">Gestionar Tamaños</h2>
-                  <p className="text-green-700 text-sm">
+                  <h2 className="text-xl font-semibold text-green-900 dark:text-green-100">Gestionar Tamaños</h2>
+                  <p className="text-green-700 dark:text-green-300 text-sm">
                     Selecciona un producto y agrega sus diferentes tamaños y precios
                   </p>
                 </div>
@@ -657,14 +684,17 @@ const ProductosPage = () => {
             <div className="p-6">
               {/* Selector de producto */}
               <div className="mb-6">
-                <label htmlFor="producto-selector" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="producto-selector"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Seleccionar Producto *
                 </label>
                 <select
                   id="producto-selector"
                   value={selectedProductoForTamanos}
                   onChange={(e) => setSelectedProductoForTamanos(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="">Seleccionar un producto...</option>
                   {productos.map((producto) => (
@@ -677,24 +707,30 @@ const ProductosPage = () => {
 
               {/* Mensajes para tamaños */}
               {tamanoSuccess && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center justify-between">
                   <div className="flex items-center">
-                    <Check className="h-5 w-5 text-green-600 mr-2" />
-                    <span className="text-green-800">{tamanoSuccess}</span>
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                    <span className="text-green-800 dark:text-green-200">{tamanoSuccess}</span>
                   </div>
-                  <button onClick={() => setTamanoSuccess("")} className="text-green-600 hover:text-green-800">
+                  <button
+                    onClick={() => setTamanoSuccess("")}
+                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                  >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
               )}
 
               {tamanoError && (
-                <div className="mb-4 p-4 bg-red border border-red rounded-lg flex items-center justify-between">
+                <div className="mb-4 p-4 bg-red/10 dark:bg-red-900/20 border border-red/30 dark:border-red-800 rounded-lg flex items-center justify-between">
                   <div className="flex items-center">
-                    <AlertCircle className="h-5 w-5 text-white mr-2" />
-                    <span className="text-white">{tamanoError}</span>
+                    <AlertCircle className="h-5 w-5 text-red dark:text-red-400 mr-2" />
+                    <span className="text-red dark:text-red-200">{tamanoError}</span>
                   </div>
-                  <button onClick={() => setTamanoError("")} className="text-white hover:text-red">
+                  <button
+                    onClick={() => setTamanoError("")}
+                    className="text-red dark:text-red-400 hover:text-red dark:hover:text-red-200"
+                  >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -704,29 +740,36 @@ const ProductosPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Formulario para agregar tamaños */}
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Agregar Nuevos Tamaños</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Agregar Nuevos Tamaños</h3>
                     <form onSubmit={tamanoForm.handleSubmit(onSubmitTamanos)} className="space-y-4">
                       <div className="space-y-3">
                         {tamanoFields.map((field, index) => (
-                          <div key={field.id} className="flex gap-4 items-end p-3 bg-gray-50 rounded-lg border">
+                          <div
+                            key={field.id}
+                            className="flex gap-4 items-end p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                          >
                             <div className="flex-1">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del tamaño</label>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Nombre del tamaño
+                              </label>
                               <input
                                 type="text"
                                 {...tamanoForm.register(`tamanos.${index}.nombre`, {
                                   required: "El nombre del tamaño es obligatorio",
                                 })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                 placeholder="Ej: Pequeño, Mediano, Grande"
                               />
                               {tamanoForm.formState.errors.tamanos?.[index]?.nombre && (
-                                <p className="text-white text-xs mt-1">
+                                <p className="text-red text-xs mt-1">
                                   {tamanoForm.formState.errors.tamanos[index].nombre.message}
                                 </p>
                               )}
                             </div>
                             <div className="flex-1">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Precio
+                              </label>
                               <input
                                 type="number"
                                 min="0"
@@ -735,11 +778,11 @@ const ProductosPage = () => {
                                   required: "El precio es obligatorio",
                                   min: { value: 0.01, message: "El precio debe ser mayor que 0" },
                                 })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                 placeholder="0.00"
                               />
                               {tamanoForm.formState.errors.tamanos?.[index]?.precio && (
-                                <p className="text-white text-xs mt-1">
+                                <p className="text-red text-xs mt-1">
                                   {tamanoForm.formState.errors.tamanos[index].precio.message}
                                 </p>
                               )}
@@ -747,7 +790,7 @@ const ProductosPage = () => {
                             <button
                               type="button"
                               onClick={() => tamanoRemove(index)}
-                              className="p-2 text-white hover:bg-red rounded-lg"
+                              className="p-2 text-red dark:text-red-400 hover:bg-red/10 dark:hover:bg-red-900/20 rounded-lg"
                               disabled={tamanoFields.length === 1}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -760,7 +803,7 @@ const ProductosPage = () => {
                         <button
                           type="button"
                           onClick={() => tamanoAppend({ nombre: "", precio: "" })}
-                          className="flex items-center px-3 py-2 text-sm border border-green-500 text-green-600 rounded-lg hover:bg-green-50"
+                          className="flex items-center px-3 py-2 text-sm border border-green-500 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
                         >
                           <Plus className="h-4 w-4 mr-1" />
                           Agregar Tamaño
@@ -778,17 +821,17 @@ const ProductosPage = () => {
 
                   {/* Lista de tamaños existentes */}
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Tamaños Actuales</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Tamaños Actuales</h3>
                     {loadingTamanos ? (
                       <div className="text-center py-4">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                        <p className="text-gray-500 mt-2">Cargando tamaños...</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2">Cargando tamaños...</p>
                       </div>
                     ) : tamanosProducto.length === 0 ? (
-                      <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                        <Ruler className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500">Este producto no tiene tamaños configurados</p>
-                        <p className="text-gray-400 text-sm">
+                      <div className="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                        <Ruler className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                        <p className="text-gray-500 dark:text-gray-400">Este producto no tiene tamaños configurados</p>
+                        <p className="text-gray-400 dark:text-gray-500 text-sm">
                           Agrega el primer tamaño usando el formulario de la izquierda
                         </p>
                       </div>
@@ -797,15 +840,15 @@ const ProductosPage = () => {
                         {tamanosProducto.map((tamano) => (
                           <div
                             key={tamano.ID_Tama_o}
-                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
                           >
                             <div>
-                              <span className="font-medium">{tamano.Tama_o}</span>
-                              <span className="text-green-600 ml-2">${tamano.Precio}</span>
+                              <span className="font-medium text-gray-900 dark:text-white">{tamano.Tama_o}</span>
+                              <span className="text-green-600 dark:text-green-400 ml-2">${tamano.Precio}</span>
                             </div>
                             <button
                               onClick={() => handleDeleteTamano(tamano.ID_Tama_o)}
-                              className="p-1 text-white hover:bg-red rounded"
+                              className="p-1 text-red dark:text-red-400 hover:bg-red/10 dark:hover:bg-red-900/20 rounded"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -818,33 +861,37 @@ const ProductosPage = () => {
               )}
 
               {!selectedProductoForTamanos && (
-                <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                  <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Selecciona un Producto</h3>
-                  <p className="text-gray-500">Elige un producto de la lista para gestionar sus tamaños</p>
+                <div className="text-center py-12 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                  <Package className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Selecciona un Producto</h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Elige un producto de la lista para gestionar sus tamaños
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Lista de productos */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Productos ({productos.length})</h2>
-                  <p className="text-gray-500 text-sm">Gestiona tu catálogo de productos</p>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Productos ({productos.length})
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Gestiona tu catálogo de productos</p>
                 </div>
               </div>
             </div>
 
             {productos.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Plus className="h-8 w-8 text-gray-400" />
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                  <Plus className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay productos</h3>
-                <p className="text-gray-500">Comienza agregando tu primer producto al catálogo</p>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay productos</h3>
+                <p className="text-gray-500 dark:text-gray-400">Comienza agregando tu primer producto al catálogo</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
@@ -853,7 +900,7 @@ const ProductosPage = () => {
                   return (
                     <div
                       key={producto.ID_Producto}
-                      className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                     >
                       {producto.ImagenURL && (
                         <div className="h-48 overflow-hidden">
@@ -866,28 +913,32 @@ const ProductosPage = () => {
                       )}
                       <div className="p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate">{producto.Nombre}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                            {producto.Nombre}
+                          </h3>
                           <button
                             onClick={() => toggleDisponible(producto.ID_Producto, producto.Disponible)}
                             className={`px-2 py-1 text-xs font-medium rounded-full transition-colors ${
                               esDisponible
-                                ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                : "bg-red text-white hover:bg-red"
+                                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50"
+                                : "bg-red/20 dark:bg-red-900/30 text-red dark:text-red-300 hover:bg-red/30 dark:hover:bg-red-900/50"
                             }`}
                           >
                             {esDisponible ? "Disponible" : "No disponible"}
                           </button>
                         </div>
-                        <p className="text-sm text-gray-500 mb-2">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                           {categorias.find((c) => c.ID_Categoria === producto.ID_Categoria)?.Nombre || "Sin categoría"}
                         </p>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{producto.Descripcion}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                          {producto.Descripcion}
+                        </p>
                         <div className="flex items-center justify-between mb-4">
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-gray-900 dark:text-white">
                             {producto.TieneTamanos ? "Precio variable" : `$${producto.Precio || 0}`}
                           </p>
                           {producto.TieneTamanos && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                            <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full">
                               Con tamaños
                             </span>
                           )}
@@ -895,7 +946,7 @@ const ProductosPage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => startEdit(producto)}
-                            className="flex-1 flex items-center justify-center px-3 py-2 text-sm border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                            className="flex-1 flex items-center justify-center px-3 py-2 text-sm border border-blue-500 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Editar
@@ -920,24 +971,24 @@ const ProductosPage = () => {
         {/* Modal de confirmación para eliminar */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red rounded-full flex items-center justify-center mr-4">
-                  <AlertCircle className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 bg-red/20 dark:bg-red-900/30 rounded-full flex items-center justify-center mr-4">
+                  <AlertCircle className="h-6 w-6 text-red dark:text-red-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Confirmar eliminación</h3>
-                  <p className="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirmar eliminación</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Esta acción no se puede deshacer</p>
                 </div>
               </div>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 ¿Está seguro de que desea eliminar el producto "{productoToDelete?.Nombre}"? Se eliminará
                 permanentemente de la base de datos.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancelar
                 </button>
@@ -955,19 +1006,19 @@ const ProductosPage = () => {
         {/* Modal de edición */}
         {showEditModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <Edit className="h-6 w-6 text-blue-600 mr-2" />
+                    <Edit className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-2" />
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Editar Producto</h3>
-                      <p className="text-sm text-gray-500">Modifica la información del producto</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Editar Producto</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Modifica la información del producto</p>
                     </div>
                   </div>
                   <button
                     onClick={cancelEdit}
-                    className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -976,36 +1027,38 @@ const ProductosPage = () => {
 
               <div className="p-6">
                 {updateError && (
-                  <div className="mb-4 p-4 bg-red border border-red rounded-lg flex items-center">
-                    <AlertCircle className="h-5 w-5 text-white mr-2" />
-                    <span className="text-white">{updateError}</span>
+                  <div className="mb-4 p-4 bg-red/10 dark:bg-red-900/20 border border-red/30 dark:border-red-800 rounded-lg flex items-center">
+                    <AlertCircle className="h-5 w-5 text-red dark:text-red-400 mr-2" />
+                    <span className="text-red dark:text-red-200">{updateError}</span>
                   </div>
                 )}
 
                 <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Nombre del Producto *</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Nombre del Producto *
+                      </label>
                       <input
                         type="text"
                         {...editForm.register("Nombre", { required: "El nombre es obligatorio" })}
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          editForm.formState.errors.Nombre ? "border-red" : "border-gray-300"
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          editForm.formState.errors.Nombre ? "border-red" : "border-gray-300 dark:border-gray-600"
+                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                         placeholder="Ingrese el nombre del producto"
                       />
                       {editForm.formState.errors.Nombre && (
-                        <p className="text-white text-sm">{editForm.formState.errors.Nombre.message}</p>
+                        <p className="text-red text-sm">{editForm.formState.errors.Nombre.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Categoría *</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoría *</label>
                       <select
                         {...editForm.register("ID_Categoria", { required: "Debe seleccionar una categoría" })}
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          editForm.formState.errors.ID_Categoria ? "border-red" : "border-gray-300"
-                        }`}
+                        className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          editForm.formState.errors.ID_Categoria ? "border-red" : "border-gray-300 dark:border-gray-600"
+                        } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                       >
                         <option value="">Seleccionar categoría</option>
                         {categorias.map((categoria) => (
@@ -1015,23 +1068,23 @@ const ProductosPage = () => {
                         ))}
                       </select>
                       {editForm.formState.errors.ID_Categoria && (
-                        <p className="text-white text-sm">{editForm.formState.errors.ID_Categoria.message}</p>
+                        <p className="text-red text-sm">{editForm.formState.errors.ID_Categoria.message}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Descripción *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción *</label>
                     <textarea
                       rows={3}
                       {...editForm.register("Descripcion", { required: "La descripción es obligatoria" })}
-                      className={`w-full px-3 py-2 border rounded-lg ${
-                        editForm.formState.errors.Descripcion ? "border-red" : "border-gray-300"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        editForm.formState.errors.Descripcion ? "border-red" : "border-gray-300 dark:border-gray-600"
+                      } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                       placeholder="Describe las características del producto"
                     />
                     {editForm.formState.errors.Descripcion && (
-                      <p className="text-white text-sm">{editForm.formState.errors.Descripcion.message}</p>
+                      <p className="text-red text-sm">{editForm.formState.errors.Descripcion.message}</p>
                     )}
                   </div>
 
@@ -1039,7 +1092,9 @@ const ProductosPage = () => {
                     <div className="space-y-2">
                       <label
                         className={`block text-sm font-medium ${
-                          editForm.watch("TieneTamanos") ? "text-gray-400" : "text-gray-700"
+                          editForm.watch("TieneTamanos")
+                            ? "text-gray-400 dark:text-gray-500"
+                            : "text-gray-700 dark:text-gray-300"
                         }`}
                       >
                         Precio {editForm.watch("TieneTamanos") && "(Se define en tamaños)"}
@@ -1058,47 +1113,49 @@ const ProductosPage = () => {
                           },
                         })}
                         className={`w-full px-3 py-2 border rounded-lg ${
-                          editForm.formState.errors.Precio ? "border-red" : "border-gray-300"
-                        } ${editForm.watch("TieneTamanos") ? "bg-gray-100" : ""}`}
+                          editForm.formState.errors.Precio ? "border-red" : "border-gray-300 dark:border-gray-600"
+                        } ${editForm.watch("TieneTamanos") ? "bg-gray-100 dark:bg-gray-600" : "bg-white dark:bg-gray-700"} text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                         placeholder="0.00"
                       />
                       {editForm.formState.errors.Precio && (
-                        <p className="text-white text-sm">{editForm.formState.errors.Precio.message}</p>
+                        <p className="text-red text-sm">{editForm.formState.errors.Precio.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Imagen del Producto</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Imagen del Producto
+                      </label>
                       <input
                         id="edit-imagen"
                         type="file"
                         onChange={handleImageChange}
                         accept="image/*"
-                        className="w-full px-3 py-2 border rounded-lg"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300"
                       />
                     </div>
                   </div>
 
                   <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                    <div className="flex items-center p-3 border rounded-lg">
+                    <div className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                       <input
                         type="checkbox"
                         id="edit-tiene-tamanos"
                         {...editForm.register("TieneTamanos")}
-                        className="mr-2"
+                        className="mr-2 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="edit-tiene-tamanos" className="text-sm font-medium">
+                      <label htmlFor="edit-tiene-tamanos" className="text-sm font-medium text-gray-900 dark:text-white">
                         Tiene tamaños
                       </label>
                     </div>
-                    <div className="flex items-center p-3 border rounded-lg">
+                    <div className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                       <input
                         type="checkbox"
                         id="edit-disponible"
                         {...editForm.register("Disponible")}
-                        className="mr-2"
+                        className="mr-2 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="edit-disponible" className="text-sm font-medium">
+                      <label htmlFor="edit-disponible" className="text-sm font-medium text-gray-900 dark:text-white">
                         Disponible
                       </label>
                     </div>
@@ -1109,7 +1166,7 @@ const ProductosPage = () => {
                       <img
                         src={imagenPreview || "/placeholder.svg"}
                         alt="Vista previa"
-                        className="w-32 h-32 object-cover rounded-lg border"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                       />
                       <button
                         type="button"
@@ -1121,11 +1178,11 @@ const ProductosPage = () => {
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4 border-t">
+                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                       type="button"
                       onClick={cancelEdit}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       Cancelar
                     </button>
