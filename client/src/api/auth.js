@@ -106,6 +106,7 @@ export const deleteTamanoRequest = (id) => axios.delete(`${API}/tamanos/${id}`);
 export const uploadImagenRequest = (id, imagen) => {
   return axios.post(`${API}/productos/${id}/upload`, imagen, {
       headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
   });
 };
 //Obtener categoria 

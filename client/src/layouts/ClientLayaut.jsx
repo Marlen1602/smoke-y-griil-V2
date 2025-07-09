@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import logo from "../assets/logo.png"
 import { useAuth } from "../contex/AuthContext"
 import { useTheme } from "../contex/ThemeContext"
-import Footer from "../pages/Footer.jsx"
+import Footer from "../pages/footer.jsx"
 import { useCart } from "../contex/CartContext";
 
 

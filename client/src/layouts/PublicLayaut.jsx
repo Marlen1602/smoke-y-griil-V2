@@ -4,7 +4,7 @@ import { useTheme } from "../contex/ThemeContext.jsx"
 import logo from "../assets/logo.png"
 import AuthModal from "../pages/AuthModal.jsx";
 import { useSearch } from "../contex/SearchContext" // Importar el contexto
-import Footer from "../pages/Footer.jsx" // Importamos el Footer
+import Footer from "../pages/footer.jsx" // Importamos el Footer
 import CartPreview from "../pages/CartPreview"; // Importa el nuevo componente
 import { useCart } from "../contex/CartContext"; // Importa el contexto del carrito
 
