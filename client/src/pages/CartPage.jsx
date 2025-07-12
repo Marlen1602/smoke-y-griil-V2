@@ -406,12 +406,12 @@ const CarritoDetalle = () => {
                 onClick={handleCheckout}
                 className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-md mt-6 transition-colors"
               >
-                Proceder al pago
+                Realizar pedido
               </button>
 
               {/* Términos y condiciones */}
               <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                Al proceder con el pago, aceptas nuestros{" "}
+                Al realizar el pedido, aceptas nuestros{" "}
                 <button
                   onClick={() => navigate("/terminos")}
                   className="text-orange-600 dark:text-orange-400 hover:underline"

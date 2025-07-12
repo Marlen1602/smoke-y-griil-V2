@@ -79,7 +79,7 @@ const CartPreview = ({ isOpen, onClose }) => {
                 }}
                 className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700"
               >
-                Proceder al Pago
+                Realizar pedido
               </button>
             </div>
           </>

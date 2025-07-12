@@ -10,7 +10,7 @@ import {
     updateUserType,
     addUser
 } from "../controllers/auth.controller.js";
-import { getUsers, updatePassword,agregarPreguntaSecreta, } from "../controllers/users.controller.js";
+import { getUsers, updatePassword,agregarPreguntaSecreta,updateTelefono,changePassword } from "../controllers/users.controller.js";
 import { authRequired, adminRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
 import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
@@ -44,7 +44,10 @@ router.post("/verify-code-email", verifyEmail);
 router.put("/update-password", updatePassword);
 //ruta para agregar pregunta secreta
 router.put("/pregunta-secreta/",authRequired,agregarPreguntaSecreta);
-
+//ruta para modificar el numero de telefono
+router.put("/usuario-telefono",authRequired, updateTelefono);
+//cambiar contraseña
+router.put("/change-password", authRequired, changePassword)
 
 //  Solo administradores pueden gestionar usuarios
 router.get("/usuarios", authRequired, adminRequired, getUsers);
@@ -52,6 +55,7 @@ router.put("/unlock/:id", authRequired, adminRequired, unlockUser);
 router.put("/block/:id", authRequired, adminRequired, blockUser);
 router.put('/update-user-type', updateUserType); // Cambiar tipo de usuario
 router.post('/add-user', addUser);
+
 
 
 export default router;

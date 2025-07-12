@@ -157,7 +157,7 @@ export const obtenerPredicciones = async () => {
   return axios.get(`${API}/predicciones`);
 };
 
-
+//RUTAS PARA EL PERFIL DE USUARIO
 // Agregar pregunta secreta
 export const agregarPreguntaSecreta = (preguntaSecretaId, respuestaSecreta) => axios.put(`${API}/pregunta-secreta`,{ preguntaSecretaId,respuestaSecreta},{ withCredentials: true }
 );
@@ -165,22 +165,48 @@ export const agregarPreguntaSecreta = (preguntaSecretaId, respuestaSecreta) => a
 // Obtener todas las preguntas secretas
 export const obtenerPreguntasSecretas = () => axios.get(`${API}/preguntas-secretas`, { withCredentials: true });
 
-  // ✅ Buscar la pregunta secreta asociada a un correo
+  // Buscar la pregunta secreta asociada a un correo
 export const getPreguntaSecretaPorCorreo = (email) =>
   axios.post(`${API}/pregunta-secreta/buscar`, { email });
 
-// ✅ Verificar la respuesta secreta del usuario
+//  Verificar la respuesta secreta del usuario
 export const verificarRespuestaSecreta = ({ email, respuesta }) =>
   axios.post(`${API}/pregunta-secreta/verificar`, { email, respuesta });
 
-// ✅ Verificar el token enviado por correo (tras responder la pregunta)
+//  Verificar el token enviado por correo (tras responder la pregunta)
 export const verificarTokenSecreto = ({ email, token }) =>
   axios.post(`${API}/pregunta-secreta/verificar-token`, { email, token });
 
-// ✅ Restablecer la contraseña
+//  Restablecer la contraseña
 export const restablecerPasswordConPregunta = ({ email, token, nuevaPassword }) =>
   axios.put(`${API}/pregunta-secreta/restablecer-password`, {
     email,
     token,
     nuevaPassword,
   });
+//Modificar numero de telefono
+  export const updateTelefono = async (telefono) => {
+  try {
+    const response = await axios.put(
+      `${API}/usuario-telefono`,
+      { telefono }, 
+      { withCredentials: true },
+    )
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al actualizar el teléfono" }
+  }
+}
+//Funcion para cambiar la contraseña
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const response = await axios.put(
+      `${API}/change-password`,
+      { currentPassword, newPassword },
+      { withCredentials: true },
+    )
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al cambiar la contraseña" }
+  }
+}

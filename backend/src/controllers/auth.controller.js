@@ -395,7 +395,12 @@ export const profile = async (req, res) => {
       res.json({
           id: user.id,
           username: user.username,
+          nombre:user.nombre,
+          apellidos:user.apellidos,
           email: user.email,
+          telefono:user.telefono,
+          preguntaSecretaId:user.preguntaSecretaId,
+          respuestaSecreta:user.respuestaSecreta,
           tipoUsuarioId: user.tipoUsuarioId,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt
