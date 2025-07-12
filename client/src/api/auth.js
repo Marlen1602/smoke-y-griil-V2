@@ -210,3 +210,52 @@ export const changePassword = async (currentPassword, newPassword) => {
     throw error.response?.data || { message: "Error al cambiar la contraseña" }
   }
 }
+
+//FUNCIONES PARA REPORTES 
+// Función para obtener platillos más vendidos
+export const obtenerPlatillosMasVendidos = async () => {
+  try {
+    const response = await axios.get(`${API}/reportes/platillos-mas-vendidos`, {
+      withCredentials: true,
+    })
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al obtener platillos más vendidos" }
+  }
+}
+
+// Función para obtener zonas con más envíos
+export const obtenerZonasConMasEnvios = async () => {
+  try {
+    const response = await axios.get(`${API}/reportes/zonas-mas-envios`, {
+      withCredentials: true,
+    })
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al obtener zonas con más envíos" }
+  }
+}
+
+// Función para obtener ingresos por día
+export const obtenerIngresosPorDia = async () => {
+  try {
+    const response = await axios.get(`${API}/reportes/ingresos-por-dia`, {
+      withCredentials: true,
+    })
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al obtener ingresos por día" }
+  }
+}
+
+// Función para obtener clientes frecuentes
+export const obtenerClientesFrecuentes = async () => {
+  try {
+    const response = await axios.get(`${API}/reportes/clientes-frecuentes`, {
+      withCredentials: true,
+    })
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: "Error al obtener clientes frecuentes" }
+  }
+}

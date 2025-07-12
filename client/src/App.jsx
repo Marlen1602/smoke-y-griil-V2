@@ -39,7 +39,7 @@ import PreguntaSecreta from "./pages/PreguntaSecreta";
 import PageEmpleado from "./pages/PageEmpleado";
 import Pedidos from "./pages/Pedidos";
 import Reservacion from "./pages/Reservaciones"
-import PrincipalLayout from "./layouts/PublicLayaut";
+import Reportes from "./pages/Reportes"
 function App() {
   return (
     <ThemeProvider>
@@ -74,6 +74,8 @@ function App() {
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/paginaEmpleado" element={<PageEmpleado />} />
                 <Route path="/pedidos" element={<Pedidos />} />
+                <Route path="/reportes" element={<Reportes/>}/>
+
 
                </Route>
 

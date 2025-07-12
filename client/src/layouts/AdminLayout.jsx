@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useAuth } from "../contex/AuthContext"
 import { Link } from "react-router-dom"
@@ -24,9 +26,9 @@ const AdminLayout = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    window.onerror = function (message, source, lineno, colno, error) {
-      console.error("🔴 Error global:", { message, source, lineno, colno, error });
-  
+    window.onerror = (message, source, lineno, colno, error) => {
+      console.error("🔴 Error global:", { message, source, lineno, colno, error })
+
       fetch("http://localhost:4000/api/log-error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,12 +40,12 @@ const AdminLayout = ({ children }) => {
           stack: error?.stack || null,
           userRole: "admin",
         }),
-      });
-    };
-  
+      })
+    }
+
     const handleUnhandledRejection = (event) => {
-      console.error("🟠 Promesa no manejada:", event.reason);
-  
+      console.error("🟠 Promesa no manejada:", event.reason)
+
       fetch("http://localhost:4000/api/log-error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,17 +54,17 @@ const AdminLayout = ({ children }) => {
           stack: event.reason?.stack || null,
           userRole: "admin",
         }),
-      });
-    };
-  
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-  
+      })
+    }
+
+    window.addEventListener("unhandledrejection", handleUnhandledRejection)
+
     return () => {
-      window.onerror = null;
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-    };
-  }, []);
-  
+      window.onerror = null
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection)
+    }
+  }, [])
+
   // Aplicar clase dark al elemento html cuando isDarkMode es true
   useEffect(() => {
     if (isDarkMode) {
@@ -70,7 +72,6 @@ const AdminLayout = ({ children }) => {
     } else {
       document.documentElement.classList.remove("dark")
     }
-
     // Aplicar estilos globales para elementos de formulario en modo oscuro
     const style = document.createElement("style")
     if (isDarkMode) {
@@ -99,7 +100,6 @@ const AdminLayout = ({ children }) => {
     } else {
       style.textContent = ""
     }
-
     // Añadir o actualizar el estilo en el head
     const existingStyle = document.getElementById("dark-mode-styles")
     if (existingStyle) {
@@ -107,7 +107,6 @@ const AdminLayout = ({ children }) => {
     }
     style.id = "dark-mode-styles"
     document.head.appendChild(style)
-
     return () => {
       if (document.getElementById("dark-mode-styles")) {
         document.getElementById("dark-mode-styles").remove()
@@ -124,7 +123,6 @@ const AdminLayout = ({ children }) => {
           {empresa.Logo && <img src={empresa.Logo || "/placeholder.svg"} className="h-12 w-auto" alt="Logo" />}
           <span className="font-bold text-lg dark:text-white">{empresa.Nombre}</span>
         </div>
-
         {/* Menú de navegación */}
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
@@ -262,7 +260,7 @@ const AdminLayout = ({ children }) => {
             </li>
             <li>
               <Link
-                to="/predicciones"
+                to="/reportes"
                 className="flex items-center p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
               >
                 <svg
@@ -279,12 +277,33 @@ const AdminLayout = ({ children }) => {
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   />
                 </svg>
+                Reportes y Estadísticas
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/predicciones"
+                className="flex items-center p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+              >
+                <svg
+                  className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
+                </svg>
                 Predicciones
               </Link>
             </li>
           </ul>
         </nav>
-
         {/* Botón de modo oscuro y cerrar sesión */}
         <div className="p-4 border-t dark:border-gray-700">
           <button
@@ -367,7 +386,6 @@ const AdminLayout = ({ children }) => {
             </svg>
           </button>
         </div>
-
         {/* Menú móvil */}
         {menuOpen && (
           <div className="md:hidden bg-white dark:bg-gray-800 shadow-lg border-t dark:border-gray-700">
@@ -378,7 +396,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Inicio
+                  🏠 Inicio
                 </Link>
               </li>
               <li>
@@ -387,7 +405,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Perfil de la empresa
+                  🏢 Perfil de la empresa
                 </Link>
               </li>
               <li>
@@ -396,7 +414,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Documentos Regulatorios
+                  📄 Documentos Regulatorios
                 </Link>
               </li>
               <li>
@@ -405,7 +423,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Monitor de incidencias
+                  ⚠️ Monitor de incidencias
                 </Link>
               </li>
               <li>
@@ -414,7 +432,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Usuarios
+                  👥 Usuarios
                 </Link>
               </li>
               <li>
@@ -423,7 +441,16 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Productos
+                  📦 Productos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/reportes"
+                  className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  📊 Reportes y Estadísticas
                 </Link>
               </li>
               <li>
@@ -432,7 +459,7 @@ const AdminLayout = ({ children }) => {
                   className="block p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Predicciones
+                  📈 Predicciones
                 </Link>
               </li>
               <li>
@@ -448,16 +475,14 @@ const AdminLayout = ({ children }) => {
                   onClick={logout}
                   className="flex items-center w-full p-2 text-red hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                 >
-                  Cerrar Sesión
+                  🚪 Cerrar Sesión
                 </button>
               </li>
             </ul>
           </div>
         )}
-
         {/* Contenido de la página */}
         <div className="flex-grow p-4 text-gray-900 dark:text-gray-100">{children}</div>
-
         {/* Footer */}
         <Footer />
       </main>
@@ -466,4 +491,3 @@ const AdminLayout = ({ children }) => {
 }
 
 export default AdminLayout
-
