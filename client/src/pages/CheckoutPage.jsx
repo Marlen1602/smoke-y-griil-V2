@@ -341,7 +341,7 @@ const CheckoutPage = () => {
               No puedes proceder al pago sin productos en tu carrito.
             </p>
             <button
-              onClick={() => navigate("/menu")}
+              onClick={() => navigate("/menuPrincipal")}
               className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
             >
               Ir al Menú

@@ -1,3 +1,5 @@
+"use client"
+
 import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../contex/CartContext"
@@ -12,6 +14,9 @@ const CarritoDetalle = () => {
 
   // Estado para controlar la carga
   const [isLoading, setIsLoading] = useState(true)
+
+  // Estado para el checkbox de términos y condiciones
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   // Esperar a que el carrito se inicialice
   useEffect(() => {
@@ -59,7 +64,6 @@ const CarritoDetalle = () => {
       <span>${message}</span>
     `
     document.body.appendChild(notification)
-
     // Eliminar la notificación después de 1.5 segundos
     setTimeout(() => {
       notification.classList.add("opacity-0", "transition-opacity", "duration-300")
@@ -73,10 +77,8 @@ const CarritoDetalle = () => {
   const removeFromCart = (index) => {
     // Obtener el nombre del producto para la notificación
     const productName = cartItems[index].name
-
     // Eliminar el producto
     updateQuantity(index, 0)
-
     // Mostrar notificación de producto eliminado
     const notification = document.createElement("div")
     notification.className =
@@ -88,7 +90,6 @@ const CarritoDetalle = () => {
       <span>${productName} eliminado del carrito</span>
     `
     document.body.appendChild(notification)
-
     // Eliminar la notificación después de 3 segundos
     setTimeout(() => {
       notification.classList.add("opacity-0", "transition-opacity", "duration-500")
@@ -122,17 +123,14 @@ const CarritoDetalle = () => {
       </div>
     `
     document.body.appendChild(confirmModal)
-
     // Manejar la cancelación
     document.getElementById("cancel-empty-cart").addEventListener("click", () => {
       document.body.removeChild(confirmModal)
     })
-
     // Manejar la confirmación
     document.getElementById("confirm-empty-cart").addEventListener("click", () => {
       clearCart()
       document.body.removeChild(confirmModal)
-
       // Mostrar notificación de carrito vaciado
       const notification = document.createElement("div")
       notification.className =
@@ -144,7 +142,6 @@ const CarritoDetalle = () => {
         <span>El carrito ha sido vaciado</span>
       `
       document.body.appendChild(notification)
-
       // Eliminar la notificación después de 3 segundos
       setTimeout(() => {
         notification.classList.add("opacity-0", "transition-opacity", "duration-500")
@@ -157,7 +154,35 @@ const CarritoDetalle = () => {
 
   // Función para proceder al pago
   const handleCheckout = () => {
+    // Verificar si los términos han sido aceptados
+    if (!acceptedTerms) {
+      // Mostrar notificación de error
+      const notification = document.createElement("div")
+      notification.className =
+        "fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center"
+      notification.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+        <span>Debes aceptar los términos y condiciones para continuar</span>
+      `
+      document.body.appendChild(notification)
+      // Eliminar la notificación después de 4 segundos
+      setTimeout(() => {
+        notification.classList.add("opacity-0", "transition-opacity", "duration-500")
+        setTimeout(() => {
+          document.body.removeChild(notification)
+        }, 500)
+      }, 4000)
+      return
+    }
+
     navigate("/checkout")
+  }
+
+  // Función para manejar el cambio del checkbox
+  const handleTermsChange = (e) => {
+    setAcceptedTerms(e.target.checked)
   }
 
   // Mostrar indicador de carga mientras se inicializa el carrito
@@ -204,7 +229,6 @@ const CarritoDetalle = () => {
     <ClientLayout>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">Tu Carrito</h1>
-
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Lista de productos */}
           <div className="lg:w-2/3">
@@ -212,7 +236,6 @@ const CarritoDetalle = () => {
               <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold">Productos ({cartItems.length})</h2>
               </div>
-
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {cartItems.map((item, index) => (
                   <div key={index} className="p-4">
@@ -235,7 +258,6 @@ const CarritoDetalle = () => {
                           </div>
                         )}
                       </div>
-
                       {/* Información del producto */}
                       <div className="flex-1">
                         <h3 className="font-medium text-lg">{item.name}</h3>
@@ -250,12 +272,10 @@ const CarritoDetalle = () => {
                           </p>
                         )}
                       </div>
-
                       {/* Precio unitario */}
                       <div className="text-gray-600 dark:text-gray-300 font-medium">
                         ${(item.selectedSize ? Number(item.selectedSize.Precio) : Number(item.price)).toFixed(2)} c/u
                       </div>
-
                       {/* Controles de cantidad mejorados */}
                       <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md">
                         <button
@@ -292,7 +312,6 @@ const CarritoDetalle = () => {
                           </svg>
                         </button>
                       </div>
-
                       {/* Precio total */}
                       <div className="text-orange-600 dark:text-orange-400 font-bold text-lg">
                         $
@@ -301,7 +320,6 @@ const CarritoDetalle = () => {
                           : Number(item.price) * Number(item.quantity)
                         ).toFixed(2)}
                       </div>
-
                       {/* Botón eliminar */}
                       <button
                         onClick={() => removeFromCart(index)}
@@ -328,7 +346,6 @@ const CarritoDetalle = () => {
                   </div>
                 ))}
               </div>
-
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap justify-between items-center">
                 <button
                   onClick={handleContinueShopping}
@@ -373,18 +390,15 @@ const CarritoDetalle = () => {
               </div>
             </div>
           </div>
-
           {/* Resumen de compra */}
           <div className="lg:w-1/3">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">Resumen de compra</h2>
-
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
@@ -392,7 +406,6 @@ const CarritoDetalle = () => {
                   </div>
                 </div>
               </div>
-
               {/* Mensaje de envío gratis */}
               <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                 <div className="flex items-center text-green-700 dark:text-green-400">
@@ -401,31 +414,79 @@ const CarritoDetalle = () => {
                 </div>
               </div>
 
+              {/* Checkbox de términos y condiciones */}
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <div className="relative flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={handleTermsChange}
+                      className="w-5 h-5 text-orange-600 bg-white border-2 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    {acceptedTerms && (
+                      <Check
+                        className="absolute w-3 h-3 text-white pointer-events-none"
+                        style={{ left: "4px", top: "4px" }}
+                      />
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Al realizar el pedido, acepto los{" "}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/terminos")}
+                      className="text-orange-600 dark:text-orange-400 hover:underline font-medium"
+                    >
+                      Términos y Condiciones
+                    </button>{" "}
+                    y la{" "}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/privacidad")}
+                      className="text-orange-600 dark:text-orange-400 hover:underline font-medium"
+                    >
+                      Política de Privacidad
+                    </button>
+                  </div>
+                </label>
+              </div>
+
               {/* Botón de pago */}
               <button
                 onClick={handleCheckout}
-                className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-md mt-6 transition-colors"
+                disabled={!acceptedTerms}
+                className={`w-full py-3 px-4 font-medium rounded-md mt-4 transition-all duration-200 ${
+                  acceptedTerms
+                    ? "bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg"
+                    : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                }`}
               >
-                Realizar pedido
+                {acceptedTerms ? "Realizar pedido" : "Acepta los términos para continuar"}
               </button>
 
-              {/* Términos y condiciones */}
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                Al realizar el pedido, aceptas nuestros{" "}
-                <button
-                  onClick={() => navigate("/terminos")}
-                  className="text-orange-600 dark:text-orange-400 hover:underline"
-                >
-                  Términos y Condiciones
-                </button>{" "}
-                y{" "}
-                <button
-                  onClick={() => navigate("/privacidad")}
-                  className="text-orange-600 dark:text-orange-400 hover:underline"
-                >
-                  Política de Privacidad
-                </button>
-              </p>
+              {/* Mensaje informativo cuando no están aceptados los términos */}
+              {!acceptedTerms && (
+                <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+                  <div className="flex items-center text-yellow-700 dark:text-yellow-400">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-2 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-xs">
+                      Debes aceptar los términos y condiciones para proceder con tu pedido
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -435,4 +496,3 @@ const CarritoDetalle = () => {
 }
 
 export default CarritoDetalle
-
