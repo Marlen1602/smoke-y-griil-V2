@@ -74,7 +74,7 @@ export const registrarPedido = async (req, res) => {
         clienteEmail: datosUsuario?.email || usuarioExiste.email,
         clienteTelefono: datosUsuario?.phone || null,
         estado: "En preparación",
-        detallePedido: {
+        detalle_pedido: {
           create: productos.map((p) => ({
             productoId: p.id,
             cantidad: p.cantidad,
@@ -82,7 +82,7 @@ export const registrarPedido = async (req, res) => {
         },
       },
       include: {
-        detallePedido: {
+        detalle_pedido: {
           include: {
             producto: true,
           },
@@ -104,7 +104,7 @@ export const obtenerPedidos = async (req, res) => {
     const pedidos = await prisma.pedidos.findMany({
       include: {
         usuario: true,
-        detallePedido: {
+        detalle_pedido: {
           include: {
             producto: true,
           },
@@ -145,7 +145,7 @@ export const obtenerPedidosUsuario = async (req, res) => {
       },
       include: {
         usuario: true,
-        detallePedido: {
+        detalle_pedido: {
           include: {
             producto: true,
           },
@@ -241,7 +241,7 @@ export const obtenerPedidosPorUsername = async (req, res) => {
             email: true,
           },
         },
-        detallePedido: {
+        detalle_pedido: {
           include: {
             producto: {
               include: {
