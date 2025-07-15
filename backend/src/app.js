@@ -45,15 +45,7 @@ app.use(xss());
 // Middleware para cookies seguras
 app.use(cookieParser());
 
-// Rate limiting global (para todas las rutas)
-//const globalLimiter = rateLimit({
-   // windowMs: 15 * 60 * 1000, // 15 minutos
-   // max: 100, // Máximo 100 solicitudes por IP
-   // message: "Demasiadas solicitudes, intenta más tarde.",
-//});
 
-// Aplicar limitador global a todas las rutas
-//app.use(globalLimiter);
 
 app.use(cors({
     origin: "http://localhost:5173",
