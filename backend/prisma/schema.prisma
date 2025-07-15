@@ -87,10 +87,10 @@ model productos {
   Imagen           String?            @db.VarChar(500)
   ID_Categoria     Int?
   TieneTamanos     Boolean            @default(false)
+  detalle_pedido   detalle_pedido[]
   categorias       categorias?        @relation(fields: [ID_Categoria], references: [ID_Categoria], onUpdate: Restrict, map: "productos_ibfk_1")
   promociones      promociones?
   tamanosproductos tamanosproductos[]
-  detallePedidos Detalle_Pedido[]
 
   @@index([ID_Categoria], map: "ID_Categoria")
 }
@@ -135,7 +135,6 @@ model users {
   nombre                     String              @db.VarChar(255)
   apellidos                  String              @db.VarChar(255)
   email                      String              @unique(map: "email") @db.VarChar(255)
-  telefono                   String?             @db.VarChar(20)
   password                   String              @db.VarChar(255)
   tipoUsuarioId              Int                 @default(2)
   verificationCode           String?             @db.VarChar(255)
@@ -149,13 +148,13 @@ model users {
   updatedAt                  DateTime            @updatedAt
   preguntaSecretaId          Int?
   respuestaSecreta           String?             @db.VarChar(255)
+  telefono                   String?             @db.VarChar(20)
+  pedidos                    pedidos[]
   preguntas_secretas         preguntas_secretas? @relation(fields: [preguntaSecretaId], references: [id], map: "fk_pregunta_secreta")
   tipousuarios               tipousuarios        @relation(fields: [tipoUsuarioId], references: [ID], onUpdate: Restrict, map: "users_ibfk_1")
-  pedidos pedidos[]
+
   @@index([preguntaSecretaId], map: "fk_pregunta_secreta")
   @@index([tipoUsuarioId], map: "tipoUsuarioId")
-  
-
 }
 
 model ventas_semanales {
@@ -171,6 +170,34 @@ model ventas_semanales {
   total_meat_kg Float?   @db.Float
 }
 
+model pedidos {
+  id              Int              @id @default(autoincrement())
+  usuarioId       Int
+  estado          String           @default("En preparación")
+  total           Float
+  fecha           DateTime         @default(now())
+  direccionEnvio  String?
+  clienteEmail    String?          @db.VarChar(255)
+  clienteNombre   String?          @db.VarChar(255)
+  clienteTelefono String?          @db.VarChar(20)
+  detalle_pedido  detalle_pedido[]
+  usuario         users            @relation(fields: [usuarioId], references: [id])
+
+  @@index([usuarioId], map: "pedidos_usuarioId_fkey")
+}
+
+model detalle_pedido {
+  id         Int       @id @default(autoincrement())
+  pedidoId   Int
+  productoId Int
+  cantidad   Int
+  pedidos    pedidos   @relation(fields: [pedidoId], references: [id], map: "Detalle_Pedido_pedidoId_fkey")
+  productos  productos @relation(fields: [productoId], references: [ID_Producto], map: "Detalle_Pedido_productoId_fkey")
+
+  @@index([pedidoId], map: "Detalle_Pedido_pedidoId_fkey")
+  @@index([productoId], map: "Detalle_Pedido_productoId_fkey")
+}
+
 enum promociones_Dia_Semana {
   Lunes
   Martes
@@ -180,28 +207,3 @@ enum promociones_Dia_Semana {
   S_bado    @map("Sábado")
   Domingo
 }
-model pedidos {
-  id             Int              @id @default(autoincrement())
-  usuarioId      Int              
-  estado         String           @default("En preparación")
-  total          Float
-  direccionEnvio String?          // ← nuevo campo
-  clienteNombre  String?          @db.VarChar(255)
-  clienteEmail   String?          @db.VarChar(255)  
-  clienteTelefono String?         @db.VarChar(20)
-  fecha          DateTime         @default(now())
-  usuario        users            @relation(fields: [usuarioId], references: [id])
-  detallePedido  Detalle_Pedido[]
-}
-
-
-model Detalle_Pedido {
-  id         Int        @id @default(autoincrement())
-  pedidoId   Int
-  productoId Int
-  cantidad   Int
-
-  pedido     pedidos    @relation(fields: [pedidoId], references: [id])
-  producto   productos  @relation(fields: [productoId], references: [ID_Producto])
-}
-
