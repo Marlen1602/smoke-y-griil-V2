@@ -84,7 +84,7 @@ export const registrarPedido = async (req, res) => {
       include: {
         detalle_pedido: {
           include: {
-            producto: true,
+            productos: true,
           },
         },
         usuario: true,
@@ -106,7 +106,7 @@ export const obtenerPedidos = async (req, res) => {
         usuario: true,
         detalle_pedido: {
           include: {
-            producto: true,
+            productos: true,
           },
         },
       },
@@ -147,7 +147,7 @@ export const obtenerPedidosUsuario = async (req, res) => {
         usuario: true,
         detalle_pedido: {
           include: {
-            producto: true,
+            productos: true,
           },
         },
       },
