@@ -243,7 +243,7 @@ export const obtenerPedidosPorUsername = async (req, res) => {
         },
         detalle_pedido: {
           include: {
-            producto: {
+            productos: {
               include: {
                 categorias: true, // Incluir categoría del producto
               },
