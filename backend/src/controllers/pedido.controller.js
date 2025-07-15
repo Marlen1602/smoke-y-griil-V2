@@ -266,15 +266,15 @@ export const obtenerPedidosPorUsername = async (req, res) => {
       clienteEmail: pedido.clienteEmail,
       clienteTelefono: pedido.clienteTelefono,
       fecha: pedido.fecha,
-      productos: pedido.detallePedido.map((detalle) => ({
-        id: detalle.producto.ID_Producto,
-        nombre: detalle.producto.Nombre,
-        descripcion: detalle.producto.Descripcion,
-        precio: detalle.producto.Precio,
+      productos: pedido.detalle_pedido.map((detalle) => ({
+        id: detalle.productos.ID_Producto,
+        nombre: detalle.productos.Nombre,
+        descripcion: detalle.productos.Descripcion,
+        precio: detalle.productos.Precio,
         cantidad: detalle.cantidad,
-        categoria: detalle.producto.categorias?.Nombre || "Sin categoría",
-        imagen: detalle.producto.Imagen,
-        subtotal: Number(detalle.producto.Precio) * detalle.cantidad,
+        categoria: detalle.productos.categorias?.Nombre || "Sin categoría",
+        imagen: detalle.productos.Imagen,
+        subtotal: Number(detalle.productos.Precio) * detalle.cantidad,
       })),
     }))
 
