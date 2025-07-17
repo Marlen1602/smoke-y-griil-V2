@@ -196,7 +196,7 @@ const MisPedidos = () => {
               <div>
                 <span className="text-sm text-gray-500 dark:text-gray-400">Productos:</span>
                 <div className="mt-2 space-y-2">
-                  {pedido.detallePedido?.map((detalle, index) => (
+                  {pedido.detalle_pedido?.map((detalle, index) => (
                     <div
                       key={index}
                       className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600"
@@ -417,7 +417,7 @@ const MisPedidos = () => {
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Productos</p>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {pedido.detallePedido?.length || 0} items
+                          {pedido.detalle_pedido?.length || 0} items
                         </p>
                       </div>
                       <div>
@@ -436,11 +436,11 @@ const MisPedidos = () => {
                       <div className="mb-2 sm:mb-0">
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Productos:{" "}
-                          {pedido.detallePedido
+                          {pedido.detalle_pedido
                             ?.slice(0, 2)
                             .map((d) => d.producto?.Nombre)
                             .join(", ")}
-                          {pedido.detallePedido?.length > 2 && ` y ${pedido.detallePedido.length - 2} más...`}
+                          {pedido.detalle_pedido?.length > 2 && ` y ${pedido.detalle_pedido.length - 2} más...`}
                         </p>
                       </div>
                       <button

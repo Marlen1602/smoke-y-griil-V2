@@ -106,15 +106,7 @@ export const obtenerPedidos = async (req, res) => {
         usuario: true,
         detalle_pedido: {
           include: {
-           productos: {
-              select: {
-                ID_Producto: true,
-                Nombre: true,
-                Precio: true,
-                Imagen: true,
-                Descripcion: true
-              }
-            }
+            productos: true,
           },
         },
       },
