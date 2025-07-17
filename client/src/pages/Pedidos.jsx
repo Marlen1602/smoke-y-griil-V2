@@ -12,7 +12,7 @@ const MisPedidos = () => {
   const [selectedPedido, setSelectedPedido] = useState(null)
 
   // URL de la API
-  const API_URL = import.meta.env.VITE_API_URL 
+  const API_URL = import.meta.env.VITE_API_URL
 
   // Función para obtener los pedidos del usuario
   const fetchMisPedidos = async () => {
@@ -31,11 +31,9 @@ const MisPedidos = () => {
     try {
       setLoading(true)
       setError(null)
-
       console.log("=== FETCHING MIS PEDIDOS ===")
       console.log("Usuario:", user)
       console.log("URL:", `${API_URL}/pedidos/usuario/${user.id}`)
-      console.log("Token:", localStorage.getItem("token"))
 
       const response = await fetch(`${API_URL}/pedidos/usuario/${user.id}`, {
         method: "GET",
@@ -46,24 +44,32 @@ const MisPedidos = () => {
       })
 
       console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
 
       if (!response.ok) {
         const errorText = await response.text()
         console.log("Error response:", errorText)
-
         let errorData
         try {
           errorData = JSON.parse(errorText)
         } catch (e) {
           errorData = { message: errorText || "Error del servidor" }
         }
-
         throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`)
       }
 
       const data = await response.json()
       console.log("Mis pedidos recibidos:", data)
+
+      // Debug: Verificar estructura de datos
+      if (data.length > 0) {
+        console.log("Estructura del primer pedido:", data[0])
+        console.log("Detalle del primer pedido:", data[0].detalle_pedido)
+        if (data[0].detalle_pedido && data[0].detalle_pedido.length > 0) {
+          console.log("Primer producto del primer pedido:", data[0].detalle_pedido[0])
+          console.log("Datos del producto:", data[0].detalle_pedido[0].productos)
+        }
+      }
+
       setPedidos(data)
     } catch (error) {
       console.error("Error fetching mis pedidos:", error)
@@ -77,7 +83,6 @@ const MisPedidos = () => {
     console.log("=== USEEFFECT MIS PEDIDOS ===")
     console.log("authLoading:", authLoading)
     console.log("user:", user)
-
     if (!authLoading) {
       fetchMisPedidos()
     }
@@ -133,7 +138,7 @@ const MisPedidos = () => {
 
   // Función para formatear precio
   const formatPrice = (price) => {
-    return `$${Number(price).toFixed(2)}`
+    return `$${Number(price || 0).toFixed(2)}`
   }
 
   // Función para formatear fecha
@@ -148,9 +153,22 @@ const MisPedidos = () => {
     })
   }
 
+  // Función para obtener el nombre del producto de manera segura
+  const getProductName = (producto) => {
+    return producto?.Nombre || producto?.nombre || "Producto sin nombre"
+  }
+
+  // Función para obtener el precio del producto de manera segura
+  const getProductPrice = (producto) => {
+    return producto?.Precio || producto?.precio || 0
+  }
+
   // Modal para ver detalles del pedido
   const PedidoModal = ({ pedido, onClose }) => {
     if (!pedido) return null
+
+    console.log("Modal - Pedido completo:", pedido)
+    console.log("Modal - Detalle pedido:", pedido.detalle_pedido)
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
@@ -189,27 +207,44 @@ const MisPedidos = () => {
                 <div className="mt-1">
                   <p className="font-medium text-gray-900 dark:text-white">{pedido.clienteNombre}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-300">{pedido.clienteEmail}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{pedido.clienteTelefono}</p>
+                  {pedido.clienteTelefono && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{pedido.clienteTelefono}</p>
+                  )}
                 </div>
               </div>
 
               <div>
                 <span className="text-sm text-gray-500 dark:text-gray-400">Productos:</span>
                 <div className="mt-2 space-y-2">
-                  {pedido.detalle_pedido?.map((detalle, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{detalle.producto?.Nombre}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Cantidad: {detalle.cantidad}</p>
-                      </div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {formatPrice((detalle.producto?.Precio || 0) * detalle.cantidad)}
-                      </p>
+                  {pedido.detalle_pedido && pedido.detalle_pedido.length > 0 ? (
+                    pedido.detalle_pedido.map((detalle, index) => {
+                      console.log(`Producto ${index}:`, detalle)
+                      const producto = detalle.productos
+                      const nombreProducto = getProductName(producto)
+                      const precioProducto = getProductPrice(producto)
+                      const cantidad = detalle.cantidad || 0
+                      const subtotal = precioProducto * cantidad
+
+                      return (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600"
+                        >
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">{nombreProducto}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Cantidad: {cantidad} × {formatPrice(precioProducto)}
+                            </p>
+                          </div>
+                          <p className="font-semibold text-gray-900 dark:text-white">{formatPrice(subtotal)}</p>
+                        </div>
+                      )
+                    })
+                  ) : (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">No se encontraron productos en este pedido</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -303,12 +338,21 @@ const MisPedidos = () => {
             <p className="text-gray-600 dark:text-gray-300">
               Aquí puedes ver el estado de todos tus pedidos, {user?.nombre || "Usuario"}
             </p>
-
-            {/* Botón de debug */}
+            {/* Botón de debug mejorado */}
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 <strong>Debug Info:</strong> Usuario ID: {user?.id}, Total pedidos: {pedidos.length}
               </p>
+              {pedidos.length > 0 && (
+                <details className="mt-2">
+                  <summary className="text-sm text-blue-700 dark:text-blue-300 cursor-pointer">
+                    Ver estructura de datos
+                  </summary>
+                  <pre className="mt-2 text-xs bg-white dark:bg-gray-800 p-2 rounded overflow-auto max-h-40">
+                    {JSON.stringify(pedidos[0], null, 2)}
+                  </pre>
+                </details>
+              )}
               <button
                 onClick={fetchMisPedidos}
                 className="mt-2 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
@@ -436,10 +480,12 @@ const MisPedidos = () => {
                       <div className="mb-2 sm:mb-0">
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Productos:{" "}
-                          {pedido.detalle_pedido
-                            ?.slice(0, 2)
-                            .map((d) => d.producto?.Nombre)
-                            .join(", ")}
+                          {pedido.detalle_pedido && pedido.detalle_pedido.length > 0
+                            ? pedido.detalle_pedido
+                                .slice(0, 2)
+                                .map((d) => getProductName(d.productos))
+                                .join(", ")
+                            : "Sin productos"}
                           {pedido.detalle_pedido?.length > 2 && ` y ${pedido.detalle_pedido.length - 2} más...`}
                         </p>
                       </div>
