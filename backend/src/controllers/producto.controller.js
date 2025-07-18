@@ -60,8 +60,7 @@ export const createProducto = async (req, res) => {
 
     // Subir imagen a Cloudinary si existe
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      imageUrl = result.secure_url;
+          imageUrl = req.file.path;
     }
 
     // Convertir valores booleanos
