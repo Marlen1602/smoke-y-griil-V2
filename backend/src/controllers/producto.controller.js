@@ -78,7 +78,7 @@ export const createProducto = async (req, res) => {
         Descripcion,
         ID_Categoria: ID_Categoria ? parseInt(ID_Categoria) : null,
         TieneTamanos: tieneTamanosValue,
-        Precio: !tieneTamanosValue && Precio ? parseFloat(Precio) : 0,
+        Precio: !tieneTamanosValue && !isNaN(parseFloat(Precio)) ? parseFloat(Precio) : 0,
         Disponible: disponibleValue,
         Imagen: imageUrl,
       },
@@ -141,7 +141,7 @@ export const updateProducto = async (req, res) => {
       Descripcion,
       TieneTamanos: tieneTamanosValue,
       Disponible: disponibleValue,
-      Precio: !tieneTamanosValue && Precio ? parseFloat(Precio) : productoExistente.Precio,
+      Precio: !tieneTamanosValue && !isNaN(parseFloat(Precio)) ? parseFloat(Precio) :  productoExistente.Precio,
       ID_Categoria: ID_Categoria ? parseInt(ID_Categoria) : null
     };
 
