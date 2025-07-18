@@ -252,7 +252,7 @@ export const deleteProducto = async (req, res) => {
       where: { ID_Producto: parseInt(id) }
     });
 
-    await prisma.detalle_Pedido.deleteMany({
+    await prisma.detalle_pedido.deleteMany({
       where: { productoId: parseInt(id) }
     });
 
