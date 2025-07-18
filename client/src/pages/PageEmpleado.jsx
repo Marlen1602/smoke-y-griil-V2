@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 
 export default function EmployeePanel() {
@@ -22,14 +24,14 @@ export default function EmployeePanel() {
         nombre: "María García",
         email: "maria@email.com",
       },
-      detallePedido: [
+      detalle_pedido: [
         {
           cantidad: 1,
-          producto: { Nombre: "Pizza Margherita" },
+          productos: { Nombre: "Pizza Margherita", Precio: 15.5 },
         },
         {
           cantidad: 2,
-          producto: { Nombre: "Coca Cola" },
+          productos: { Nombre: "Coca Cola", Precio: 5.0 },
         },
       ],
     },
@@ -44,6 +46,7 @@ export default function EmployeePanel() {
       // Si usamos datos de prueba
       if (useMockData) {
         setTimeout(() => {
+          console.log("Usando datos mock:", mockPedidos)
           setPedidos(mockPedidos)
           setLoading(false)
         }, 1000)
@@ -51,7 +54,10 @@ export default function EmployeePanel() {
       }
 
       // Intentar conectar con la API real
-      const baseURL = import.meta.env.VITE_API_URL 
+      const baseURL = import.meta.env.VITE_API_URL
+      console.log("=== FETCHING PEDIDOS (EMPLOYEE PANEL) ===")
+      console.log("URL:", `${baseURL}/pedidos`)
+
       const response = await fetch(`${baseURL}/pedidos`, {
         method: "GET",
         headers: {
@@ -71,10 +77,18 @@ export default function EmployeePanel() {
       }
 
       const data = await response.json()
-      console.log("Datos de pedidos recibidos:", data) // Debug para ver la estructura
+      console.log("Datos de pedidos recibidos:", data)
+
+      // Debug: Verificar estructura de datos
       if (data.length > 0) {
-        console.log("Primer pedido completo:", data[0]) // Ver el primer pedido completo
+        console.log("Estructura del primer pedido:", data[0])
+        console.log("Detalle del primer pedido:", data[0].detalle_pedido)
+        if (data[0].detalle_pedido && data[0].detalle_pedido.length > 0) {
+          console.log("Primer producto del primer pedido:", data[0].detalle_pedido[0])
+          console.log("Datos del producto:", data[0].detalle_pedido[0].productos)
+        }
       }
+
       setPedidos(data)
     } catch (error) {
       console.error("Error fetching pedidos:", error)
@@ -91,13 +105,13 @@ export default function EmployeePanel() {
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("token")
-    // Redirigir al login
     window.location.href = "/login"
   }
 
   const cambiarEstadoPedido = async (pedidoId, nuevoEstado) => {
     try {
-      const baseURL = import.meta.env.VITE_API_URL 
+      const baseURL = import.meta.env.VITE_API_URL
+
       const response = await fetch(`${baseURL}/pedidos/${pedidoId}/estado`, {
         method: "PUT",
         headers: {
@@ -121,7 +135,6 @@ export default function EmployeePanel() {
       setPedidos((prevPedidos) =>
         prevPedidos.map((pedido) => (pedido.id === pedidoId ? { ...pedido, estado: nuevoEstado } : pedido)),
       )
-
       alert("Estado actualizado correctamente")
     } catch (error) {
       console.error("Error updating pedido:", error)
@@ -202,9 +215,37 @@ export default function EmployeePanel() {
     }
   }
 
-  // Formatear los datos del pedido para mostrar - USAR CAMPOS ESPECÍFICOS DEL PEDIDO
+  // Funciones auxiliares para obtener datos de productos de manera segura
+  const getProductName = (producto) => {
+    return producto?.Nombre || producto?.nombre || "Producto sin nombre"
+  }
+
+  const getProductPrice = (producto) => {
+    return producto?.Precio || producto?.precio || 0
+  }
+
+  // Formatear los datos del pedido para mostrar - MEJORADO PARA MANEJAR AMBAS ESTRUCTURAS
   const formatearPedido = (pedido) => {
-    console.log("Formateando pedido:", pedido) // Debug
+    console.log("Formateando pedido:", pedido)
+
+    // Manejar tanto detalle_pedido (backend real) como detallePedido (mock data)
+    const detalles = pedido.detalle_pedido || pedido.detallePedido || []
+    console.log("Detalles encontrados:", detalles)
+
+    const items = detalles.map((detalle) => {
+      console.log("Procesando detalle:", detalle)
+
+      // Manejar tanto 'productos' (backend real) como 'producto' (mock data)
+      const producto = detalle.productos || detalle.producto
+      console.log("Producto encontrado:", producto)
+
+      const nombreProducto = getProductName(producto)
+      const cantidad = detalle.cantidad || 0
+
+      return `${nombreProducto} (x${cantidad})`
+    })
+
+    console.log("Items formateados:", items)
 
     return {
       id: pedido.id,
@@ -212,11 +253,8 @@ export default function EmployeePanel() {
       cliente: pedido.clienteNombre || pedido.usuario?.nombre || pedido.usuario?.email || "Cliente desconocido",
       telefono: pedido.clienteTelefono || pedido.usuario?.telefono || "No disponible",
       direccion: pedido.direccionEnvio || "Dirección no disponible",
-      items:
-        pedido.detallePedido?.map(
-          (detalle) => `${detalle.producto?.Nombre || detalle.producto?.nombre || "Producto"} (x${detalle.cantidad})`,
-        ) || [],
-      total: Number(pedido.total) || 0, // Asegurar que sea un número
+      items: items,
+      total: Number(pedido.total) || 0,
       estado: pedido.estado || "Desconocido",
       fecha: pedido.fecha,
       metodoPago: "Efectivo al entregar",
@@ -264,6 +302,16 @@ export default function EmployeePanel() {
             Asegúrate de que tu servidor backend esté ejecutándose en el puerto correcto (revisa tu variable
             VITE_API_URL)
           </p>
+
+          {/* Debug info mejorado */}
+          {pedidos.length > 0 && (
+            <details className="mt-4 text-left">
+              <summary className="text-sm text-blue-600 cursor-pointer">Ver estructura de datos recibidos</summary>
+              <pre className="mt-2 text-xs bg-white p-2 rounded overflow-auto max-h-40 border">
+                {JSON.stringify(pedidos[0], null, 2)}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
     )
@@ -292,8 +340,13 @@ export default function EmployeePanel() {
                 </div>
               </div>
             </div>
-
             <div className="flex items-center space-x-4">
+              {/* Debug info en header */}
+              <div className="text-xs text-gray-500 hidden md:block">
+                Total: {pedidos.length} | Activos: {pedidosActivos.length} | Completados: {historialPedidos.length}
+                {useMockData && <span className="text-orange-600 ml-2">(Datos de prueba)</span>}
+              </div>
+
               <button
                 onClick={fetchPedidos}
                 className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
@@ -308,7 +361,6 @@ export default function EmployeePanel() {
                 </svg>
                 <span className="hidden sm:inline">Actualizar</span>
               </button>
-
               <button
                 onClick={handleCerrarSesion}
                 className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
@@ -425,14 +477,18 @@ export default function EmployeePanel() {
 
                           <div>
                             <h4 className="font-medium text-sm text-gray-700 mb-2">Pedido:</h4>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {pedido.items.map((item, index) => (
-                                <li key={index} className="flex items-center">
-                                  <span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span>
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
+                            {pedido.items.length > 0 ? (
+                              <ul className="text-sm text-gray-600 space-y-1">
+                                {pedido.items.map((item, index) => (
+                                  <li key={index} className="flex items-center">
+                                    <span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span>
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-red-500 italic">No se encontraron productos</p>
+                            )}
                           </div>
 
                           <div className="flex items-center justify-between pt-2 border-t">
@@ -462,7 +518,6 @@ export default function EmployeePanel() {
                                 Marcar Listo para Entrega
                               </button>
                             )}
-
                             {pedido.estado === "Listo para entrega" && (
                               <button
                                 onClick={() => cambiarEstadoPedido(pedido.id, "Entregado")}
@@ -523,30 +578,30 @@ export default function EmployeePanel() {
                               <h3 className="font-semibold text-lg">Pedido #{pedido.id}</h3>
                               {getEstadoBadge(pedido.estado)}
                             </div>
-
                             <div className="mb-3">
                               <p className="text-gray-900 font-medium">{pedido.cliente}</p>
                               <p className="text-gray-600 text-sm">{pedido.telefono}</p>
                               <p className="text-gray-600 text-sm">{pedido.direccion}</p>
                             </div>
-
                             <div className="flex flex-wrap gap-2 mb-3">
-                              {pedido.items.map((item, index) => (
-                                <span
-                                  key={index}
-                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border"
-                                >
-                                  {item}
-                                </span>
-                              ))}
+                              {pedido.items.length > 0 ? (
+                                pedido.items.map((item, index) => (
+                                  <span
+                                    key={index}
+                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border"
+                                  >
+                                    {item}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-sm text-red-500 italic">Sin productos</span>
+                              )}
                             </div>
-
                             <div className="text-sm text-gray-500 space-y-1">
                               <p>Creado: {new Date(pedido.fecha).toLocaleString()}</p>
                               <p>Método de pago: {pedido.metodoPago}</p>
                             </div>
                           </div>
-
                           <div className="text-right">
                             <p className="text-2xl font-bold text-green-600">${pedido.total.toFixed(2)}</p>
                           </div>

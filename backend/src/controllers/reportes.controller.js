@@ -3,7 +3,7 @@ import prisma from "../db.js"
 //Platillo mas vendido
 export const obtenerPlatillosMasVendidos = async (req, res) => {
   try {
-    const resultados = await prisma.detalle_Pedido.groupBy({
+    const resultados = await prisma.detalle_pedido.groupBy({
       by: ["productoId"],
       _sum: {
         cantidad: true,
