@@ -259,3 +259,17 @@ export const obtenerClientesFrecuentes = async () => {
     throw error.response?.data || { message: "Error al obtener clientes frecuentes" }
   }
 }
+
+export const obtenerRecomendaciones = async (producto) => {
+  try {
+    const res = await axios.post(
+      `${API}/recomendaciones`,
+      { producto },
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("❌ Error al obtener recomendaciones:", error);
+    return [];
+  }
+};

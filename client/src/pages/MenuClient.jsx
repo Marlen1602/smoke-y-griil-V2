@@ -1,12 +1,14 @@
+"use client"
+
 import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext"
-import { getProductosRequest, getCategorias, getTamanosRequest } from "../api/auth.js"
+import { getProductosRequest, getCategorias, getTamanosRequest, obtenerRecomendaciones } from "../api/auth.js"
 import AuthModal from "./AuthModal"
 import { AuthContext } from "../contex/AuthContext"
 import { useCart } from "../contex/CartContext"
 import ClientLayout from "../layouts/ClientLayaut.jsx"
-import Breadcrumbs from "../pages/Breadcrumbs";
+import Breadcrumbs from "../pages/Breadcrumbs"
 import { ShoppingCart, ShoppingBag } from "lucide-react"
 
 // Función para generar un color basado en el texto
@@ -28,22 +30,18 @@ const ProductImage = ({ src, alt, className, productName }) => {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Función para manejar errores de carga
   const handleError = () => {
     console.error(`Error al cargar la imagen: ${src}`)
     setError(true)
     setLoading(false)
   }
 
-  // Función para manejar carga exitosa
   const handleLoad = () => {
     console.log(`Imagen cargada exitosamente: ${src}`)
     setLoading(false)
   }
 
-  // Si hay error o no hay src, mostrar imagen basada en texto
   if (error || !src) {
-    // Obtener las iniciales del texto (máximo 2 caracteres)
     const getInitials = (text) => {
       if (!text) return "?"
       const words = text.split(" ")
@@ -52,10 +50,8 @@ const ProductImage = ({ src, alt, className, productName }) => {
       }
       return (words[0][0] + words[1][0]).toUpperCase()
     }
-
     const initials = getInitials(productName || alt)
     const bgColor = stringToColor(productName || alt || "default")
-
     return (
       <div className={`${className} flex items-center justify-center`} style={{ backgroundColor: bgColor }}>
         <span className="text-white text-2xl font-bold">{initials}</span>
@@ -63,7 +59,6 @@ const ProductImage = ({ src, alt, className, productName }) => {
     )
   }
 
-  // Si hay src y no hay error, mostrar la imagen
   return (
     <div
       className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden relative`}
@@ -85,28 +80,102 @@ const ProductImage = ({ src, alt, className, productName }) => {
   )
 }
 
+// Componente para mostrar recomendaciones
+const RecommendationsSection = ({ recomendaciones, loadingRecommendations, errorRecommendations, onProductClick }) => {
+  if (loadingRecommendations) {
+    return (
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Cargando recomendaciones...</h3>
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (errorRecommendations) {
+    return (
+      <div className="mt-8">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 px-4 py-3 rounded-lg">
+          <p className="text-sm">No se pudieron cargar las recomendaciones en este momento.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!recomendaciones || recomendaciones.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="mt-8">
+      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+        <i className="fas fa-star text-orange-500 mr-2"></i>
+        También te podría interesar:
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {recomendaciones.map((prod, index) => (
+          <div
+            key={prod.ID_Producto || index}
+            className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-105"
+            onClick={() => onProductClick(prod)}
+          >
+            <div className="relative mb-3">
+              <ProductImage
+                src={prod.Imagen}
+                alt={prod.Nombre}
+                productName={prod.Nombre}
+                className="w-full h-32 rounded-lg"
+              />
+              {prod.TieneTamanos && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  <i className="fas fa-ruler-combined mr-1"></i>
+                  Tamaños
+                </span>
+              )}
+            </div>
+            <h4 className="font-bold text-gray-800 dark:text-white text-sm mb-1 line-clamp-1">{prod.Nombre}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">{prod.Descripcion}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-orange-600 font-bold text-sm">
+                {prod.TieneTamanos
+                  ? "Precio variable"
+                  : prod.Precio && Number.parseFloat(prod.Precio) > 0
+                    ? `$${Number.parseFloat(prod.Precio).toFixed(2)}`
+                    : "Consultar precio"}
+              </span>
+              <button className="text-orange-500 hover:text-orange-600 text-sm font-medium">Ver más →</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const MenuClient = () => {
   const [filteredMenu, setFilteredMenu] = useState({})
   const [allProducts, setAllProducts] = useState([])
   const [categories, setCategories] = useState([])
-  const [sizes, setSizes] = useState([]) // Estado para almacenar todos los tamaños
+  const [sizes, setSizes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [query, setQuery] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  const [selectedSize, setSelectedSize] = useState(null) // Estado para el tamaño seleccionado
+  const [selectedSize, setSelectedSize] = useState(null)
   const [selectedComplements, setSelectedComplements] = useState([])
-  const [quantity, setQuantity] = useState(1) // Estado para la cantidad
+  const [quantity, setQuantity] = useState(1)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [minPrice, setMinPrice] = useState("")
   const [maxPrice, setMaxPrice] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
 
-  // Nuevo estado para el modal de producto agregado
-  // Estados para la UI
+  // Estados para recomendaciones
+  const [recomendaciones, setRecomendaciones] = useState([])
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false)
+  const [errorRecommendations, setErrorRecommendations] = useState(null)
 
-  // Hooks y contextos
   const { isDarkMode, toggleTheme } = useTheme()
   const { user } = useContext(AuthContext)
   const { addToCart, cartCount } = useCart()
@@ -119,7 +188,6 @@ const MenuClient = () => {
         setLoading(true)
         console.log("Iniciando carga de datos del menú...")
 
-        // Obtener categorías
         let categoriesData = []
         try {
           const categoriesResponse = await getCategorias()
@@ -131,7 +199,6 @@ const MenuClient = () => {
         }
         setCategories(categoriesData)
 
-        // Obtener productos
         let productsData = []
         try {
           const productsResponse = await getProductosRequest()
@@ -143,7 +210,6 @@ const MenuClient = () => {
         }
         setAllProducts(productsData)
 
-        // Obtener tamaños
         let sizesData = []
         try {
           const sizesResponse = await getTamanosRequest()
@@ -155,7 +221,6 @@ const MenuClient = () => {
         }
         setSizes(sizesData)
 
-        // Agrupar productos por categoría
         if (productsData.length > 0 && categoriesData.length > 0) {
           const groupedProducts = groupProductsByCategory(productsData, categoriesData)
           console.log("Productos agrupados por categoría:", groupedProducts)
@@ -179,9 +244,39 @@ const MenuClient = () => {
     fetchData()
   }, [])
 
+  // Cargar recomendaciones al seleccionar un producto
+  useEffect(() => {
+    if (selectedItem) {
+      const loadRecommendations = async () => {
+        try {
+          setLoadingRecommendations(true)
+          setErrorRecommendations(null)
+
+          // Usar exactamente tu función obtenerRecomendaciones
+          const data = await obtenerRecomendaciones(selectedItem.name)
+
+          // Usar directamente los datos que retorna tu API
+          setRecomendaciones(data || [])
+        } catch (error) {
+          console.error("Error al cargar recomendaciones:", error)
+          setErrorRecommendations("No se pudieron cargar las recomendaciones")
+          setRecomendaciones([])
+        } finally {
+          setLoadingRecommendations(false)
+        }
+      }
+
+      loadRecommendations()
+    } else {
+      // Limpiar recomendaciones cuando no hay producto seleccionado
+      setRecomendaciones([])
+      setLoadingRecommendations(false)
+      setErrorRecommendations(null) // Fixed variable name here
+    }
+  }, [selectedItem])
+
   // Función para agrupar productos por categoría
   const groupProductsByCategory = (products, categories) => {
-    // Verificar si tenemos datos válidos
     if (!Array.isArray(products) || !Array.isArray(categories)) {
       console.error("Datos inválidos:", { products, categories })
       return {}
@@ -190,16 +285,11 @@ const MenuClient = () => {
     console.log("Productos recibidos:", products)
     console.log("Categorías recibidas:", categories)
 
-    // Crear un objeto para almacenar productos por categoría
     const grouped = {}
-
-    // Crear un mapa de ID de categoría a nombre para búsqueda rápida
     const categoryMap = {}
     categories.forEach((cat) => {
-      // Manejar diferentes formatos de propiedades
       const id = cat.ID_Categoria || cat.id
       const name = cat.Nombre || cat.nombre
-
       if (id && name) {
         categoryMap[id] = name
       }
@@ -207,29 +297,22 @@ const MenuClient = () => {
 
     console.log("Mapa de categorías:", categoryMap)
 
-    // Agrupar productos por su categoría
     products.forEach((product) => {
-      // Verificar si el producto está disponible (si existe la propiedad)
       const isAvailable = product.Disponible !== undefined ? product.Disponible : true
 
       if (isAvailable) {
-        // Obtener el ID de categoría del producto
         const categoryId = product.ID_Categoria || product.categoriaId || product.id_categoria
-
-        // Obtener el nombre de la categoría usando el mapa
         const categoryName = categoryMap[categoryId] || "Sin categoría"
 
-        // Si la categoría no existe en el objeto agrupado, crearla
         if (!grouped[categoryName]) {
           grouped[categoryName] = []
         }
 
-        // Transformar el producto al formato esperado por la UI
         const formattedProduct = {
           id: product.ID_Producto || product.id,
           name: product.Nombre || product.nombre,
           description: product.Descripcion || product.descripcion,
-          price: Number.parseFloat(product.Precio || product.precio || 0),
+          price: Number.parseFloat(product.Precio || product.precio || 0), // Asegurar conversión a número
           image: product.Imagen || product.imagen,
           hasSizes: product.TieneTamanos || product.tieneTamanos || false,
           categoryId: categoryId,
@@ -239,7 +322,6 @@ const MenuClient = () => {
       }
     })
 
-    // Eliminar categorías vacías
     Object.keys(grouped).forEach((key) => {
       if (grouped[key].length === 0) {
         delete grouped[key]
@@ -262,8 +344,6 @@ const MenuClient = () => {
     console.log("Buscando tamaños para el producto ID:", productId)
     console.log("Tamaños disponibles:", sizes)
 
-    // Filtrar los tamaños que corresponden al producto seleccionado
-    // Manejar diferentes formatos de propiedades (ID_Producto vs id_producto vs productoId)
     const productSizes = sizes.filter((size) => {
       const sizeProductId = size.ID_Producto || size.id_producto || size.productoId
       return sizeProductId === productId
@@ -271,9 +351,7 @@ const MenuClient = () => {
 
     console.log("Tamaños encontrados para el producto:", productSizes)
 
-    // Asegurar que los precios sean positivos y estén formateados correctamente
     return productSizes.map((size) => {
-      // Determinar el nombre del tamaño, priorizando la columna "tamaño" con tilde
       let sizeName = null
       if (size.tamaño) sizeName = size.tamaño
       else if (size.Tamaño) sizeName = size.Tamaño
@@ -292,10 +370,8 @@ const MenuClient = () => {
   }
 
   const handleSearch = () => {
-    // Filtrar productos según los criterios de búsqueda
     let filteredProducts = [...allProducts]
 
-    // Filtrar por texto de búsqueda
     if (query.trim()) {
       filteredProducts = filteredProducts.filter((product) => {
         const nombre = product.Nombre || product.nombre || ""
@@ -306,7 +382,6 @@ const MenuClient = () => {
       })
     }
 
-    // Filtrar por precio mínimo
     if (minPrice) {
       filteredProducts = filteredProducts.filter((product) => {
         const precio = Number.parseFloat(product.Precio || product.precio || 0)
@@ -314,7 +389,6 @@ const MenuClient = () => {
       })
     }
 
-    // Filtrar por precio máximo
     if (maxPrice) {
       filteredProducts = filteredProducts.filter((product) => {
         const precio = Number.parseFloat(product.Precio || product.precio || 0)
@@ -322,7 +396,6 @@ const MenuClient = () => {
       })
     }
 
-    // Filtrar por categoría
     if (selectedCategory) {
       filteredProducts = filteredProducts.filter((product) => {
         const categoriaId = product.ID_Categoria || product.categoriaId || product.id_categoria
@@ -330,12 +403,11 @@ const MenuClient = () => {
       })
     }
 
-    // Mostrar resultados en una sola categoría
     const formattedProducts = filteredProducts.map((product) => ({
       id: product.ID_Producto || product.id,
       name: product.Nombre || product.nombre,
       description: product.Descripcion || product.descripcion,
-      price: Number.parseFloat(product.Precio || product.precio || 0),
+      price: Number.parseFloat(product.Precio || product.precio || 0), // Asegurar conversión a número
       image: product.Imagen || product.imagen,
       hasSizes: product.TieneTamanos || product.tieneTamanos || false,
       categoryId: product.ID_Categoria || product.categoriaId || product.id_categoria,
@@ -346,26 +418,21 @@ const MenuClient = () => {
 
   const handleOpenModal = (item, category) => {
     setSelectedItem({ ...item, category })
-    setSelectedSize(null) // Resetear el tamaño seleccionado
+    setSelectedSize(null)
     setSelectedComplements([])
-    setQuantity(1) // Resetear la cantidad
+    setQuantity(1)
 
-    // Si el producto tiene tamaños, cargar los tamaños disponibles
     if (item.hasSizes) {
       const productSizes = getProductSizes(item.id)
       console.log("Tamaños para el producto:", productSizes)
-
-      // Si hay tamaños disponibles, seleccionar el primero por defecto
       if (productSizes && productSizes.length > 0) {
         setSelectedSize(productSizes[0])
       }
     }
   }
 
-  // Función para seleccionar un tamaño
   const handleSizeSelect = (size) => {
     console.log("Tamaño seleccionado:", size)
-    // Asegurar que el precio sea positivo
     const updatedSize = {
       ...size,
       Precio: Math.abs(Number.parseFloat(size.Precio || 0)),
@@ -373,20 +440,17 @@ const MenuClient = () => {
     setSelectedSize(updatedSize)
   }
 
-  // Modificar la función handleAddToCart para que solo agregue al carrito y muestre un mensaje
   const handleAddToCart = () => {
     if (!user) {
       setShowAuthModal(true)
       return
     }
 
-    // Verificar si el producto requiere tamaño pero no se ha seleccionado ninguno
     if (selectedItem.hasSizes && !selectedSize) {
       alert("Por favor selecciona un tamaño antes de continuar")
       return
     }
 
-    // Asegurarse de que el producto tenga la estructura correcta para el carrito
     const itemToAdd = {
       id: selectedItem.id,
       name: selectedItem.name,
@@ -400,14 +464,9 @@ const MenuClient = () => {
     }
 
     console.log("Agregando al carrito:", itemToAdd)
-
-    // Llamar a la función addToCart del contexto
     addToCart(itemToAdd)
-
-    // Cerrar el modal
     handleCloseModal()
 
-    // Mostrar notificación simple con Tailwind
     const notification = document.createElement("div")
     notification.className =
       "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center"
@@ -419,7 +478,6 @@ const MenuClient = () => {
   `
     document.body.appendChild(notification)
 
-    // Eliminar la notificación después de 3 segundos
     setTimeout(() => {
       notification.classList.add("opacity-0", "transition-opacity", "duration-500")
       setTimeout(() => {
@@ -428,20 +486,17 @@ const MenuClient = () => {
     }, 3000)
   }
 
-  // Función para comprar ahora (ir directamente al carrito)
   const handleBuyNow = () => {
     if (!user) {
       setShowAuthModal(true)
       return
     }
 
-    // Verificar si el producto requiere tamaño pero no se ha seleccionado ninguno
     if (selectedItem.hasSizes && !selectedSize) {
       alert("Por favor selecciona un tamaño antes de continuar")
       return
     }
 
-    // Asegurarse de que el producto tenga la estructura correcta para el carrito
     const itemToAdd = {
       id: selectedItem.id,
       name: selectedItem.name,
@@ -455,39 +510,59 @@ const MenuClient = () => {
     }
 
     console.log("Comprando ahora:", itemToAdd)
-
-    // Llamar a la función addToCart del contexto
     addToCart(itemToAdd)
-
-    // Cerrar el modal
     handleCloseModal()
-
-    // Navegar al carrito
     navigate("/carrito")
   }
 
-  // Función para incrementar la cantidad
   const incrementQuantity = () => {
     setQuantity(quantity + 1)
   }
 
-  // Función para decrementar la cantidad
   const decrementQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1)
     }
   }
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setSelectedItem(null)
+    setRecomendaciones([])
+    setLoadingRecommendations(false)
+    setErrorRecommendations(null)
+  }
+
+  // Función para manejar clic en recomendación - EXACTAMENTE IGUAL AL ORIGINAL
+  const handleRecommendationClick = (recommendedProduct) => {
+    console.log("Clic en recomendación:", recommendedProduct)
+
+    // Convertir el producto recomendado al formato esperado por el modal
+    const formattedProduct = {
+      id: recommendedProduct.ID_Producto,
+      name: recommendedProduct.Nombre,
+      description: recommendedProduct.Descripcion,
+      price: Number.parseFloat(recommendedProduct.Precio || 0), // Convertir a número
+      image: recommendedProduct.Imagen,
+      hasSizes: recommendedProduct.TieneTamanos,
+      categoryId: recommendedProduct.ID_Categoria,
+    }
+
+    console.log("Producto formateado:", formattedProduct)
+
+    // Encontrar la categoría del producto recomendado
+    const category = categories.find((cat) => cat.ID_Categoria === recommendedProduct.ID_Categoria)
+    const categoryName = category ? category.Nombre : "Productos"
+
+    console.log("Categoría encontrada:", categoryName)
+
+    // Abrir modal con el producto recomendado
+    handleOpenModal(formattedProduct, categoryName)
   }
 
   // Contenido principal del menú
   const menuContent = (
-    
     <div className="p-6">
-        <Breadcrumbs />
+      <Breadcrumbs />
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Menú del Restaurante</h1>
 
       {/* Barra de búsqueda y filtros */}
@@ -630,7 +705,7 @@ const MenuClient = () => {
       {/* MODAL DE PLATILLO */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 relative w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 relative w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <button
               className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
               onClick={handleCloseModal}
@@ -645,7 +720,6 @@ const MenuClient = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-1/2">
                 <img
@@ -654,7 +728,6 @@ const MenuClient = () => {
                   className="w-full h-64 object-cover rounded-lg"
                 />
               </div>
-
               <div className="md:w-1/2">
                 <h3 className="text-lg font-semibold text-orange-500">
                   {selectedItem.category ||
@@ -677,7 +750,9 @@ const MenuClient = () => {
                 ) : (
                   <div className="mt-2">
                     <h4 className="font-medium text-gray-800 dark:text-gray-200">Precio:</h4>
-                    <p className="text-orange-600 font-bold text-2xl">${selectedItem.price.toFixed(2)}</p>
+                    <p className="text-orange-600 font-bold text-2xl">
+                      ${Number.parseFloat(selectedItem.price || 0).toFixed(2)}
+                    </p>
                   </div>
                 )}
 
@@ -745,7 +820,7 @@ const MenuClient = () => {
                           }`
                         : selectedItem.hasSizes
                           ? "Selecciona un tamaño"
-                          : `$${(selectedItem.price * quantity).toFixed(2)}`}
+                          : `$${(Number.parseFloat(selectedItem.price || 0) * quantity).toFixed(2)}`}
                     </span>
                   </div>
                 </div>
@@ -779,20 +854,24 @@ const MenuClient = () => {
                 </div>
               </div>
             </div>
+
+            {/* Recomendaciones - EXACTAMENTE IGUAL AL ORIGINAL */}
+            <RecommendationsSection
+              recomendaciones={recomendaciones}
+              loadingRecommendations={loadingRecommendations}
+              errorRecommendations={errorRecommendations}
+              onProductClick={handleRecommendationClick}
+            />
           </div>
         </div>
       )}
 
       {/* MODAL DE AUTENTICACIÓN */}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
-
-      {/* No se muestra el modal de producto agregado, se navega directamente al carrito */}
     </div>
   )
 
-  // Renderizar con el layout de cliente para mantener la navegación consistente
   return <ClientLayout>{menuContent}</ClientLayout>
 }
 
 export default MenuClient
-

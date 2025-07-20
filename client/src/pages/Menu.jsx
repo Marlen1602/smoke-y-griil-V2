@@ -1,14 +1,15 @@
-import { useState, useEffect ,useContext} from "react"
+import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../contex/ThemeContext"
 import logo from "../assets/logo.png"
 import AuthModal from "./AuthModal"
 import Breadcrumbs from "../pages/Breadcrumbs"
 import { getProductosRequest, getCategorias, getTamanosRequest } from "../api/auth.js"
-import Footer from "../pages/Footer";
-import { AuthContext } from "../contex/AuthContext";
-import CartPreview from "../pages/CartPreview"; // Importa el nuevo componente
-import { useCart } from "../contex/CartContext"; // Importa el contexto del carrito
+import Footer from "../pages/Footer"
+import { AuthContext } from "../contex/AuthContext"
+import CartPreview from "../pages/CartPreview"
+import { useCart } from "../contex/CartContext"
+import { obtenerRecomendaciones } from "../api/auth.js"
 
 // Función para generar un color basado en el texto
 const stringToColor = (str) => {
@@ -28,24 +29,19 @@ const stringToColor = (str) => {
 const ProductImage = ({ src, alt, className, productName }) => {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
-  
 
-  // Función para manejar errores de carga
   const handleError = () => {
     console.error(`Error al cargar la imagen: ${src}`)
     setError(true)
     setLoading(false)
   }
 
-  // Función para manejar carga exitosa
   const handleLoad = () => {
     console.log(`Imagen cargada exitosamente: ${src}`)
     setLoading(false)
   }
 
-  // Si hay error o no hay src, mostrar imagen basada en texto
   if (error || !src) {
-    // Obtener las iniciales del texto (máximo 2 caracteres)
     const getInitials = (text) => {
       if (!text) return "?"
       const words = text.split(" ")
@@ -54,10 +50,8 @@ const ProductImage = ({ src, alt, className, productName }) => {
       }
       return (words[0][0] + words[1][0]).toUpperCase()
     }
-
     const initials = getInitials(productName || alt)
     const bgColor = stringToColor(productName || alt || "default")
-
     return (
       <div className={`${className} flex items-center justify-center`} style={{ backgroundColor: bgColor }}>
         <span className="text-white text-2xl font-bold">{initials}</span>
@@ -65,7 +59,6 @@ const ProductImage = ({ src, alt, className, productName }) => {
     )
   }
 
-  // Si hay src y no hay error, mostrar la imagen
   return (
     <div
       className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden relative`}
@@ -87,59 +80,129 @@ const ProductImage = ({ src, alt, className, productName }) => {
   )
 }
 
+// Componente para mostrar recomendaciones
+const RecommendationsSection = ({ recomendaciones, loadingRecommendations, errorRecommendations, onProductClick }) => {
+  if (loadingRecommendations) {
+    return (
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Cargando recomendaciones...</h3>
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (errorRecommendations) {
+    return (
+      <div className="mt-8">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 px-4 py-3 rounded-lg">
+          <p className="text-sm">No se pudieron cargar las recomendaciones en este momento.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!recomendaciones || recomendaciones.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="mt-8">
+      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+        <i className="fas fa-star text-orange-500 mr-2"></i>
+        También te podría interesar:
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {recomendaciones.map((prod, index) => (
+          <div
+            key={prod.ID_Producto || index}
+            className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-105"
+            onClick={() => onProductClick(prod)}
+          >
+            <div className="relative mb-3">
+              <ProductImage
+                src={prod.Imagen}
+                alt={prod.Nombre}
+                productName={prod.Nombre}
+                className="w-full h-32 rounded-lg"
+              />
+              {prod.TieneTamanos && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  <i className="fas fa-ruler-combined mr-1"></i>
+                  Tamaños
+                </span>
+              )}
+            </div>
+            <h4 className="font-bold text-gray-800 dark:text-white text-sm mb-1 line-clamp-1">{prod.Nombre}</h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">{prod.Descripcion}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-orange-600 font-bold text-sm">
+                {prod.TieneTamanos
+                  ? "Precio variable"
+                  : prod.Precio && Number.parseFloat(prod.Precio) > 0
+                    ? `$${Number.parseFloat(prod.Precio).toFixed(2)}`
+                    : "Consultar precio"}
+              </span>
+              <button className="text-orange-500 hover:text-orange-600 text-sm font-medium">Ver más →</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const MenuPage = () => {
   const [filteredMenu, setFilteredMenu] = useState({})
   const [allProducts, setAllProducts] = useState([])
   const [categories, setCategories] = useState([])
-  const [sizes, setSizes] = useState([]) // Estado para almacenar todos los tamaños
+  const [sizes, setSizes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [query, setQuery] = useState("")
   const [showFilters, setShowFilters] = useState(false)
-   const [showCart, setShowCart] = useState(false);
+  const [showCart, setShowCart] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  const [selectedSize, setSelectedSize] = useState(null) // Estado para el tamaño seleccionado
+  const [selectedSize, setSelectedSize] = useState(null)
   const [selectedComplements, setSelectedComplements] = useState([])
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [minPrice, setMinPrice] = useState("")
   const [maxPrice, setMaxPrice] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
-  const { cartCount } = useCart();
+
+  // Estados para recomendaciones
+  const [recomendaciones, setRecomendaciones] = useState([])
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false)
+  const [errorRecommendations, setErrorRecommendations] = useState(null)
+
+  const { cartCount } = useCart()
   const { isDarkMode, toggleTheme } = useTheme()
   const navigate = useNavigate()
-  const { user } = useContext(AuthContext);
-  const { addToCart } = useCart();
- 
-   
-
-
+  const { user } = useContext(AuthContext)
+  const { addToCart } = useCart()
 
   // Cargar productos, categorías y tamaños desde la base de datos
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-
-        // Obtener categorías
         const categoriesResponse = await getCategorias()
         setCategories(categoriesResponse.data)
 
-        // Obtener productos
         const productsResponse = await getProductosRequest()
         const products = productsResponse.data
 
-        // Obtener tamaños
         const sizesResponse = await getTamanosRequest()
         setSizes(sizesResponse.data)
+
         console.log("Tamaños disponibles:", sizesResponse.data)
 
-        // Depuración: mostrar la estructura completa de un producto
         if (products && products.length > 0) {
           console.log("Estructura completa de un producto:", products[0])
         }
 
-        // Depuración: mostrar las URLs de las imágenes
         console.log(
           "Productos con imágenes:",
           products.map((p) => ({
@@ -150,13 +213,9 @@ const MenuPage = () => {
           })),
         )
 
-        // Guardar todos los productos para filtrado posterior
         setAllProducts(products)
-
-        // Agrupar productos por categoría
         const groupedProducts = groupProductsByCategory(products, categoriesResponse.data)
         setFilteredMenu(groupedProducts)
-
         setLoading(false)
       } catch (error) {
         console.error("Error al cargar datos:", error)
@@ -164,43 +223,66 @@ const MenuPage = () => {
         setLoading(false)
       }
     }
-
     fetchData()
   }, [])
 
+  // Cargar recomendaciones al seleccionar un producto
+  useEffect(() => {
+    if (selectedItem) {
+      const loadRecommendations = async () => {
+        try {
+          setLoadingRecommendations(true)
+          setErrorRecommendations(null)
+
+          // Usar exactamente tu función obtenerRecomendaciones
+          const data = await obtenerRecomendaciones(selectedItem.name)
+
+          // Usar directamente los datos que retorna tu API
+          setRecomendaciones(data || [])
+        } catch (error) {
+          console.error("Error al cargar recomendaciones:", error)
+          setErrorRecommendations("No se pudieron cargar las recomendaciones")
+          setRecomendaciones([])
+        } finally {
+          setLoadingRecommendations(false)
+        }
+      }
+
+      loadRecommendations()
+    } else {
+      // Limpiar recomendaciones cuando no hay producto seleccionado
+      setRecomendaciones([])
+      setLoadingRecommendations(false)
+      setErrorRecommendations(null)
+    }
+  }, [selectedItem])
+
   // Función para agrupar productos por categoría
   const groupProductsByCategory = (products, categories) => {
-    // Crear un objeto para almacenar productos por categoría
     const grouped = {}
 
-    // Inicializar todas las categorías con arrays vacíos
     categories.forEach((category) => {
       grouped[category.Nombre] = []
     })
 
-    // Agrupar productos por su categoría
     products.forEach((product) => {
-      // Solo incluir productos disponibles
       if (product.Disponible) {
         const category = categories.find((cat) => cat.ID_Categoria === product.ID_Categoria)
         if (category) {
-          // Transformar el producto al formato esperado por la UI
           const formattedProduct = {
             id: product.ID_Producto,
             name: product.Nombre,
             description: product.Descripcion,
             price: product.Precio || 0,
-            image: product.Imagen, // Usar el campo correcto
+            image: product.Imagen,
             hasSizes: product.TieneTamanos,
             categoryId: product.ID_Categoria,
           }
-
           grouped[category.Nombre].push(formattedProduct)
         }
       }
     })
 
-    // Eliminar categorías vacías
     Object.keys(grouped).forEach((key) => {
       if (grouped[key].length === 0) {
         delete grouped[key]
@@ -212,10 +294,7 @@ const MenuPage = () => {
 
   // Función para obtener los tamaños disponibles para un producto
   const getProductSizes = (productId) => {
-    // Filtrar los tamaños que corresponden al producto seleccionado
     const productSizes = sizes.filter((size) => size.ID_Producto === productId)
-
-    // Asegurar que los precios sean positivos y estén formateados correctamente
     return productSizes.map((size) => ({
       ...size,
       Precio: Math.abs(Number.parseFloat(size.Precio || 0)),
@@ -223,10 +302,8 @@ const MenuPage = () => {
   }
 
   const handleSearch = () => {
-    // Filtrar productos según los criterios de búsqueda
     let filteredProducts = [...allProducts].filter((product) => product.Disponible)
 
-    // Filtrar por texto de búsqueda
     if (query.trim()) {
       filteredProducts = filteredProducts.filter(
         (product) =>
@@ -235,47 +312,39 @@ const MenuPage = () => {
       )
     }
 
-    // Filtrar por precio mínimo
     if (minPrice) {
       filteredProducts = filteredProducts.filter((product) => product.Precio >= Number(minPrice))
     }
 
-    // Filtrar por precio máximo
     if (maxPrice) {
       filteredProducts = filteredProducts.filter((product) => product.Precio <= Number(maxPrice))
     }
 
-    // Filtrar por categoría
     if (selectedCategory) {
       filteredProducts = filteredProducts.filter((product) => product.ID_Categoria === Number(selectedCategory))
     }
 
-    // Formatear los productos filtrados para la UI
     const formattedProducts = filteredProducts.map((product) => ({
       id: product.ID_Producto,
       name: product.Nombre,
       description: product.Descripcion,
       price: product.Precio || 0,
-      image: product.Imagen, // Usar el campo correcto
+      image: product.Imagen,
       hasSizes: product.TieneTamanos,
       categoryId: product.ID_Categoria,
     }))
 
-    // Mostrar resultados en una sola categoría
     setFilteredMenu({ Resultados: formattedProducts })
   }
 
   const handleOpenModal = (item, category) => {
     setSelectedItem({ ...item, category })
-    setSelectedSize(null) // Resetear el tamaño seleccionado
+    setSelectedSize(null)
     setSelectedComplements([])
 
-    // Si el producto tiene tamaños, cargar los tamaños disponibles
     if (item.hasSizes) {
       const productSizes = getProductSizes(item.id)
       console.log("Tamaños para el producto:", productSizes)
-
-      // Si hay tamaños disponibles, seleccionar el primero por defecto
       if (productSizes.length > 0) {
         setSelectedSize(productSizes[0])
       }
@@ -285,15 +354,16 @@ const MenuPage = () => {
   const handleCloseModal = () => {
     setSelectedItem(null)
     setSelectedSize(null)
+    setRecomendaciones([])
+    setLoadingRecommendations(false)
+    setErrorRecommendations(null)
   }
 
   const handleOpenMaps = () => {
     navigate("/ubicacion")
   }
 
-  // Función para manejar la selección de tamaño
   const handleSizeSelect = (size) => {
-    // Asegurar que el precio sea positivo
     const updatedSize = {
       ...size,
       Precio: Math.abs(Number.parseFloat(size.Precio || 0)),
@@ -301,11 +371,30 @@ const MenuPage = () => {
     setSelectedSize(updatedSize)
   }
 
+  const handleRecommendationClick = (recommendedProduct) => {
+    // Convertir el producto recomendado al formato esperado por el modal
+    const formattedProduct = {
+      id: recommendedProduct.ID_Producto,
+      name: recommendedProduct.Nombre,
+      description: recommendedProduct.Descripcion,
+      price: recommendedProduct.Precio || 0,
+      image: recommendedProduct.Imagen,
+      hasSizes: recommendedProduct.TieneTamanos,
+      categoryId: recommendedProduct.ID_Categoria,
+    }
+
+    // Encontrar la categoría del producto recomendado
+    const category = categories.find((cat) => cat.ID_Categoria === recommendedProduct.ID_Categoria)
+    const categoryName = category ? category.Nombre : "Productos"
+
+    // Abrir modal con el producto recomendado
+    handleOpenModal(formattedProduct, categoryName)
+  }
+
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white min-h-screen">
       {/* HEADER */}
       <header className="flex flex-col shadow-md text-gray-950 bg-gray-950 dark:bg-gray-800 relative">
-        {/* Barra principal del header */}
         <div className="flex flex-wrap justify-between items-center p-4 mt-4">
           <div className="flex items-center space-x-4">
             <button className="text-white text-2xl" onClick={() => navigate("/")}>
@@ -326,7 +415,6 @@ const MenuPage = () => {
             </div>
           </div>
 
-          {/* Barra de búsqueda */}
           <div className="w-full md:flex-1 mx-0 md:mx-6 my-4 md:my-0 flex items-center space-x-2">
             <input
               type="text"
@@ -346,7 +434,6 @@ const MenuPage = () => {
             </button>
           </div>
 
-          {/* Iconos de ingreso, carrito y modo oscuro */}
           <div className="flex items-center space-x-6 text-white">
             <button
               onClick={toggleTheme}
@@ -359,10 +446,7 @@ const MenuPage = () => {
               <span className="ml-2">Ingreso</span>
             </div>
             <div className="relative">
-              <i 
-                className="fas fa-shopping-cart text-xl cursor-pointer" 
-                onClick={() => setShowCart(true)}
-              ></i>
+              <i className="fas fa-shopping-cart text-xl cursor-pointer" onClick={() => setShowCart(true)}></i>
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartCount}
@@ -373,7 +457,7 @@ const MenuPage = () => {
         </div>
       </header>
 
-       <Breadcrumbs />
+      <Breadcrumbs />
 
       {/* Filtros Avanzados */}
       {showFilters && (
@@ -420,14 +504,12 @@ const MenuPage = () => {
       <div className="p-6">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center">Menú del Restaurante</h1>
 
-        {/* Mostrar mensaje de carga */}
         {loading && (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
           </div>
         )}
 
-        {/* Mostrar mensaje de error */}
         {error && (
           <div className="bg-red border border-red text-white px-4 py-3 rounded relative" role="alert">
             <strong className="font-bold">Error: </strong>
@@ -435,14 +517,12 @@ const MenuPage = () => {
           </div>
         )}
 
-        {/* Mostrar mensaje si no hay resultados */}
         {!loading && !error && Object.keys(filteredMenu).length === 0 && (
           <div className="text-center py-10">
             <p className="text-gray-500 dark:text-gray-400 text-lg">No se encontraron productos disponibles.</p>
           </div>
         )}
 
-        {/* Mostrar menú */}
         {!loading &&
           !error &&
           Object.keys(filteredMenu).map((category) => (
@@ -487,31 +567,36 @@ const MenuPage = () => {
             </div>
           ))}
       </div>
-           {/* Vista previa del carrito */}
+
       <CartPreview isOpen={showCart} onClose={() => setShowCart(false)} />
 
       {/* MODAL DE PLATILLO */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-10 relative w-120 max-w-xl mx-4">
-            <button className="absolute top-2 right-2 text-gray-500 dark:text-gray-300" onClick={handleCloseModal}>
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 relative w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <button
+              className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 text-xl"
+              onClick={handleCloseModal}
+            >
               ✖
             </button>
-            <h3 className="text-lg font-semibold text-orange-500">{selectedItem.category}</h3>
-            <div className="relative">
+
+            <h3 className="text-lg font-semibold text-orange-500 mb-2">{selectedItem.category}</h3>
+
+            <div className="relative mb-4">
               <ProductImage
                 src={selectedItem.image}
                 alt={selectedItem.name}
                 productName={selectedItem.name}
-                className="w-full h-48 rounded-lg mb-4 relative"
+                className="w-full h-48 rounded-lg"
               />
             </div>
-            <h2 className="text-2xl font-bold">{selectedItem.name}</h2>
-            <p className="text-gray-500 dark:text-gray-400">{selectedItem.description}</p>
 
-            {/* Mostrar precio o selector de tamaños */}
+            <h2 className="text-2xl font-bold mb-2">{selectedItem.name}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">{selectedItem.description}</p>
+
             {selectedItem.hasSizes ? (
-              <div className="mt-4">
+              <div className="mb-6">
                 <h3 className="font-semibold mb-2 text-gray-700 dark:text-gray-300">Selecciona un tamaño:</h3>
                 <div className="flex flex-wrap gap-3 mb-4">
                   {getProductSizes(selectedItem.id).map((size) => (
@@ -540,7 +625,7 @@ const MenuPage = () => {
                 )}
               </div>
             ) : (
-              <div className="mt-4 mb-4">
+              <div className="mb-6">
                 <p className="text-orange-600 font-bold text-xl bg-orange-50 dark:bg-gray-700 p-3 rounded-lg border border-orange-100 dark:border-gray-600">
                   {selectedItem.price && Number.parseFloat(selectedItem.price) > 0
                     ? `$${Number.parseFloat(selectedItem.price).toFixed(2)}`
@@ -550,7 +635,7 @@ const MenuPage = () => {
             )}
 
             {/* Botones */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
               <button
                 className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center ${
                   selectedItem.hasSizes && !selectedSize
@@ -564,48 +649,44 @@ const MenuPage = () => {
                     quantity: 1,
                     selectedSize,
                     selectedComplements,
-                  });
-                  handleCloseModal(); // Cierra el modal tras agregar
+                  })
+                  handleCloseModal()
                 }}
               >
                 <i className="fas fa-cart-plus mr-2"></i>
                 Agregar y Seguir
               </button>
 
-          <button
-              className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center ${
-                selectedItem.hasSizes && !selectedSize
-                  ? "bg-orange-300 text-orange-100 cursor-not-allowed"
-                  : "bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg"
-              }`}
-              disabled={selectedItem.hasSizes && !selectedSize}
-              onClick={() => {
-                // Agrega al carrito
-                addToCart({
-                  ...selectedItem,
-                  quantity: 1,
-                  selectedSize,
-                  selectedComplements,
-                });
+              <button
+                className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all duration-300 flex items-center justify-center ${
+                  selectedItem.hasSizes && !selectedSize
+                    ? "bg-orange-300 text-orange-100 cursor-not-allowed"
+                    : "bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg"
+                }`}
+                disabled={selectedItem.hasSizes && !selectedSize}
+                onClick={() => {
+                  addToCart({
+                    ...selectedItem,
+                    quantity: 1,
+                    selectedSize,
+                    selectedComplements,
+                  })
 
-                // Si no está logueado, muestra el modal de autenticación
-                if (!user) {
-                  setShowAuthModal(true);
-                  return;
-                }
+                  if (!user) {
+                    setShowAuthModal(true)
+                    return
+                  }
 
-                // Si está logueado, redirige al checkout
-                navigate("/checkout");
-              }}
-            >
-              <i className="fas fa-shopping-cart mr-2"></i>
-              Realizar el pedido
-            </button>
+                  navigate("/checkout")
+                }}
+              >
+                <i className="fas fa-shopping-cart mr-2"></i>
+                Realizar el pedido
+              </button>
             </div>
 
-            {/* Mensaje si no hay tamaños disponibles */}
             {selectedItem.hasSizes && getProductSizes(selectedItem.id).length === 0 && (
-              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg flex items-start">
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg flex items-start">
                 <i className="fas fa-exclamation-triangle mr-3 mt-1 text-yellow-500"></i>
                 <div>
                   <p className="font-medium">No hay tamaños disponibles</p>
@@ -616,16 +697,23 @@ const MenuPage = () => {
                 </div>
               </div>
             )}
+
+            {/* Recomendaciones */}
+            <RecommendationsSection
+              recomendaciones={recomendaciones}
+              loadingRecommendations={loadingRecommendations}
+              errorRecommendations={errorRecommendations}
+              onProductClick={handleRecommendationClick}
+            />
           </div>
         </div>
       )}
 
-      {/* MODAL DE AUTENTICACIÓN */}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+
       <Footer />
-      </div>
+    </div>
   )
 }
 
 export default MenuPage
-
