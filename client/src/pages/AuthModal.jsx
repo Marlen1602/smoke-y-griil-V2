@@ -51,19 +51,7 @@ const AuthModal = ({ onClose, redirectTo = "/" }) => {
           Registrarme
         </button>
 
-        <button
-          className="bg-blue-600 text-white w-full md:w-80 h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-blue-700 transition"
-        >
-          <i className="fab fa-google mr-2"></i> Continuar con Google
-        </button>
-
-        <button
-          className="bg-blue-900 text-white w-full md:w-80 h-12 py-3 rounded-full flex items-center justify-center mb-3 hover:bg-blue-800 transition"
-        >
-          <i className="fab fa-facebook-f mr-2"></i> Continuar con Facebook
-        </button>
-
-        <button
+          <button
           onClick={handleLoginClick}
           className={`w-full md:w-80 h-12 py-3 border rounded-full font-bold transition ${
             isDarkMode
