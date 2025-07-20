@@ -19,6 +19,7 @@ import preguntas from "./routes/preguntasecreta.js";
 import logRoutes from "./routes/log.routes.js";
 import pedidos from "./routes/pedido.routes.js";
 import reportes from "./routes/reportes.routes.js"
+import recomendaciones from "./routes/recomendaciones.routes.js";
 
 const app=express();
 
@@ -73,6 +74,7 @@ app.use("/api",preguntas);
 app.use("/api", logRoutes);
 app.use("/api",pedidos);
 app.use("/api",reportes);
+app.use("/api", recomendaciones);
 
 // Manejo centralizado de errores
 app.use((err, req, res, next) => {
