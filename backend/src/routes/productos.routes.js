@@ -18,7 +18,7 @@ const upload = multer({ storage });
 router.get("/productos",getProductos);
 
 //  Obtener un producto por ID
-router.get("/productos/:id",authRequired, adminRequired, getProductoById);
+router.get("/productos/:id",authRequired, getProductoById);
 
 //  Crear un nuevo producto y subir imagen en la misma solicitud
 router.post("/productos", authRequired, adminRequired,upload.single("imagen"), createProducto);
