@@ -647,7 +647,7 @@ export default function PrediccionesPage() {
               Predicción de Carne
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Calcula automáticamente la cantidad de carne necesaria
+              Ingrese las cantidades de platillos para predecir la cantidad de carne necesaria.
             </p>
           </div>
 

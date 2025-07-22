@@ -849,7 +849,7 @@ const MenuClient = () => {
                     disabled={selectedItem.hasSizes && !selectedSize}
                   >
                     <ShoppingBag className="h-5 w-5 mr-2" />
-                    Comprar ahora
+                    Realizar pedido
                   </button>
                 </div>
               </div>
