@@ -49,7 +49,7 @@ app.use(cookieParser());
 
 
 app.use(cors({
-    origin: ["http://localhost:5173", "https://smoke-and-grill.com/"],
+    origin: ["http://localhost:5173", "https://smoke-and-grill.com"],
     //https://slategray-butterfly-754330.hostingersite.com
     credentials: true, // Permitir cookies
 }));
