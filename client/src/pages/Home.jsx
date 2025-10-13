@@ -15,7 +15,7 @@ const Home = () => {
   const [preguntas, setPreguntas] = useState([]);
   const [images, setImages] = useState([]);
 
-   // 🔹 Función para obtener preguntas desde la API
+   // Función para obtener preguntas desde la API
    const fetchPreguntas = async () => {
     try {
       const response = await getPreguntasRequest(); // Llamamos a la función desde api.jsx
@@ -60,7 +60,7 @@ const Home = () => {
     }
   }, []);
 
-  // 🔄 Cambiar imagen cada 3 segundos
+  //  Cambiar imagen cada 3 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -80,7 +80,7 @@ const Home = () => {
       {/* Sección principal */}
       <main className="flex flex-col md:flex-row items-center justify-center p-6 md:p-2 space-y-8 md:space-y-0">
         
- {/* 🔥 Carrusel de imágenes */}
+ {/*  Carrusel de imágenes */}
  <section className="max-w-5xl py-0 px-8 relative">
         {imagesLoaded && images.length > 0 ? (
          <div className="relative w-full max-w-[700px] aspect-video mx-auto overflow-hidden rounded-lg shadow-lg">

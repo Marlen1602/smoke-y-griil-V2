@@ -91,6 +91,7 @@ model productos {
   categorias       categorias?        @relation(fields: [ID_Categoria], references: [ID_Categoria], onUpdate: Restrict, map: "productos_ibfk_1")
   promociones      promociones?
   tamanosproductos tamanosproductos[]
+  detalle_cuenta   detalle_cuenta[] 
 
   @@index([ID_Categoria], map: "ID_Categoria")
 }
@@ -177,9 +178,11 @@ model pedidos {
   total           Float
   fecha           DateTime         @default(now())
   direccionEnvio  String?
+  tipoCuenta      String?          // <-- Nueva propiedad ("unica" o "separada")
   clienteEmail    String?          @db.VarChar(255)
   clienteNombre   String?          @db.VarChar(255)
   clienteTelefono String?          @db.VarChar(20)
+  cuentas         cuentas_separadas[] // <-- Relación
   detalle_pedido  detalle_pedido[]
   usuario         users            @relation(fields: [usuarioId], references: [id])
 
@@ -191,6 +194,7 @@ model detalle_pedido {
   pedidoId   Int
   productoId Int
   cantidad   Int
+  nota       String?
   pedidos    pedidos   @relation(fields: [pedidoId], references: [id], map: "Detalle_Pedido_pedidoId_fkey")
   productos  productos @relation(fields: [productoId], references: [ID_Producto], map: "Detalle_Pedido_productoId_fkey")
 
@@ -207,3 +211,22 @@ enum promociones_Dia_Semana {
   S_bado    @map("Sábado")
   Domingo
 }
+
+model cuentas_separadas {
+  id           Int              @id @default(autoincrement())
+  numeroCuenta Int              // Ej: 1, 2, 3...
+  pedidoId     Int
+  pedido       pedidos           @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productos    detalle_cuenta[]  // Relación con los productos de esta cuenta
+}
+
+model detalle_cuenta {
+  id          Int               @id @default(autoincrement())
+  cuentaId    Int
+  cuenta      cuentas_separadas  @relation(fields: [cuentaId], references: [id], onDelete: Cascade)
+  productoId  Int
+  productos   productos          @relation(fields: [productoId], references: [ID_Producto], onDelete: Cascade)
+  cantidad    Int
+  nota        String?            // Nueva columna para notas personalizadas
+}
+

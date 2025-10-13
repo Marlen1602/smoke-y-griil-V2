@@ -5,7 +5,8 @@ import {
   actualizarEstadoPedido,
   obtenerTodosLosProductos,
   obtenerPedidosUsuario,
-  obtenerPedidosPorUsername
+  obtenerPedidosPorUsername,
+  agregarProductosPedido
 } from '../controllers/pedido.controller.js';
 
 const router = express.Router();
@@ -19,4 +20,5 @@ router.put('/pedidos/:id/estado', actualizarEstadoPedido);
 router.get('/productos-debug', obtenerTodosLosProductos);
 router.get('/pedidos/usuario/:usuarioId',obtenerPedidosUsuario);
 router.get("/pedido/:username", obtenerPedidosPorUsername);
+router.post('/pedidos/agregar-productos', agregarProductosPedido); 
 export default router;

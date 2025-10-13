@@ -1,22 +1,19 @@
 import prisma from "../db.js"
 
 export const registrarPedido = async (req, res) => {
-  const { usuarioId, productos, total, direccionEnvio, datosUsuario } = req.body
+  const { usuarioId, productos, total, direccionEnvio, datosUsuario ,tipoCuenta, cuentas } = req.body
 
   console.log("=== PEDIDO CONTROLLER DEBUG ===")
   console.log("usuarioId:", usuarioId)
+  console.log("tipoCuenta:", tipoCuenta);
   console.log("direccionEnvio:", direccionEnvio)
   console.log("productos recibidos:", productos)
   console.log("total:", total)
   console.log("datosUsuario:", datosUsuario)
+  console.log("cuentas:", cuentas);
 
   try {
-    // Validar que se proporcionaron productos
-    if (!productos || productos.length === 0) {
-      return res.status(400).json({ message: "No se proporcionaron productos" })
-    }
-
-    // Validar que el usuario existe
+     // Validar que el usuario existe
     const usuarioExiste = await prisma.users.findUnique({
       where: { id: usuarioId },
     })
@@ -25,51 +22,69 @@ export const registrarPedido = async (req, res) => {
       console.log("Usuario no encontrado:", usuarioId)
       return res.status(400).json({ message: "Usuario no encontrado" })
     }
-
-    // NO ACTUALIZAR la tabla users - en su lugar guardar en el pedido
-    console.log("Guardando información del cliente específica para este pedido")
-
-    // Obtener todos los IDs de productos que se están intentando agregar
-    const productosIds = productos.map((p) => p.id)
-    console.log("IDs de productos a validar:", productosIds)
-
-    // Verificar que todos los productos existen en la base de datos
-    const productosExistentes = await prisma.productos.findMany({
-      where: {
-        ID_Producto: {
-          in: productosIds,
+    let pedido;
+    // Pedido con cuentas separadas
+    if (tipoCuenta === "separada" && cuentas?.length > 0) {
+      pedido = await prisma.pedidos.create({
+        data: {
+          usuarioId,
+          tipoCuenta,
+          total,
+          direccionEnvio,
+          clienteNombre: datosUsuario?.name || usuarioExiste.nombre,
+          clienteEmail: datosUsuario?.email || usuarioExiste.email,
+          clienteTelefono: datosUsuario?.phone || null,
+          estado: "En preparación",
+          cuentas: {
+            create: cuentas.map((c) => ({
+              numeroCuenta: c.numeroCuenta,
+              productos: {
+                create: c.productos.map((p) => ({
+                  productoId: p.productoId,
+                  cantidad: p.cantidad,
+                  nota: p.nota || null, // ✅ Guarda nota ("sin cebolla", etc.)
+                })),
+              },
+            })),
+          },
         },
-      },
-    })
+        include: {
+          cuentas: { include: { productos: true } },
+        },
+      });
 
-    console.log(
-      "Productos encontrados en BD:",
-      productosExistentes.map((p) => ({ ID_Producto: p.ID_Producto, Nombre: p.Nombre })),
-    )
-
-    // Verificar si algún producto no existe
-    const productosExistentesIds = productosExistentes.map((p) => p.ID_Producto)
-    const productosNoEncontrados = productosIds.filter((id) => !productosExistentesIds.includes(id))
-
-    if (productosNoEncontrados.length > 0) {
-      console.log("Productos NO encontrados:", productosNoEncontrados)
-      return res.status(400).json({
-        message: "Algunos productos no existen en la base de datos",
-        productosNoEncontrados: productosNoEncontrados,
-        productosDisponibles: productosExistentes.map((p) => ({
-          ID_Producto: p.ID_Producto,
-          Nombre: p.Nombre,
-        })),
-      })
+      console.log("Pedido con cuentas separadas creado:", pedido.id);
+      return res.status(201).json(pedido);
     }
 
-    // Crear el pedido con información específica del cliente para este pedido
-    const pedido = await prisma.pedidos.create({
+    //  Pedido normal (una sola cuenta)
+    if (!productos || productos.length === 0) {
+      return res.status(400).json({ message: "No se proporcionaron productos" });
+    }
+
+    // Validar productos existentes
+    const productosIds = productos.map((p) => p.id);
+    const productosExistentes = await prisma.productos.findMany({
+      where: { ID_Producto: { in: productosIds } },
+    });
+
+    const productosExistentesIds = productosExistentes.map((p) => p.ID_Producto);
+    const productosNoEncontrados = productosIds.filter((id) => !productosExistentesIds.includes(id));
+
+    if (productosNoEncontrados.length > 0) {
+      return res.status(400).json({
+        message: "Algunos productos no existen en la base de datos",
+        productosNoEncontrados,
+      });
+    }
+
+    // Crear pedido normal
+    pedido = await prisma.pedidos.create({
       data: {
         usuarioId,
+        tipoCuenta: "unica",
         total,
         direccionEnvio,
-        // Guardar información específica del cliente para este pedido
         clienteNombre: datosUsuario?.name || usuarioExiste.nombre,
         clienteEmail: datosUsuario?.email || usuarioExiste.email,
         clienteTelefono: datosUsuario?.phone || null,
@@ -78,26 +93,23 @@ export const registrarPedido = async (req, res) => {
           create: productos.map((p) => ({
             productoId: p.id,
             cantidad: p.cantidad,
+            nota: p.nota || null, // ✅ Guarda nota en pedido normal
           })),
         },
       },
       include: {
-        detalle_pedido: {
-          include: {
-            productos: true,
-          },
-        },
+        detalle_pedido: { include: { productos: true } },
         usuario: true,
       },
-    })
+    });
 
-    console.log("Pedido creado exitosamente:", pedido.id)
-    res.status(201).json(pedido)
+    console.log("Pedido normal creado exitosamente:", pedido.id);
+    res.status(201).json(pedido);
   } catch (error) {
-    console.error("Error al registrar el pedido:", error)
-    res.status(500).json({ message: "Error al registrar el pedido", error: error.message })
+    console.error("Error al registrar el pedido:", error);
+    res.status(500).json({ message: "Error al registrar el pedido", error: error.message });
   }
-}
+};
 
 export const obtenerPedidos = async (req, res) => {
   try {
@@ -107,6 +119,15 @@ export const obtenerPedidos = async (req, res) => {
         detalle_pedido: {
           include: {
             productos: true,
+          },
+        },
+        cuentas: { 
+          include: {
+            productos: { 
+              include: {
+                productos: true, 
+               },
+            },
           },
         },
       },
@@ -299,3 +320,73 @@ export const obtenerPedidosPorUsername = async (req, res) => {
     })
   }
 }
+
+//Función para agregar productos a un pedido existente
+export const agregarProductosPedido = async (req, res) => {
+  const { pedidoId, productos, cuentaId } = req.body;
+
+  console.log("=== AGREGAR PRODUCTOS AL PEDIDO ===");
+  console.log("pedidoId:", pedidoId);
+  console.log("cuentaId:", cuentaId);
+  console.log("productos:", productos);
+
+  try {
+    // 1️⃣ Verificar que el pedido existe
+    const pedido = await prisma.pedidos.findUnique({
+      where: { id: Number(pedidoId) },
+      include: { cuentas: true },
+    });
+
+    if (!pedido) {
+      return res.status(404).json({ message: "Pedido no encontrado" });
+    }
+
+    // 2️⃣ Validar que haya productos
+    if (!productos || productos.length === 0) {
+      return res.status(400).json({ message: "No se enviaron productos para agregar" });
+    }
+
+    // 3️⃣ Si el pedido tiene cuentas separadas
+    if (pedido.tipoCuenta === "separada") {
+      // Verificar que la cuenta exista
+      const cuenta = pedido.cuentas.find((c) => c.id === Number(cuentaId));
+      if (!cuenta) {
+        return res.status(404).json({ message: "Cuenta separada no encontrada" });
+      }
+
+      // Agregar los productos a esa cuenta
+      const nuevosProductos = await prisma.detalle_cuenta.createMany({
+        data: productos.map((p) => ({
+          cuentaId: Number(cuentaId),
+          productoId: p.productoId,
+          cantidad: p.cantidad,
+          nota: p.nota || null,
+        })),
+      });
+
+      return res.status(201).json({
+        message: `✅ Se agregaron ${nuevosProductos.count} productos a la cuenta ${cuenta.numeroCuenta}`,
+      });
+    }
+
+    // 4️⃣ Si el pedido es de una sola cuenta (normal)
+    const nuevosProductos = await prisma.detalle_pedido.createMany({
+      data: productos.map((p) => ({
+        pedidoId: Number(pedidoId),
+        productoId: p.productoId,
+        cantidad: p.cantidad,
+        nota: p.nota || null,
+      })),
+    });
+
+    res.status(201).json({
+      message: `✅ Se agregaron ${nuevosProductos.count} productos al pedido`,
+    });
+  } catch (error) {
+    console.error("Error al agregar productos al pedido:", error);
+    res.status(500).json({
+      message: "Error al agregar productos al pedido",
+      error: error.message,
+    });
+  }
+};

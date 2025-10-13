@@ -287,7 +287,6 @@ export const updateTelefono = async (req, res) => {
   }
 }
 
-
 // Función para cambiar contraseña desde el perfil (nueva función)
 export const changePassword = async (req, res) => {
   try {

@@ -1,0 +1,21 @@
+{
+  "short_name": "Restaurante",
+  "name": "Restaurante Smoke & Grill",
+  "icons": [
+    {
+      "src": "/client/src/assets/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/client/src/assets/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#2563eb"
+}
