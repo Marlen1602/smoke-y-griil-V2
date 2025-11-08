@@ -8,3 +8,7 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+// Registro del Service Worker para PWA
+import { registerSW } from 'virtual:pwa-register'
+registerSW({ onNeedRefresh() {}, onOfflineReady() {} })

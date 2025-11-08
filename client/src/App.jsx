@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react"
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/registerPage";
 import VerifyCodePage from "./pages/VerifyCodePage";
@@ -40,7 +41,18 @@ import PageEmpleado from "./pages/PageEmpleado";
 import Pedidos from "./pages/Pedidos";
 import Reservacion from "./pages/Reservaciones"
 import Reportes from "./pages/Reportes"
+import SplashScreen from "./components/SplashScreen"
 function App() {
+  const [showSplash, setShowSplash] = useState(true)
+  useEffect(() => {
+    const t = setTimeout(() => setShowSplash(false), 2000) // 2s splash
+    return () => clearTimeout(t)
+  }, [])
+
+  // Mientras la splash esta activa NO montamos el router para evitar parpadeos
+  if (showSplash) {
+    return <SplashScreen />
+  }
   return (
     <ThemeProvider>
       <SearchProvider>

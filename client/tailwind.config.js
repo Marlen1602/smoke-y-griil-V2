@@ -4,7 +4,7 @@ export default {
   darkMode: "class",
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",  // Asegúrate de incluir todos los archivos que puedan tener clases de Tailwind
+    "./src/**/*.{js,ts,jsx,tsx}",  
   ],
   theme: {
     extend: {

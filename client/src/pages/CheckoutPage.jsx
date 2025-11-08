@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom"
 import { useCart } from "../contex/CartContext"
 import { AuthContext } from "../contex/AuthContext"
 import ClientLayout from "../layouts/ClientLayaut"
+import { saveJSON, loadJSON } from "../helper/storage"
+
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart } = useCart()
@@ -173,6 +175,30 @@ const CheckoutPage = () => {
       alert("Los pagos con tarjeta no están disponibles por el momento. Por favor selecciona 'Efectivo al entregar'.")
       return
     }
+
+    // Si no hay conexion a internet, guardar pedido localmente
+    if (!navigator.onLine) {
+      const pedidoOffline = {
+        usuarioId: user.id,
+        direccionEnvio: formData.address,
+        productos: cartItems.map((item) => ({
+          id: item.id,
+          cantidad: item.quantity,
+        })),
+        total: totalWithTax,
+        datosUsuario: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        },
+        fechaGuardado: new Date().toISOString()
+      }
+
+      saveJSON("pedidoPendiente", pedidoOffline)
+      alert("No hay conexion. Tu pedido se guardo localmente y se enviara al servidor cuando haya internet.")
+      return
+    }
+
 
     setIsSubmitting(true)
 
@@ -710,5 +736,23 @@ const CheckoutPage = () => {
   // Usar el layout de cliente para mantener la sesión y la navegación consistente
   return <ClientLayout>{checkoutContent}</ClientLayout>
 }
+  window.addEventListener("online", async () => {
+    const pedidoPendiente = loadJSON("pedidoPendiente")
+    if (!pedidoPendiente) return
 
+    try {
+      const API_URL = import.meta.env.VITE_API_URL
+      const response = await fetch(`${API_URL}/pedidos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedidoPendiente)
+      })
+      if (response.ok) {
+        localStorage.removeItem("pedidoPendiente")
+        alert("Pedido pendiente sincronizado exitosamente con el servidor.")
+      }
+    } catch (err) {
+      console.error("Error al sincronizar pedido:", err)
+    }
+  })
 export default CheckoutPage
