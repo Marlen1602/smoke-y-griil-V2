@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Phone, MessageCircle, Users, Calendar, Star, Sparkles, Clock } from "lucide-react"
 import { getEmpresaProfile } from "../api/auth"

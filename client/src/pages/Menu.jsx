@@ -406,12 +406,12 @@ const MenuPage = () => {
               className="h-16 md:h-24 w-auto cursor-pointer"
               onClick={() => navigate("/")}
             />
-            <div
-              className="hidden md:flex items-center text-sm text-gray-400 dark:text-gray-300 cursor-pointer"
+           <div
+              className="flex items-center text-white cursor-pointer md:space-x-1"
               onClick={handleOpenMaps}
             >
-              <i className="fas fa-map-marker-alt text-xl text-white"></i>
-              <span className="ml-1 text-white">Ubicación</span>
+              <i className="fas fa-map-marker-alt text-xl"></i>
+              <span className="hidden md:inline">Ubicación</span>
             </div>
           </div>
 

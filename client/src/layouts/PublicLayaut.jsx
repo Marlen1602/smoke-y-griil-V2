@@ -109,9 +109,12 @@ const PrincipalLayout = ({ children, onSearch }) => {
             <img src={logo || "/placeholder.svg"} alt="Logo" className="h-16 md:h-24 w-auto" />
 
             {/* Ubicación con texto blanco */}
-            <div className="hidden md:flex items-center text-white cursor-pointer" onClick={handleOpenMaps}>
+            <div
+              className="flex items-center text-white cursor-pointer md:space-x-1"
+              onClick={handleOpenMaps}
+            >
               <i className="fas fa-map-marker-alt text-xl"></i>
-              <span className="ml-1">Ubicación</span>
+              <span className="hidden md:inline">Ubicación</span>
             </div>
           </div>
 

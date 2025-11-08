@@ -9,9 +9,7 @@ dotenv.config()
 // Obtener URL de la API desde .env o usar fallback
 const API_URL = process.env.VITE_API_URL || 'https://api.smoke-and-grill.com/api'
 
-// ================================
 // CONFIGURACIÓN PRINCIPAL DE SMOKE & GRILL PWA
-// ================================
 
 export default defineConfig({
   plugins: [
@@ -42,7 +40,7 @@ export default defineConfig({
           '**/*.{js,css,html,png,svg,jpg,jpeg,webp,woff2,woff,ttf,json}'
         ],
         runtimeCaching: [
-          // 1️⃣ Páginas principales
+          //Páginas principales
           {
             urlPattern: /^https:\/\/smoke-and-grill\.com\/(menu|carrito|perfil|pedidos|reservaciones|inicioCliente|empresa)/,
             handler: 'NetworkFirst',
@@ -54,7 +52,7 @@ export default defineConfig({
               }
             }
           },
-          // 2️⃣ Imágenes
+          //Imágenes
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|webp)$/i,
             handler: 'CacheFirst',
@@ -66,7 +64,7 @@ export default defineConfig({
               }
             }
           },
-          // 3️⃣ API Backend (usando .env)
+          //API Backend (usando .env)
           {
             urlPattern: new RegExp(API_URL.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')),
             handler: 'NetworkFirst',

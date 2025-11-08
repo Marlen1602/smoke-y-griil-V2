@@ -51,11 +51,11 @@ const Header = ({ onSearch }) => {
 
             {/* Ubicación con texto blanco */}
             <div
-              className="hidden md:flex items-center text-white cursor-pointer"
+              className="flex items-center text-white cursor-pointer md:space-x-1"
               onClick={handleOpenMaps}
             >
               <i className="fas fa-map-marker-alt text-xl"></i>
-              <span className="ml-1">Ubicación</span>
+              <span className="hidden md:inline">Ubicación</span>
             </div>
           </div>
 
